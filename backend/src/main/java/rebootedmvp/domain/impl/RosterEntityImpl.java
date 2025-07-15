@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import rebootedmvp.Course;
 import rebootedmvp.CourseDoesNotExistException;
@@ -22,15 +21,15 @@ import rebootedmvp.dto.NewRosterDTO;
  */
 @Entity
 // @DiscriminatorValue("ROSTER")
-public class RosterImpl extends Roster {
+public class RosterEntityImpl extends Roster {
 
-    public RosterImpl(NewRosterDTO newData) {
+    public RosterEntityImpl(NewRosterDTO newData) {
         allCourses = new HashMap<>();
         this.title = newData.getTitle();
         this.body = newData.getBody();
     }
 
-    public RosterImpl(Long id, String title, String body) {
+    public RosterEntityImpl(Long id, String title, String body) {
         allCourses = new HashMap<>();
         this.id = id;
         this.title = title;
@@ -39,7 +38,7 @@ public class RosterImpl extends Roster {
 
     // ⚠️ Required by JPA — but not usable by normal code
     @Deprecated
-    protected RosterImpl() {
+    protected RosterEntityImpl() {
         // JPA only
     }
 

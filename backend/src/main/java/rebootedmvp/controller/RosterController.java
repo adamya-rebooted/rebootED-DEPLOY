@@ -15,9 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import rebootedmvp.domain.impl.RosterImpl;
+import rebootedmvp.domain.impl.RosterEntityImpl;
 import rebootedmvp.dto.CourseDTO;
-import rebootedmvp.dto.ModuleDTO;
 import rebootedmvp.dto.NewCourseDTO;
 import rebootedmvp.dto.NewRosterDTO;
 import rebootedmvp.service.RosterService;
@@ -31,7 +30,7 @@ public class RosterController {
 
     @PostMapping
     public ResponseEntity<Long> createRoster() {
-        Long rosterId = rosterService.addToHigh(new NewRosterDTO("Main Roster", "Description"), RosterImpl::new);
+        Long rosterId = rosterService.addToHigh(new NewRosterDTO("Main Roster", "Description"), RosterEntityImpl::new);
         return ResponseEntity.ok(rosterId);
     }
 

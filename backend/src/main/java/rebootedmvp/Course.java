@@ -1,7 +1,6 @@
 package rebootedmvp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,8 +9,6 @@ import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -25,8 +22,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import rebootedmvp.domain.impl.ModuleEntityImpl;
-import rebootedmvp.domain.impl.UserProfileImpl;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED) // or JOINED, TABLE_PER_CLASS

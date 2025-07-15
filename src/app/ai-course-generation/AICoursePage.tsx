@@ -23,7 +23,7 @@ export default function AICoursePage() {
   const [error, setError] = useState<string | null>(null);
   const [generatedCourse, setGeneratedCourse] = useState<GeneratedCourse | null>(null);
 
-  const generatedCoursea = {
+  const generatedCourses = {
     course_title: "Web Development for Beginners",
     course_description: "A comprehensive introduction to web development. Learn HTML, CSS, and JavaScript through hands-on projects and build real-world websites from scratch.",
     modules: [
@@ -65,8 +65,8 @@ export default function AICoursePage() {
       }
     ]
   };
-  
-//   const [generatedCourse, setGeneratedCourse] = useState(generatedCoursea); // mock course for styleing is the object above
+
+  //   const [generatedCourse, setGeneratedCourse] = useState(generatedCoursea); // mock course for styleing is the object above
 
 
   const handleGenerateCourse = async () => {
@@ -317,10 +317,10 @@ export default function AICoursePage() {
               borderRadius: '4px'
             }}>
               <h3 style={{ color: '#155724', margin: '0 0 10px 0' }}>
-                📚 {module.name}
+                📚 {module.title}
               </h3>
               <p style={{ color: '#155724', margin: '0 0 10px 0', fontSize: '14px' }}>
-                {module.description}
+                {module.body}
               </p>
               <div style={{ color: '#155724', fontSize: '12px' }}>
                 Content Blocks: {module.contentBlocks.length}
@@ -361,7 +361,7 @@ export default function AICoursePage() {
                       </ul> */}
                       <form>
                         {block.options?.map((option, i) => (
-                          <label key={i} style={{ display: 'flex', marginBottom: '6px', gap: '6px'}}>
+                          <label key={i} style={{ display: 'flex', marginBottom: '6px', gap: '6px' }}>
                             <input
                               type="radio"
                               name={`question-${block.questionText}`} // use a unique name
@@ -378,7 +378,7 @@ export default function AICoursePage() {
                         ))}
                         <Button>Submit</Button>
                       </form>
-                      <div style={{display: 'none'}}><strong>Correct Answer: </strong>{block.correctAnswer}</div>
+                      <div style={{ display: 'none' }}><strong>Correct Answer: </strong>{block.correctAnswer}</div>
                     </div>
                   )}
 

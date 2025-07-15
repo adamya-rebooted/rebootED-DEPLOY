@@ -100,7 +100,7 @@ public abstract class ServiceType<T extends InfoContainer<K>, R extends NewDTO, 
      * @param newData
      * @param constructor - A constructor for the new element. typically will just
      *                    be an implementation of the higher element's constructor
-     *                    (i.e. RosterImpl::new for RosterService)
+     *                    (i.e. RosterEntityImpl::new for RosterService)
      * @return - the id of the created element
      */
     public Long addToHigh(R newData, Function<R, T> constructor) {
