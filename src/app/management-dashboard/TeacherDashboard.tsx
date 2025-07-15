@@ -5,6 +5,7 @@ import Layout from "@/components/content/Layout";
 import CreateCourseDialog, {
   CourseFormData,
 } from "@/components/content/CreateCourseDialog";
+import DeleteCourseDialog from "@/components/content/DeleteCourseDialog";
 import {
   Card,
   CardContent,
@@ -13,7 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import {toast} from "sonner"
 import { useRouter } from "next/navigation";
 import { apiService } from "@/services/api";
@@ -21,6 +22,8 @@ import { Course } from "@/types/backend-api";
 
 const TeacherDashboard: React.FC = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [recentCourses, setRecentCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,6 +74,27 @@ const TeacherDashboard: React.FC = () => {
     });
   };
 
+  const handleDeleteClick = (course: Course) => {
+    setCourseToDelete(course);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async (courseId: number) => {
+    try {
+      await apiService.deleteCourse(courseId);
+      
+      // Remove the deleted course from the state immediately
+      setRecentCourses(prevCourses => prevCourses.filter(course => course.id !== courseId));
+      
+      toast.success("Course Deleted Successfully!", {
+        description: `The course has been permanently deleted.`,
+        duration: 5000,
+      });
+    } catch (err) {
+      console.error('Error deleting course:', err);
+      throw err; // Re-throw to let the dialog handle the error display
+    }
+  };
 
 
   return (
@@ -149,11 +173,7 @@ const TeacherDashboard: React.FC = () => {
         <Card>
           <CardHeader>
             <CardTitle>Course Management Dashboard</CardTitle>
-            <CardDescription>
-              {!isLoading && recentCourses.length > 0 &&
-                "Great start! Continue building your courses by adding modules and content."
-              }
-            </CardDescription>
+            <CardDescription></CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -192,14 +212,24 @@ const TeacherDashboard: React.FC = () => {
                         <span>Modules: {course.moduleCount || 0}</span>
                       </div>
                     </div>
-                    <Button
-                      className="mt-2"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => router.push(`/modify-course?id=${course.id}`)}
-                    >
-                      Edit Course
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        className="mt-2"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/modify-course?id=${course.id}`)}
+                      >
+                        Edit Course
+                      </Button>
+                      <Button
+                        className="mt-2"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteClick(course)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -223,6 +253,14 @@ const TeacherDashboard: React.FC = () => {
           open={isCreateDialogOpen}
           onOpenChange={setIsCreateDialogOpen}
           onCourseCreated={handleCourseCreated}
+        />
+
+        {/* Delete Course Dialog */}
+        <DeleteCourseDialog
+          open={isDeleteDialogOpen}
+          onOpenChange={setIsDeleteDialogOpen}
+          course={courseToDelete}
+          onConfirmDelete={handleConfirmDelete}
         />
       </div>
     </Layout>
