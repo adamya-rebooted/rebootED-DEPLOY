@@ -145,14 +145,15 @@ const TeacherDashboard: React.FC = () => {
           </Card>
         </div> */}
 
-        {/* Recent Courses */}
+        {/* Course Management Dashboard */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {/* <CheckCircle className="h-5 w-5 text-green-600" /> */}
-              Recently Created Courses
-            </CardTitle>
-            <CardDescription>Your latest course creations from the backend</CardDescription>
+            <CardTitle>Course Management Dashboard</CardTitle>
+            <CardDescription>
+              {!isLoading && recentCourses.length > 0 &&
+                "Great start! Continue building your courses by adding modules and content."
+              }
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -197,49 +198,23 @@ const TeacherDashboard: React.FC = () => {
                       size="sm"
                       onClick={() => router.push(`/modify-course?id=${course.id}`)}
                     >
-                      Manage Course
+                      Edit Course
                     </Button>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">No courses found. Create your first course to get started!</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Main Content */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Course Management Dashboard</CardTitle>
-            <CardDescription>
-              {!isLoading && recentCourses.length > 0
-                ? "Great start! Continue building your courses by adding modules and content."
-                : "Create your first course to get started with course management."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-12">
-              {/* <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" /> */}
-              <h3 className="text-lg mb-2">
-                {!isLoading && recentCourses.length > 0
-                  ? "Ready to Add Course Content"
-                  : "Create Your First Course"}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                {!isLoading && recentCourses.length > 0
-                  ? "Start adding modules, lessons, and assignments to your courses."
-                  : "Click the 'Create Course' button to design your first learning program."}
-              </p>
-              {!isLoading && recentCourses.length === 0 && (
+              <div className="text-center py-12">
+                <h3 className="text-lg mb-2">Create Your First Course</h3>
+                <p className="text-muted-foreground mb-4">
+                  Get started by creating your first course to manage students and content.
+                </p>
                 <Button onClick={() => setIsCreateDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First Course
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
