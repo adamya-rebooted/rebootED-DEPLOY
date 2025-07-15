@@ -8,6 +8,8 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,7 +20,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED) // or JOINED, TABLE_PER_CLASS
-@Table(name = "contents")
+@Table(name = "content")
 public abstract class Content implements HasID {
 
     @Column(nullable = false)
@@ -27,7 +29,8 @@ public abstract class Content implements HasID {
     @Column(columnDefinition = "TEXT")
     protected String body;
 
-    @Column(columnDefinition = "type")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "content_type")
     protected Content.ContentType contentType;
 
     @Column(name = "is_complete")
