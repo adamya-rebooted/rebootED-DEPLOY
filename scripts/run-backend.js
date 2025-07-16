@@ -11,6 +11,7 @@ const os = require('os');
 
 function runBackend() {
   const isWindows = os.platform() === 'win32';
+  const isMac = os.platform() === 'darwin';
   const backendDir = path.join(__dirname, '..', 'backend');
   
   // Choose the appropriate Maven wrapper based on OS
@@ -19,14 +20,36 @@ function runBackend() {
   
   console.log(`🚀 Starting backend on ${os.platform()}...`);
   console.log(`📁 Backend directory: ${backendDir}`);
-  console.log(`⚡ Running: ${mvnCommand} ${args.join(' ')}`);
-  
-  // Spawn the Maven process
-  const mvnProcess = spawn(mvnCommand, args, {
-    cwd: backendDir,
-    stdio: 'inherit', // This will pipe the output to the parent process
-    shell: isWindows // Use shell on Windows to handle .cmd files properly
-  });
+  if (isMac) {
+    console.log(`🧹 Clearing backend.log before starting backend...`);
+    console.log(`⚡ Running: > backend.log; ./mvnw spring-boot:run | tee backend.log`);
+  } else {
+    console.log(`⚡ Running: ${mvnCommand} ${args.join(' ')}`);
+  }
+
+  let mvnProcess;
+  if (isWindows) {
+    // Windows logic (unchanged)
+    mvnProcess = spawn(mvnCommand, args, {
+      cwd: backendDir,
+      stdio: 'inherit',
+      shell: true // Use shell on Windows to handle .cmd files properly
+    });
+  } else if (isMac) {
+    // macOS: clear backend.log before running
+    mvnProcess = spawn('> backend.log; ./mvnw spring-boot:run | tee backend.log', {
+      cwd: backendDir,
+      stdio: 'inherit',
+      shell: true
+    });
+  } else {
+    // Other Unix (Linux, etc.)
+    mvnProcess = spawn(mvnCommand, args, {
+      cwd: backendDir,
+      stdio: 'inherit',
+      shell: false
+    });
+  }
   
   // Handle process events
   mvnProcess.on('error', (error) => {
