@@ -16,11 +16,13 @@ import rebootedmvp.CourseMapper;
 import rebootedmvp.InfoContainer;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
+import rebootedmvp.domain.impl.ContentEntityImpl;
 import rebootedmvp.domain.impl.ModuleEntityImpl;
 import rebootedmvp.domain.impl.UserProfileImpl;
 import rebootedmvp.dto.ModuleDTO;
 import rebootedmvp.dto.NewCourseDTO;
 import rebootedmvp.dto.NewModuleDTO;
+import rebootedmvp.repository.ContentRepository;
 import rebootedmvp.repository.CourseRepository;
 import rebootedmvp.repository.ModuleRepository;
 import rebootedmvp.repository.UserProfileRepository;
@@ -39,6 +41,9 @@ public class CourseService {
 
     @Autowired
     private ModuleRepository moduleRepository;
+
+    @Autowired
+    private ContentRepository contentRepository;
 
     /**
      * Returns a list of all modules in all courses
@@ -154,7 +159,7 @@ public class CourseService {
     }
 
     /**
-     * Deletes a module from a course
+     * Deletes a module from a course using manual cascade deletion
      */
     public boolean delete(Long courseId, Long moduleId) {
         logger.debug("CourseService.delete({}, {}) called", courseId, moduleId);
@@ -173,8 +178,19 @@ public class CourseService {
             return false;
         }
 
+        // MANUAL CASCADE: Delete content first, then module
+        logger.debug("Deleting content for module ID: {}", moduleId);
+        List<ContentEntityImpl> contentList = contentRepository.findByModuleId(moduleId);
+        for (ContentEntityImpl content : contentList) {
+            contentRepository.deleteById(content.getId());
+            logger.debug("Deleted content with ID: {}", content.getId());
+        }
+        contentRepository.flush();
+        
+        // Now delete the module safely
         moduleRepository.deleteById(moduleId);
-        logger.info("Deleted module with ID: {} from course: {}", moduleId, courseId);
+        logger.info("Deleted module with ID: {} from course: {} (with {} content items)", 
+                    moduleId, courseId, contentList.size());
         return true;
     }
 

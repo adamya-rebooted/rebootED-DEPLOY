@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
@@ -17,6 +16,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED) // or JOINED, TABLE_PER_CLASS
@@ -46,9 +47,10 @@ public abstract class Module implements InfoContainer<Content> {
     protected LocalDateTime updatedAt;
 
     // One-to-Many relationship with ContentEntityImpl
-    // @OneToMany
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @MapKey(name = "id") // ← use the Module’s `@Id`
+    // Note: No cascade/orphanRemoval - deletion handled manually in service layer
+    @OneToMany
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @MapKey(name = "id") // ← use the Module's `@Id`
     @JoinColumn(name = "module_id") // ← foreign key in MODULE table
     protected Map<Long, Content> contentItems = new HashMap<>();
 

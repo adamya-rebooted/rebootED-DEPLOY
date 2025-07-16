@@ -13,11 +13,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 import rebootedmvp.Course;
 import rebootedmvp.CourseMapper;
+import rebootedmvp.domain.impl.ContentEntityImpl;
 import rebootedmvp.domain.impl.CourseEntityImpl;
+import rebootedmvp.domain.impl.ModuleEntityImpl;
 import rebootedmvp.dto.CourseDTO;
 import rebootedmvp.dto.NewCourseDTO;
 import rebootedmvp.dto.NewRosterDTO;
+import rebootedmvp.repository.ContentRepository;
 import rebootedmvp.repository.CourseRepository;
+import rebootedmvp.repository.ModuleRepository;
 
 @Service
 @Transactional
@@ -27,6 +31,12 @@ public class RosterService {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private ModuleRepository moduleRepository;
+
+    @Autowired
+    private ContentRepository contentRepository;
 
     /**
      * Creates a new roster (for API compatibility - returns a constant ID)
@@ -124,17 +134,45 @@ public class RosterService {
     }
 
     /**
-     * Deletes a course (roster ID is ignored, course ID is used directly)
+     * Deletes a course using manual cascade deletion (roster ID is ignored, course ID is used directly)
      */
     public boolean delete(Long rosterId, Long courseId) {
         logger.debug("RosterService.delete({}, {}) called", rosterId, courseId);
 
-        if (courseRepository.existsById(courseId)) {
-            courseRepository.deleteById(courseId);
-            logger.info("Deleted course with ID: {}", courseId);
-            return true;
+        if (!courseRepository.existsById(courseId)) {
+            return false;
         }
-        return false;
+
+        // MANUAL CASCADE: Delete in dependency order (Content → Modules → Course)
+        logger.debug("Starting manual cascade deletion for course ID: {}", courseId);
+        
+        // 1. Find all modules for this course
+        List<ModuleEntityImpl> modules = moduleRepository.findByCourseId(courseId);
+        logger.debug("Found {} modules to delete for course {}", modules.size(), courseId);
+        
+        // 2. Delete content and modules
+        int totalContentDeleted = 0;
+        for (ModuleEntityImpl module : modules) {
+            // Delete all content for this module
+            List<ContentEntityImpl> contentList = contentRepository.findByModuleId(module.getId());
+            for (ContentEntityImpl content : contentList) {
+                contentRepository.deleteById(content.getId());
+                totalContentDeleted++;
+            }
+            contentRepository.flush();
+            logger.debug("Deleted {} content items for module {}", contentList.size(), module.getId());
+            
+            // Delete the module
+            moduleRepository.deleteById(module.getId());
+            logger.debug("Deleted module with ID: {}", module.getId());
+        }
+        moduleRepository.flush();
+        
+        // 3. Finally delete the course
+        courseRepository.deleteById(courseId);
+        logger.info("Deleted course with ID: {} (deleted {} modules and {} content items)", 
+                    courseId, modules.size(), totalContentDeleted);
+        return true;
     }
 
     private static List<CourseDTO> mapToDTO(List<Course> toMap) {

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,6 +21,8 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED) // or JOINED, TABLE_PER_CLASS
@@ -52,8 +53,10 @@ public abstract class Course implements InfoContainer<Module> {
 
     // @MapKey(name = "id")
     // instead of Map<Long,Module>:
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @MapKey(name = "id") // ← use the Module’s `@Id`
+    // Note: No cascade/orphanRemoval - deletion handled manually in service layer
+    @OneToMany
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @MapKey(name = "id") // ← use the Module's `@Id`
     @JoinColumn(name = "course_id") // ← foreign key in MODULE table
     protected Map<Long, Module> modules = new HashMap<>();
 
