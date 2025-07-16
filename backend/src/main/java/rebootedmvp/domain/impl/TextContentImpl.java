@@ -7,21 +7,23 @@ import rebootedmvp.Content;
 
 @Entity
 // @jakarta.persistence.DiscriminatorValue("TEXT")
-public class TextContentImpl extends Content {
-
-    public TextContentImpl(Long id, String title, String body) {
-        this.id = id;
+public class TextContentImpl extends ContentEntityImpl {
+    public TextContentImpl(String title, String body) {
+        // this.id = id;
         this.title = title;
         this.body = body;
         this.isComplete = false;
+        this.contentType = ContentType.Text;
     }
 
-    public TextContentImpl(Long id, String title, String body, Long moduleId) {
-        this.id = id;
+    public TextContentImpl(String title, String body, Long moduleId) {
+        // this.id = id;
         this.title = title;
         this.body = body;
         this.moduleId = moduleId;
         this.isComplete = false;
+        this.contentType = ContentType.Text;
+
     }
 
     // ⚠️ Required by JPA — but not usable by normal code
@@ -84,21 +86,21 @@ public class TextContentImpl extends Content {
         return ContentType.Text;
     }
 
-    @Override
-    public String getCorrectAnswer() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    // @Override
+    // public String getCorrectAnswer() {
+    // // TODO Auto-generated method stub
+    // return null;
+    // }
 
-    @Override
-    public List<String> getOptions() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getOptions'");
-    }
+    // @Override
+    // public List<String> getOptions() {
+    // // TODO Auto-generated method stub
+    // throw new UnsupportedOperationException("Unimplemented method 'getOptions'");
+    // }
 
-    @Override
-    public String getQuestionText() {
-        // Text content doesn't have question text
-        return null;
-    }
+    // @Override
+    // public String getQuestionText() {
+    // // Text content doesn't have question text
+    // return null;
+    // }
 }

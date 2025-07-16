@@ -1,5 +1,9 @@
 // Backend API Client for Spring Boot Integration
 // Clean implementation with comprehensive error handling
+export enum ContentType {
+  TEXT = 'TEXT',
+  QUESTION = 'QUESTION',
+}
 
 import {
   NewCourseRequest,
@@ -44,12 +48,12 @@ export class BackendApiClient {
   }
 
   private async request<T>(
-    endpoint: string, 
+    endpoint: string,
     options: RequestInit = {},
     attempt: number = 1
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -61,33 +65,33 @@ export class BackendApiClient {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-      
+
       const response = await fetch(url, {
         ...config,
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         let errorMessage: string;
-        
+
         try {
           const errorJson = JSON.parse(errorText);
           errorMessage = errorJson.message || errorJson.error || `HTTP ${response.status}`;
         } catch {
           errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
         }
-        
+
         const apiError: ApiError = {
           message: errorMessage,
           status: response.status,
         };
-        
+
         throw apiError;
       }
-      
+
       // Handle empty responses (like DELETE operations)
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
@@ -102,15 +106,15 @@ export class BackendApiClient {
         await this.delay(1000 * attempt); // Exponential backoff
         return this.request<T>(endpoint, options, attempt + 1);
       }
-      
+
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('Request timeout - please check your connection');
       }
-      
+
       if ((error as ApiError).status) {
         throw error; // Re-throw API errors with status
       }
-      
+
       throw new Error(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -232,30 +236,17 @@ export class BackendApiClient {
   }
 
   // Content operations
+
+
+
   async createContent(contentData: NewContentRequest): Promise<ContentResponse> {
-    const { moduleId, type, ...payload } = contentData;
-    
-    if (type === 'Text') {
-      // Use the module-specific addText endpoint
-      const contentId = await this.post<number>(`/modules/${moduleId}/addText`, {
-        type,
-        ...payload,
-        moduleId
-      });
-      // Since we only get back the ID, fetch the full content data
-      return this.getContentById(contentId);
-    } else if (type === 'Question') {
-      // Use the module-specific addQuestion endpoint  
-      const contentId = await this.post<number>(`/modules/${moduleId}/addQuestion`, {
-        type,
-        ...payload,
-        moduleId
-      });
-      // Since we only get back the ID, fetch the full content data
-      return this.getContentById(contentId);
-    } else {
-      throw new Error(`Unsupported content type: ${type}`);
+    if (contentData.type === ContentType.QUESTION) {
+      return this.post<ContentResponse>(`/modules/${contentData.moduleId}/addQuestion`, contentData);
     }
+    else {
+      return this.post<ContentResponse>(`/modules/${contentData.moduleId}/addText`, contentData);
+    }
+
   }
 
   async getContentByModule(moduleId: number): Promise<ContentResponse[]> {

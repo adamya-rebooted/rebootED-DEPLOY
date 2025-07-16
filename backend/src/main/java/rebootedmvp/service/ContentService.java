@@ -14,10 +14,13 @@ import rebootedmvp.Content;
 import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
+import rebootedmvp.Content.ContentType;
 import rebootedmvp.domain.impl.ContentEntityImpl;
 import rebootedmvp.domain.impl.QuestionContentImpl;
+import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.NewContentDTO;
+import rebootedmvp.dto.NewQuestionContentDTO;
 import rebootedmvp.dto.QuestionContentDTO;
 import rebootedmvp.dto.TextContentDTO;
 import rebootedmvp.repository.ContentRepository;
@@ -81,14 +84,15 @@ public class ContentService {
 
         Content content;
 
-        if ("Text".equals(newContentDTO.getType())) {
-            content = new ContentEntityImpl(
+        if (ContentType.Text.equals(newContentDTO.getType())) {
+            content = new TextContentImpl(
                     newContentDTO.getTitle().trim(),
                     newContentDTO.getBody(),
-                    module,
-                    Content.ContentType.Text);
-        } else if ("Question".equals(newContentDTO.getType())) {
-            List<String> options = newContentDTO.getOptions() != null ? newContentDTO.getOptions() : List.of();
+                    module.getId());
+        } else if (ContentType.Question.equals(newContentDTO.getType())) {
+            List<String> options = ((NewQuestionContentDTO) newContentDTO).getOptions() != null
+                    ? ((NewQuestionContentDTO) newContentDTO).getOptions()
+                    : List.of();
             String correctAnswer = newContentDTO.getCorrectAnswer() != null ? newContentDTO.getCorrectAnswer() : "";
 
             // Validate question data
@@ -102,12 +106,12 @@ public class ContentService {
                 throw new IllegalArgumentException("Correct answer must be one of the provided options");
             }
 
-            content = new ContentEntityImpl(
+            content = new QuestionContentImpl(
                     newContentDTO.getTitle().trim(),
                     newContentDTO.getBody(),
                     options,
                     correctAnswer,
-                    module);
+                    module.getId());
         } else {
             throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
         }
@@ -138,9 +142,10 @@ public class ContentService {
 
         // Update question-specific fields if this is a question
         if (content.getType() == Content.ContentType.Question) {
+            QuestionContentDTO qDTO = (QuestionContentDTO) convertToDTO(content);
             ((QuestionContentImpl) content).setQuestionText(updateContentDTO.getBody());
-            if (updateContentDTO.getOptions() != null) {
-                ((QuestionContentImpl) content).setOptions(updateContentDTO.getOptions());
+            if ((qDTO).getOptions() != null) {
+                ((QuestionContentImpl) content).setOptions(qDTO.getOptions());
             }
             if (updateContentDTO.getCorrectAnswer() != null) {
                 ((QuestionContentImpl) content).setCorrectAnswer(updateContentDTO.getCorrectAnswer());
@@ -209,11 +214,11 @@ public class ContentService {
             return new QuestionContentDTO(
                     content.getId(),
                     content.getTitle(),
-                    ((ContentEntityImpl) content).getQuestionText(),
+                    ((QuestionContentImpl) content).getQuestionText(),
                     content.isComplete(),
                     content.getModuleId(),
-                    ((ContentEntityImpl) content).getOptions(),
-                    ((ContentEntityImpl) content).getCorrectAnswer());
+                    ((QuestionContentImpl) content).getOptions(),
+                    ((QuestionContentImpl) content).getCorrectAnswer());
         }
         return null;
     }

@@ -84,7 +84,7 @@ export default function PreviewCoursePage() {
 
   if (loading) {
     return (
-      <div style={{ 
+      <div style={{
         padding: '20px',
         maxWidth: '1200px',
         margin: '0 auto',
@@ -100,7 +100,7 @@ export default function PreviewCoursePage() {
 
   if (error) {
     return (
-      <div style={{ 
+      <div style={{
         padding: '20px',
         maxWidth: '1200px',
         margin: '0 auto',
@@ -137,7 +137,7 @@ export default function PreviewCoursePage() {
   }
 
   return (
-    <div style={{ 
+    <div style={{
       padding: '20px',
       maxWidth: '1200px',
       margin: '0 auto',
@@ -145,11 +145,11 @@ export default function PreviewCoursePage() {
       minHeight: '100vh',
       color: '#171717'
     }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '20px' 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '20px'
       }}>
         <h1>Course Preview</h1>
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -206,9 +206,9 @@ export default function PreviewCoursePage() {
               marginBottom: '20px',
               backgroundColor: '#f8f9fa'
             }}>
-              <h2 style={{ marginBottom: '10px', color: '#171717' }}>{course.name}</h2>
-              <p style={{ color: '#666', marginBottom: '20px' }}>{course.description}</p>
-              
+              <h2 style={{ marginBottom: '10px', color: '#171717' }}>{course.title}</h2>
+              <p style={{ color: '#666', marginBottom: '20px' }}>{course.body}</p>
+
               <div style={{
                 padding: '15px',
                 backgroundColor: '#e7f3ff',
@@ -227,7 +227,7 @@ export default function PreviewCoursePage() {
                 <p style={{ color: '#666', marginBottom: '15px', fontSize: '14px' }}>
                   Click on a module to explore its content
                 </p>
-                
+
                 {modules.length > 0 ? (
                   <div>
                     {modules.map((module, index) => (
@@ -240,14 +240,14 @@ export default function PreviewCoursePage() {
                         cursor: 'pointer',
                         transition: 'all 0.2s ease'
                       }}
-                      onClick={() => handleModuleClick(module.id)}
+                        onClick={() => handleModuleClick(module.id)}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ flex: 1 }}>
-                            <strong style={{ color: '#171717' }}>{index + 1}. {module.name}</strong>
-                            {module.description && (
+                            <strong style={{ color: '#171717' }}>{index + 1}. {module.title}</strong>
+                            {module.body && (
                               <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '14px' }}>
-                                {module.description}
+                                {module.body}
                               </p>
                             )}
                           </div>
@@ -277,7 +277,7 @@ export default function PreviewCoursePage() {
           {selectedModuleId ? (
             <ContentBlockList
               moduleId={selectedModuleId}
-              moduleName={modules.find(m => m.id === selectedModuleId)?.name}
+              moduleName={modules.find(m => m.id === selectedModuleId)?.title}
               isInteractive={true}
               onContentUpdate={loadCourseData}
             />

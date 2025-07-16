@@ -4,11 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
 import rebootedmvp.Content;
 import rebootedmvp.Course;
 import rebootedmvp.Module;
@@ -72,7 +70,15 @@ public class ModuleEntityImpl extends Module {
     // Module interface methods
     @Override
     public Content create(Long id, String title, String body) {
-        return new ContentEntityImpl(title, body, (Module) this, Content.ContentType.Text);
+        return new TextContentImpl(title, body, this.getId());
+    }
+
+    public Content create(Long id, String title, String body, Content.ContentType type) {
+        if (type == Content.ContentType.Question) {
+            return new QuestionContentImpl(title, body, new ArrayList<>(), "", this.id);
+        } else {
+            return new TextContentImpl(title, body, this.getId());
+        }
     }
 
     @Override

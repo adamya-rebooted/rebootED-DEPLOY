@@ -40,48 +40,52 @@ public class ContentEntityImpl extends Content {
     public ContentEntityImpl(String title, String body, Module module, ContentType contentType) {
         this.title = title;
         this.body = body;
-        this.contentType = contentType;        // Set the content type!
+        this.contentType = contentType; // Set the content type!
         this.moduleId = module.getId();
         this.isComplete = false;
+        this.contentType = contentType;
     }
 
     // Constructor for Question content
     public ContentEntityImpl(String title, String questionText, List<String> options,
-            String correctAnswer, Module module) {
+            String correctAnswer, Module module, ContentType contentType) {
         this.title = title;
-        this.body = questionText;              // Set body to questionText for consistency
-        this.questionText = questionText;
-        this.contentType = ContentType.Question;  // Set the content type!
+        this.body = questionText; // Set body to questionText for consistency
+        // this.questionText = questionText;
+        this.contentType = ContentType.Question; // Set the content type!
         this.optionText = new ArrayList<>(options);
-        this.correctAnswer = correctAnswer;
+        // this.correctAnswer = correctAnswer;
         this.moduleId = module.getId();
         this.isComplete = false;
+        this.contentType = contentType;
     }
 
     public ContentEntityImpl(Content c) {
         this.body = c.getBody();
         this.id = c.getId();
         this.title = c.getTitle();
-        this.questionText = c.getQuestionText();   // Copy questionText field!
-        this.contentType = c.getType();            // Copy content type!
-        this.optionText = c.getOptions() != null ? c.getOptions() : new ArrayList<>();
-        this.correctAnswer = c.getCorrectAnswer();
+        // this.questionText = c.getQuestionText(); // Copy questionText field!
+        this.contentType = c.getType(); // Copy content type!
+        // this.optionText = c.getOptions() != null ? c.getOptions() : new
+        // ArrayList<>();
+        // this.correctAnswer = c.getCorrectAnswer();
         this.moduleId = c.getModuleId();
         this.isComplete = false;
+        this.contentType = c.getType();
     }
 
     // Content interface methods
     @Override
     public boolean isComplete() {
-        if (getType() == ContentType.Question) {
-            return userAnswer != null && userAnswer.equals(correctAnswer);
-        }
+        // if (getType() == ContentType.Question) {
+        // return userAnswer != null && userAnswer.equals(correctAnswer);
+        // }
         return isComplete;
     }
 
     @Override
     public ContentType getType() {
-        return contentType != null ? contentType : ContentType.Text;  // Return actual type
+        return contentType != null ? contentType : ContentType.Text; // Return actual type
     }
 
     // HasID interface methods
@@ -130,39 +134,39 @@ public class ContentEntityImpl extends Content {
         this.moduleId = moduleId;
     }
 
-    public String getQuestionText() {
-        return questionText;
-    }
+    // public String getQuestionText() {
+    // return questionText;
+    // }
 
-    public void setQuestionText(String questionText) {
-        this.questionText = questionText;
-    }
+    // public void setQuestionText(String questionText) {
+    // this.questionText = questionText;
+    // }
 
-    @Override
-    public List<String> getOptions() {
-        return new ArrayList<>(optionText);
-    }
+    // @Override
+    // public List<String> getOptions() {
+    // return new ArrayList<>(optionText);
+    // }
 
     public void setOptions(List<String> options) {
         this.optionText = new ArrayList<>(options != null ? options : new ArrayList<>());
     }
 
-    @Override
-    public String getCorrectAnswer() {
-        return correctAnswer;
-    }
+    // @Override
+    // public String getCorrectAnswer() {
+    // return correctAnswer;
+    // }
 
-    public void setCorrectAnswer(String correctAnswer) {
-        this.correctAnswer = correctAnswer;
-    }
+    // public void setCorrectAnswer(String correctAnswer) {
+    // this.correctAnswer = correctAnswer;
+    // }
 
-    public String getUserAnswer() {
-        return userAnswer;
-    }
+    // public String getUserAnswer() {
+    // return userAnswer;
+    // }
 
-    public void setUserAnswer(String userAnswer) {
-        this.userAnswer = userAnswer;
-    }
+    // public void setUserAnswer(String userAnswer) {
+    // this.userAnswer = userAnswer;
+    // }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -178,5 +182,13 @@ public class ContentEntityImpl extends Content {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public ContentType getContentType() {
+        return this.contentType;
+    }
+
+    public void setContentType(ContentType contentType) {
+        this.contentType = contentType;
     }
 }

@@ -2,7 +2,7 @@
 // Maps backend DTOs to frontend interfaces
 
 // ================ Request Types ================
-
+import { ContentType } from '@/utils/api/backend-client';
 export interface NewCourseRequest {
   title: string;
   body: string;
@@ -26,9 +26,9 @@ export interface UpdateModuleRequest {
 }
 
 export interface NewContentRequest {
+  type: ContentType;
   title: string;
   body: string | null;
-  type: 'Text' | 'Question';
   moduleId: number;
   // Question-specific fields (only required when type is 'Question')
   options?: string[];
@@ -38,7 +38,7 @@ export interface NewContentRequest {
 export interface UpdateContentRequest {
   title?: string;
   body?: string | null;
-  type?: 'Text' | 'Question';
+  type?: ContentType;
   moduleId?: number;
   // Question-specific fields (only required when type is 'Question')
   options?: string[];
@@ -238,7 +238,7 @@ export interface DataMappingConfig {
   idMappings: {
     [supabaseId: string]: number;
   };
-  
+
   // Field name mappings
   fieldMappings: {
     supabaseField: string;
@@ -248,9 +248,9 @@ export interface DataMappingConfig {
 
 // ================ Error Handling Types ================
 
-export type ApiErrorType = 
+export type ApiErrorType =
   | 'NETWORK_ERROR'
-  | 'VALIDATION_ERROR' 
+  | 'VALIDATION_ERROR'
   | 'NOT_FOUND'
   | 'UNAUTHORIZED'
   | 'SERVER_ERROR'
@@ -266,7 +266,7 @@ export interface DetailedApiError {
 
 // ================ Union Types for Type Safety ================
 
-export type BackendRequestTypes = 
+export type BackendRequestTypes =
   | NewCourseRequest
   | UpdateCourseRequest
   | NewModuleRequest
@@ -278,7 +278,7 @@ export type BackendRequestTypes =
   | AddUsersRequest
   | SubmitAnswerRequest;
 
-export type BackendResponseTypes = 
+export type BackendResponseTypes =
   | Course
   | Module
   | Content
@@ -287,7 +287,7 @@ export type BackendResponseTypes =
   | UserCourse
   | CourseUser;
 
-export type LegacySupabaseTypes = 
+export type LegacySupabaseTypes =
   | LegacyCourse
   | LegacyModule
   | LegacyUser; 

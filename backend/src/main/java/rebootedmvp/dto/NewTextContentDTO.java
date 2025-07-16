@@ -1,15 +1,13 @@
 package rebootedmvp.dto;
 
-import java.util.List;
-
-import rebootedmvp.Content;
+import rebootedmvp.Content.ContentType;
 
 public class NewTextContentDTO extends NewContentDTO {
 
     public NewTextContentDTO() {
     }
 
-    public NewTextContentDTO(String type, String title, String body, Long moduleId) {
+    public NewTextContentDTO(ContentType type, String title, String body, Long moduleId) {
         super(type, title, body, moduleId);
     }
 

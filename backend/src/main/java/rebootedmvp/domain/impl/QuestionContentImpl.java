@@ -8,27 +8,29 @@ import jakarta.persistence.Entity;
 import rebootedmvp.Content;
 
 @Entity
-@DiscriminatorValue("QUESTION")
-public class QuestionContentImpl extends Content {
+// @DiscriminatorValue("QUESTION")
+public class QuestionContentImpl extends ContentEntityImpl {
 
-    private String questionText;
+    // private String questionText;
     private List<String> options;
     private String correctAnswer;
     private boolean complete;
 
     public QuestionContentImpl() {
         this.options = new ArrayList<>();
+        this.contentType = ContentType.Question;
+
     }
 
-    public QuestionContentImpl(Long id, String title, String questionText, List<String> options,
+    public QuestionContentImpl(String title, String questionText, List<String> options,
             String correctAnswer, Long moduleId) {
-        this.id = id;
         this.title = title;
-        this.questionText = questionText;
+        this.body = questionText;
         this.options = new ArrayList<>(options);
         this.correctAnswer = correctAnswer;
         this.moduleId = moduleId;
         complete = false;
+        this.contentType = ContentType.Question;
     }
 
     @Override
@@ -56,11 +58,11 @@ public class QuestionContentImpl extends Content {
     }
 
     public String getQuestionText() {
-        return questionText;
+        return body;
     }
 
     public void setQuestionText(String questionText) {
-        this.questionText = questionText;
+        this.body = questionText;
     }
 
     public List<String> getOptions() {
@@ -96,12 +98,12 @@ public class QuestionContentImpl extends Content {
 
     @Override
     public String getBody() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return body;
     }
 
     @Override
     public void setBody(String newBody) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.body = newBody;
     }
 
     @Override
