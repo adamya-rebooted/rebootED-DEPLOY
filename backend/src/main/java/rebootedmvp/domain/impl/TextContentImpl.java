@@ -95,4 +95,10 @@ public class TextContentImpl extends Content {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getOptions'");
     }
+
+    @Override
+    public String getQuestionText() {
+        // Text content doesn't have question text
+        return null;
+    }
 }

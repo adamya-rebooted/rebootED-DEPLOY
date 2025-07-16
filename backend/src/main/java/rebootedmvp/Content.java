@@ -107,4 +107,10 @@ public abstract class Content implements HasID {
 
     abstract public List<String> getOptions();
 
+    /**
+     * Returns the question text for Question content types
+     * For Text content, this may return null or throw an exception
+     */
+    abstract public String getQuestionText();
+
 }

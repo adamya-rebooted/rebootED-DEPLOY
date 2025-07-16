@@ -40,6 +40,7 @@ public class ContentEntityImpl extends Content {
     public ContentEntityImpl(String title, String body, Module module, ContentType contentType) {
         this.title = title;
         this.body = body;
+        this.contentType = contentType;        // Set the content type!
         this.moduleId = module.getId();
         this.isComplete = false;
     }
@@ -48,7 +49,9 @@ public class ContentEntityImpl extends Content {
     public ContentEntityImpl(String title, String questionText, List<String> options,
             String correctAnswer, Module module) {
         this.title = title;
+        this.body = questionText;              // Set body to questionText for consistency
         this.questionText = questionText;
+        this.contentType = ContentType.Question;  // Set the content type!
         this.optionText = new ArrayList<>(options);
         this.correctAnswer = correctAnswer;
         this.moduleId = module.getId();
@@ -59,7 +62,9 @@ public class ContentEntityImpl extends Content {
         this.body = c.getBody();
         this.id = c.getId();
         this.title = c.getTitle();
-        this.optionText = c.getOptions();
+        this.questionText = c.getQuestionText();   // Copy questionText field!
+        this.contentType = c.getType();            // Copy content type!
+        this.optionText = c.getOptions() != null ? c.getOptions() : new ArrayList<>();
         this.correctAnswer = c.getCorrectAnswer();
         this.moduleId = c.getModuleId();
         this.isComplete = false;
@@ -76,8 +81,7 @@ public class ContentEntityImpl extends Content {
 
     @Override
     public ContentType getType() {
-        // Default to Text - this will be overridden by discriminator in subclasses
-        return ContentType.Text;
+        return contentType != null ? contentType : ContentType.Text;  // Return actual type
     }
 
     // HasID interface methods

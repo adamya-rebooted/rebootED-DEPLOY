@@ -233,7 +233,29 @@ export class BackendApiClient {
 
   // Content operations
   async createContent(contentData: NewContentRequest): Promise<ContentResponse> {
-    return this.post<ContentResponse>('/content', contentData);
+    const { moduleId, type, ...payload } = contentData;
+    
+    if (type === 'Text') {
+      // Use the module-specific addText endpoint
+      const contentId = await this.post<number>(`/modules/${moduleId}/addText`, {
+        type,
+        ...payload,
+        moduleId
+      });
+      // Since we only get back the ID, fetch the full content data
+      return this.getContentById(contentId);
+    } else if (type === 'Question') {
+      // Use the module-specific addQuestion endpoint  
+      const contentId = await this.post<number>(`/modules/${moduleId}/addQuestion`, {
+        type,
+        ...payload,
+        moduleId
+      });
+      // Since we only get back the ID, fetch the full content data
+      return this.getContentById(contentId);
+    } else {
+      throw new Error(`Unsupported content type: ${type}`);
+    }
   }
 
   async getContentByModule(moduleId: number): Promise<ContentResponse[]> {

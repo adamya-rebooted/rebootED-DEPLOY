@@ -223,11 +223,11 @@ public class ModuleService {
             return new QuestionContentDTO(
                     content.getId(),
                     content.getTitle(),
-                    ((QuestionContentImpl) content).getQuestionText(),
+                    ((ContentEntityImpl) content).getQuestionText(),
                     content.isComplete(),
                     content.getModuleId(),
-                    ((QuestionContentImpl) content).getOptions(),
-                    ((QuestionContentImpl) content).getCorrectAnswer());
+                    ((ContentEntityImpl) content).getOptions(),
+                    ((ContentEntityImpl) content).getCorrectAnswer());
         }
         return null;
     }
