@@ -203,14 +203,14 @@ const TeacherDashboard: React.FC = () => {
         </div> */}
 
         {/* Recent Courses */}
-        <Card>
+        <Card className="bg-primary text-white">
           <CardHeader>
             <CardTitle>Recent Courses</CardTitle>
             <CardDescription>
               Your most recently created courses
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="">
             {isLoading ? (
               <div className="text-center py-8">
                 <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
@@ -232,7 +232,7 @@ const TeacherDashboard: React.FC = () => {
                 {recentCourses.map((course) => (
                   <div
                     key={course.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    className=" bg-background text-black flex items-center justify-between p-4 border rounded-lg hover:bg-muted/ transition-colors"
                   >
                     <div className="flex-1">
                       <h4 className="font-medium">{course.title}</h4>
@@ -245,6 +245,7 @@ const TeacherDashboard: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Button 
+                        className="border-secondary drop-shadow-md border-2"
                         variant="outline" 
                         size="sm"
                         onClick={() => router.push(`/modify-course?id=${course.id}`)}
@@ -252,11 +253,12 @@ const TeacherDashboard: React.FC = () => {
                         Edit
                       </Button>
                       <Button 
+                        className="!border-red-500 text-red-500 drop-shadow-md"
                         variant="outline" 
                         size="sm"
                         onClick={() => handleDeleteClick(course)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 " />
                       </Button>
                     </div>
                   </div>
@@ -268,7 +270,7 @@ const TeacherDashboard: React.FC = () => {
                 <p className="text-muted-foreground mb-4">
                   Get started by creating your first course to manage students and content.
                 </p>
-                <Button onClick={() => setIsCreateDialogOpen(true)}>
+                <Button className="border-secondary" onClick={() => setIsCreateDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First Course
                 </Button>

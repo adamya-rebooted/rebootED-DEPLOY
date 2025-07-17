@@ -172,29 +172,29 @@ export default function CreateCoursePage() {
       <h1 style={{ marginBottom: '20px', color: '#171717' }}>Create New Course</h1>
       
       <form onSubmit={handleSubmit} style={{
-        border: '1px solid #ccc',
+        border: '1px solid var(--border)',
         borderRadius: '4px',
         padding: '20px',
-        backgroundColor: '#fafafa'
+        backgroundColor: 'var(--card)'
       }}>
         {/* Basic Course Information */}
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="title" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#171717' }}>
+          <label htmlFor="title" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: 'var(--card-foreground)' }}>
             Course Title:
           </label>
-          <input 
-            type="text" 
-            id="title" 
+          <input
+            type="text"
+            id="title"
             value={courseTitle}
             onChange={(e) => setCourseTitle(e.target.value)}
             required
-            style={{ 
+            style={{
               width: '100%',
               padding: '8px',
-              border: '1px solid #ccc',
+              border: '1px solid var(--input)',
               borderRadius: '4px',
-              backgroundColor: '#ffffff',
-              color: '#171717'
+              backgroundColor: 'var(--background)',
+              color: 'var(--text)'
             }}
           />
         </div>
@@ -399,13 +399,13 @@ export default function CreateCoursePage() {
         )}
 
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <button 
+          <button
             type="submit"
             disabled={isSubmitting}
             style={{
               padding: '10px 20px',
-              backgroundColor: isSubmitting ? '#6c757d' : '#007cba',
-              color: 'white',
+              backgroundColor: isSubmitting ? 'var(--muted-foreground)' : 'var(--primary)',
+              color: 'var(--primary-foreground)',
               border: 'none',
               borderRadius: '4px',
               cursor: isSubmitting ? 'not-allowed' : 'pointer'
@@ -413,13 +413,13 @@ export default function CreateCoursePage() {
           >
             {isSubmitting ? 'Creating...' : 'Create Course'}
           </button>
-          <button 
+          <button
             type="button"
             onClick={handlePreview}
             style={{
               padding: '10px 20px',
-              backgroundColor: '#28a745',
-              color: 'white',
+              backgroundColor: 'var(--secondary)',
+              color: 'var(--secondary-foreground)',
               border: 'none',
               borderRadius: '4px',
               cursor: 'pointer'
@@ -427,13 +427,13 @@ export default function CreateCoursePage() {
           >
             Preview Course
           </button>
-          <button 
+          <button
             type="button"
             onClick={handleCancel}
             style={{
               padding: '10px 20px',
-              backgroundColor: '#6c757d',
-              color: 'white',
+              backgroundColor: 'var(--muted-foreground)',
+              color: 'var(--primary-foreground)',
               border: 'none',
               borderRadius: '4px',
               cursor: 'pointer'

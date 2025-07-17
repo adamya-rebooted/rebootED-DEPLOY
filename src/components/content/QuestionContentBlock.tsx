@@ -34,17 +34,17 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
 
   return (
     <div style={{
-      border: '1px solid #dee2e6',
+      border: '1px solid var(--border)',
       borderRadius: '8px',
       padding: '20px',
       marginBottom: '16px',
-      backgroundColor: hasAnswered ? (isCorrect ? '#d4edda' : '#f8d7da') : '#ffffff',
-      borderLeft: `4px solid ${hasAnswered ? (isCorrect ? '#28a745' : '#dc3545') : '#ffc107'}`
+      backgroundColor: hasAnswered ? (isCorrect ? 'var(--secondary)' : 'var(--destructive)') : 'var(--card)',
+      borderLeft: `4px solid ${hasAnswered ? (isCorrect ? 'var(--secondary)' : 'var(--destructive)') : 'var(--accent)'}`
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-        <h4 style={{ 
-          margin: 0, 
-          color: '#171717',
+        <h4 style={{
+          margin: 0,
+          color: hasAnswered ? (isCorrect ? 'var(--secondary-foreground)' : 'var(--destructive-foreground)') : 'var(--card-foreground)',
           fontSize: '18px',
           fontWeight: '600'
         }}>
@@ -53,7 +53,7 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {hasAnswered && (
             <span style={{
-              color: isCorrect ? '#28a745' : '#dc3545',
+              color: isCorrect ? 'var(--secondary-foreground)' : 'var(--destructive-foreground)',
               fontSize: '14px',
               fontWeight: '500'
             }}>
@@ -110,20 +110,23 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
                   display: 'block',
                   padding: '12px',
                   margin: '8px 0',
-                  border: '1px solid #dee2e6',
+                  border: '1px solid var(--border)',
                   borderRadius: '6px',
-                  backgroundColor: hasAnswered 
-                    ? (isUserAnswer 
-                        ? (isCorrectOption ? '#d4edda' : '#f8d7da')
-                        : (isCorrectOption ? '#e2f3e4' : '#ffffff'))
-                    : (isSelectedOption ? '#e3f2fd' : '#ffffff'),
+                  backgroundColor: hasAnswered
+                    ? (isUserAnswer
+                        ? (isCorrectOption ? 'var(--secondary)' : 'var(--destructive)')
+                        : (isCorrectOption ? 'var(--secondary)' : 'var(--background)'))
+                    : (isSelectedOption ? 'var(--accent)' : 'var(--background)'),
+                  color: hasAnswered
+                    ? (isUserAnswer || isCorrectOption ? 'var(--background)' : 'var(--text)')
+                    : (isSelectedOption ? 'var(--background)' : 'var(--text)'),
                   cursor: isInteractive && !hasAnswered ? 'pointer' : 'default',
                   transition: 'all 0.2s ease',
                   borderColor: hasAnswered
-                    ? (isUserAnswer 
-                        ? (isCorrectOption ? '#28a745' : '#dc3545')
-                        : (isCorrectOption ? '#28a745' : '#dee2e6'))
-                    : (isSelectedOption ? '#007cba' : '#dee2e6')
+                    ? (isUserAnswer
+                        ? (isCorrectOption ? 'var(--secondary)' : 'var(--destructive)')
+                        : (isCorrectOption ? 'var(--secondary)' : 'var(--border)'))
+                    : (isSelectedOption ? 'var(--accent)' : 'var(--border)')
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -181,7 +184,7 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
         </div>
       )}
 
-      {error && (
+      {/* {error && (
         <div style={{
           padding: '8px 12px',
           backgroundColor: '#f8d7da',
@@ -193,9 +196,9 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
         }}>
           {error}
         </div>
-      )}
+      )} */}
 
-      {isInteractive && !hasAnswered && (
+      {/* {isInteractive && !hasAnswered && (
         <button
           onClick={handleSubmit}
           disabled={submitting || !selectedAnswer.trim()}
@@ -212,7 +215,7 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
         >
           {submitting ? 'Submitting...' : 'Submit Answer'}
         </button>
-      )}
+      )} */}
     </div>
   );
 } 

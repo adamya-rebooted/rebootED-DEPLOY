@@ -141,9 +141,9 @@ export default function PreviewCoursePage() {
       padding: '20px',
       maxWidth: '1200px',
       margin: '0 auto',
-      backgroundColor: '#ffffff',
+      backgroundColor: 'var(--background)',
       minHeight: '100vh',
-      color: '#171717'
+      color: 'var(--text)'
     }}>
       <div style={{
         display: 'flex',
@@ -157,8 +157,8 @@ export default function PreviewCoursePage() {
             onClick={handleBackToEdit}
             style={{
               padding: '10px 20px',
-              backgroundColor: '#007cba',
-              color: 'white',
+              backgroundColor: 'var(--primary)',
+              color: 'var(--primary-foreground)',
               border: 'none',
               borderRadius: '4px',
               cursor: 'pointer'
@@ -170,8 +170,8 @@ export default function PreviewCoursePage() {
             onClick={handlePublishCourse}
             style={{
               padding: '10px 20px',
-              backgroundColor: '#28a745',
-              color: 'white',
+              backgroundColor: 'var(--secondary)',
+              color: 'var(--secondary-foreground)',
               border: 'none',
               borderRadius: '4px',
               cursor: 'pointer'
@@ -183,8 +183,8 @@ export default function PreviewCoursePage() {
             onClick={handleBackToDashboard}
             style={{
               padding: '10px 20px',
-              backgroundColor: '#6c757d',
-              color: 'white',
+              backgroundColor: 'var(--muted-foreground)',
+              color: 'var(--primary-foreground)',
               border: 'none',
               borderRadius: '4px',
               cursor: 'pointer'
@@ -200,24 +200,24 @@ export default function PreviewCoursePage() {
         <div style={{ flex: '0 0 400px' }}>
           {course && (
             <div style={{
-              border: '1px solid #ccc',
+              border: '1px solid var(--border)',
               borderRadius: '8px',
               padding: '20px',
               marginBottom: '20px',
-              backgroundColor: '#f8f9fa'
+              backgroundColor: 'var(--card)'
             }}>
-              <h2 style={{ marginBottom: '10px', color: '#171717' }}>{course.title}</h2>
-              <p style={{ color: '#666', marginBottom: '20px' }}>{course.body}</p>
-
+              <h2 style={{ marginBottom: '10px', color: 'var(--card-foreground)' }}>{course.title}</h2>
+              <p style={{ color: 'var(--muted-foreground)', marginBottom: '20px' }}>{course.body}</p>
+              
               <div style={{
                 padding: '15px',
-                backgroundColor: '#e7f3ff',
+                backgroundColor: 'var(--accent)',
                 borderRadius: '4px',
-                border: '1px solid #bee5eb',
+                border: '1px solid var(--accent)',
                 marginBottom: '20px'
               }}>
-                <h4 style={{ margin: '0 0 10px 0', color: '#0c5460' }}>Preview Mode</h4>
-                <p style={{ margin: '0', fontSize: '14px', color: '#0c5460' }}>
+                <h4 style={{ margin: '0 0 10px 0', color: 'var(--accent-foreground)' }}>Preview Mode</h4>
+                <p style={{ margin: '0', fontSize: '14px', color: 'var(--accent-foreground)' }}>
                   This is how your course appears to students. Content is fully interactive.
                 </p>
               </div>

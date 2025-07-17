@@ -30,17 +30,17 @@ export default function TextContentBlock({ content, onComplete, isInteractive = 
 
   return (
     <div style={{
-      border: '1px solid #dee2e6',
+      border: '1px solid var(--border)',
       borderRadius: '8px',
       padding: '20px',
       marginBottom: '16px',
-      backgroundColor: content.isComplete ? '#d4edda' : '#ffffff',
-      borderLeft: `4px solid ${content.isComplete ? '#28a745' : '#007cba'}`
+      backgroundColor: content.isComplete ? 'var(--secondary)' : 'var(--card)',
+      borderLeft: `4px solid ${content.isComplete ? 'var(--secondary)' : 'var(--primary)'}`
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-        <h4 style={{ 
-          margin: 0, 
-          color: '#171717',
+        <h4 style={{
+          margin: 0,
+          color: content.isComplete ? 'var(--secondary-foreground)' : 'var(--card-foreground)',
           fontSize: '18px',
           fontWeight: '600'
         }}>
@@ -49,7 +49,7 @@ export default function TextContentBlock({ content, onComplete, isInteractive = 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {content.isComplete && (
             <span style={{
-              color: '#28a745',
+              color: 'var(--secondary-foreground)',
               fontSize: '14px',
               fontWeight: '500'
             }}>

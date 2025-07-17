@@ -62,58 +62,58 @@ export default function LoginPage() {
   // If user is already authenticated, show loading while redirecting
   if (user) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         minHeight: '100vh',
-        backgroundColor: '#ffffff'
+        backgroundColor: 'var(--background)'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ 
-            border: '3px solid #f3f3f3',
-            borderTop: '3px solid #4285f4',
+          <div style={{
+            border: '3px solid var(--border)',
+            borderTop: '3px solid var(--primary)',
             borderRadius: '50%',
             width: '30px',
             height: '30px',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 20px'
           }} />
-          <p style={{ color: '#666' }}>Redirecting to dashboard...</p>
+          <p style={{ color: 'var(--muted-foreground)' }}>Redirecting to dashboard...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
       minHeight: '100vh',
-      backgroundColor: '#f8f9fa',
-      color: '#171717'
+      backgroundColor: 'var(--muted)',
+      color: 'var(--text)'
     }}>
-      <div style={{ 
+      <div style={{
         padding: '40px',
-        border: '1px solid #e9ecef',
+        border: '1px solid var(--border)',
         borderRadius: '12px',
-        backgroundColor: '#ffffff',
+        backgroundColor: 'var(--card)',
         textAlign: 'center',
         minWidth: '400px',
         maxWidth: '500px',
         boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
       }}>
-        <h1 style={{ 
+        <h1 style={{
           marginBottom: '8px',
           fontSize: '24px',
           fontWeight: '600',
-          color: '#212529'
+          color: 'var(--card-foreground)'
         }}>
           Welcome to L&D Platform
         </h1>
-        <p style={{ 
-          color: '#6c757d', 
+        <p style={{
+          color: 'var(--muted-foreground)',
           marginBottom: '30px',
           fontSize: '14px'
         }}>
@@ -122,12 +122,12 @@ export default function LoginPage() {
         
         {error && (
           <div style={{
-            backgroundColor: '#fff5f5',
-            border: '1px solid #ff6b6b',
+            backgroundColor: 'var(--destructive)',
+            border: '1px solid var(--destructive)',
             borderRadius: '6px',
             padding: '12px',
             marginBottom: '20px',
-            color: '#dc3545',
+            color: 'var(--destructive-foreground)',
             fontSize: '14px',
             lineHeight: '1.4'
           }}>
@@ -137,11 +137,11 @@ export default function LoginPage() {
         
         <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
           <div style={{ marginBottom: '20px' }}>
-            <label htmlFor="username" style={{ 
-              display: 'block', 
-              marginBottom: '5px', 
+            <label htmlFor="username" style={{
+              display: 'block',
+              marginBottom: '5px',
               fontWeight: 'bold',
-              color: '#374151'
+              color: 'var(--card-foreground)'
             }}>
               Username:
             </label>
@@ -154,11 +154,11 @@ export default function LoginPage() {
               style={{
                 width: '100%',
                 padding: '12px',
-                border: '1px solid #d1d5db',
+                border: '1px solid var(--input)',
                 borderRadius: '6px',
                 fontSize: '16px',
-                backgroundColor: '#ffffff',
-                color: '#171717',
+                backgroundColor: 'var(--background)',
+                color: 'var(--text)',
                 boxSizing: 'border-box'
               }}
               placeholder="Enter your username"
@@ -166,11 +166,11 @@ export default function LoginPage() {
           </div>
           
           <div style={{ marginBottom: '20px' }}>
-            <label htmlFor="password" style={{ 
-              display: 'block', 
-              marginBottom: '5px', 
+            <label htmlFor="password" style={{
+              display: 'block',
+              marginBottom: '5px',
               fontWeight: 'bold',
-              color: '#374151'
+              color: 'var(--card-foreground)'
             }}>
               Password:
             </label>
@@ -183,11 +183,11 @@ export default function LoginPage() {
               style={{
                 width: '100%',
                 padding: '12px',
-                border: '1px solid #d1d5db',
+                border: '1px solid var(--input)',
                 borderRadius: '6px',
                 fontSize: '16px',
-                backgroundColor: '#ffffff',
-                color: '#171717',
+                backgroundColor: 'var(--background)',
+                color: 'var(--text)',
                 boxSizing: 'border-box'
               }}
               placeholder="Enter your password"
@@ -200,8 +200,8 @@ export default function LoginPage() {
             style={{
               width: '100%',
               padding: '12px 20px',
-              backgroundColor: isLoading ? '#9ca3af' : '#0f172a',
-              color: 'white',
+              backgroundColor: isLoading ? 'var(--muted-foreground)' : 'var(--primary)',
+              color: 'var(--primary-foreground)',
               border: 'none',
               borderRadius: '6px',
               cursor: isLoading ? 'not-allowed' : 'pointer',
@@ -233,13 +233,13 @@ export default function LoginPage() {
           </button>
         </form>
         
-        <div style={{ 
+        <div style={{
           marginTop: '30px',
           padding: '15px',
-          backgroundColor: '#f8f9fa',
+          backgroundColor: 'var(--muted)',
           borderRadius: '6px',
           fontSize: '14px',
-          color: '#0f172a',
+          color: 'var(--text)',
           textAlign: 'left'
         }}>
           <p style={{margin: '0 0 px 0', fontWeight: 'bold' }}>Test Users:</p>

@@ -174,19 +174,19 @@ export default function ContentBlockList({
       {/* Progress Header */}
       <div style={{
         padding: '16px',
-        backgroundColor: '#f8f9fa',
-        border: '1px solid #dee2e6',
+        backgroundColor: 'var(--card)',
+        border: '1px solid var(--border)',
         borderRadius: '8px',
         marginBottom: '20px'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <h3 style={{ margin: 0, color: '#171717' }}>
+          <h3 style={{ margin: 0, color: 'var(--card-foreground)' }}>
             {moduleName ? `${moduleName} Content` : 'Module Content'}
           </h3>
           <span style={{
             padding: '4px 12px',
-            backgroundColor: progress === 100 ? '#28a745' : '#007cba',
-            color: 'white',
+            backgroundColor: progress === 100 ? 'var(--secondary)' : 'var(--primary)',
+            color: progress === 100 ? 'var(--secondary-foreground)' : 'var(--primary-foreground)',
             borderRadius: '20px',
             fontSize: '12px',
             fontWeight: '600'
@@ -195,22 +195,22 @@ export default function ContentBlockList({
           </span>
         </div>
         
-        <div style={{ 
-          width: '100%', 
-          height: '8px', 
-          backgroundColor: '#e9ecef', 
+        <div style={{
+          width: '100%',
+          height: '8px',
+          backgroundColor: 'var(--muted)',
           borderRadius: '4px',
           overflow: 'hidden'
         }}>
           <div style={{
             width: `${progress}%`,
             height: '100%',
-            backgroundColor: progress === 100 ? '#28a745' : '#007cba',
+            backgroundColor: progress === 100 ? 'var(--secondary)' : 'var(--primary)',
             transition: 'width 0.3s ease'
           }} />
         </div>
-        
-        <div style={{ marginTop: '8px', fontSize: '14px', color: '#6c757d' }}>
+
+        <div style={{ marginTop: '8px', fontSize: '14px', color: 'var(--muted-foreground)' }}>
           {content.filter(item => {
             if (isQuestionContent(item)) {
               return item.userAnswer !== undefined && item.userAnswer !== null;

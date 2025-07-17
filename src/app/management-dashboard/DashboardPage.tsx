@@ -13,24 +13,24 @@ export default function DashboardPage() {
     // This is a fallback for while the user context is loading.
     // The UserProvider should redirect if the user is not authenticated.
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         minHeight: '100vh',
-        backgroundColor: '#ffffff'
+        backgroundColor: 'var(--background)'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ 
-            border: '3px solid #f3f3f3',
-            borderTop: '3px solid #4285f4',
+          <div style={{
+            border: '3px solid var(--border)',
+            borderTop: '3px solid var(--primary)',
             borderRadius: '50%',
             width: '30px',
             height: '30px',
             animation: 'spin 1s linear infinite',
             margin: '0 auto 20px'
           }} />
-          <p style={{ color: '#666' }}>Loading dashboard...</p>
+          <p style={{ color: 'var(--muted-foreground)' }}>Loading dashboard...</p>
         </div>
         <style jsx>{`
           @keyframes spin {
