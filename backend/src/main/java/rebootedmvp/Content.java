@@ -21,6 +21,12 @@ import jakarta.persistence.Table;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED) // or JOINED, TABLE_PER_CLASS
 @Table(name = "content")
+// @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
+// property = "type")
+// @JsonSubTypes({
+// @JsonSubTypes.Type(value = TextContentImpl.class, name = "Text"),
+// @JsonSubTypes.Type(value = QuestionContentImpl.class, name = "Question")
+// })
 public abstract class Content implements HasID {
 
     @Column(nullable = false)

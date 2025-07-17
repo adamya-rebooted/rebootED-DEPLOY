@@ -70,7 +70,7 @@ export class BackendApiService {
   // ================ Content Operations ================
 
   async createContent(contentData: NewContentRequest): Promise<ContentResponse> {
-    if (contentData.type === ContentType.QUESTION) {
+    if (contentData.type === ContentType.Question) {
       return backendApiClient.createContent(contentData);
     } else {
       return backendApiClient.createContent(contentData);

@@ -11,11 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import rebootedmvp.Content;
+import rebootedmvp.Content.ContentType;
 import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
-import rebootedmvp.Content.ContentType;
-import rebootedmvp.domain.impl.ContentEntityImpl;
 import rebootedmvp.domain.impl.QuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.dto.ContentDTO;

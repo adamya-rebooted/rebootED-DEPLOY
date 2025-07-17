@@ -3,18 +3,26 @@ package rebootedmvp.domain.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import rebootedmvp.Content;
+import jakarta.persistence.JoinColumn;
 
 @Entity
 // @DiscriminatorValue("QUESTION")
 public class QuestionContentImpl extends ContentEntityImpl {
 
     // private String questionText;
-    private List<String> options;
-    private String correctAnswer;
     private boolean complete;
+
+    @Column(name = "correct_answer")
+    private String correctAnswer;
+
+    @ElementCollection
+    @CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "content_id"))
+    @Column(name = "option_text")
+    private List<String> options;
 
     public QuestionContentImpl() {
         this.options = new ArrayList<>();
@@ -43,6 +51,7 @@ public class QuestionContentImpl extends ContentEntityImpl {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
@@ -69,6 +78,7 @@ public class QuestionContentImpl extends ContentEntityImpl {
         return new ArrayList<>(options);
     }
 
+    @Override
     public void setOptions(List<String> options) {
         this.options = new ArrayList<>(options);
     }

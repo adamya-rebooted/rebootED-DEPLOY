@@ -15,7 +15,6 @@ import rebootedmvp.Content;
 import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
-import rebootedmvp.domain.impl.ContentEntityImpl;
 import rebootedmvp.domain.impl.QuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.dto.ContentDTO;

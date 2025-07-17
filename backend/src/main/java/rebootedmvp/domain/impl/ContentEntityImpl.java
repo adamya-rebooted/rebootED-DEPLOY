@@ -20,6 +20,7 @@ import rebootedmvp.Module;
 // @DiscriminatorColumn(name = "content_type", discriminatorType =
 // DiscriminatorType.STRING)
 // @DiscriminatorValue("CONTENT")
+
 public class ContentEntityImpl extends Content {
 
     @PrePersist

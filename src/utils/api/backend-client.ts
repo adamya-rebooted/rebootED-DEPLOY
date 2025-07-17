@@ -1,8 +1,8 @@
 // Backend API Client for Spring Boot Integration
 // Clean implementation with comprehensive error handling
 export enum ContentType {
-  TEXT = 'TEXT',
-  QUESTION = 'QUESTION',
+  Text = 'Text',
+  Question = 'Question',
 }
 
 import {
@@ -240,13 +240,35 @@ export class BackendApiClient {
 
 
   async createContent(contentData: NewContentRequest): Promise<ContentResponse> {
-    if (contentData.type === ContentType.QUESTION) {
-      return this.post<ContentResponse>(`/modules/${contentData.moduleId}/addQuestion`, contentData);
-    }
-    else {
-      return this.post<ContentResponse>(`/modules/${contentData.moduleId}/addText`, contentData);
-    }
+    // if (contentData.type === ContentType.Question) {
+    //   return this.post<ContentResponse>(`/modules/${contentData.moduleId}/addQuestion`, contentData);
+    // }
+    // else {
+    //   return this.post<ContentResponse>(`/modules/${contentData.moduleId}/addText`, contentData);
+    // }
+    const { moduleId, type, ...payload } = contentData;
 
+    if (type === ContentType.Text) {
+      // Use the module-specific addText endpoint
+      const contentId = await this.post<number>(`/modules/${moduleId}/addText`, {
+        type,
+        ...payload,
+        moduleId
+      });
+      // Since we only get back the ID, fetch the full content data
+      return this.getContentById(contentId);
+    } else if (type === ContentType.Question) {
+      // Use the module-specific addQuestion endpoint  
+      const contentId = await this.post<number>(`/modules/${moduleId}/addQuestion`, {
+        type,
+        ...payload,
+        moduleId
+      });
+      // Since we only get back the ID, fetch the full content data
+      return this.getContentById(contentId);
+    } else {
+      throw new Error(`Unsupported content type: ${type}`);
+    }
   }
 
   async getContentByModule(moduleId: number): Promise<ContentResponse[]> {

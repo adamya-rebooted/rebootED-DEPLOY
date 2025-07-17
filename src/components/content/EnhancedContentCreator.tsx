@@ -32,7 +32,7 @@ export default function EnhancedContentCreator({
   onCancel
 }: EnhancedContentCreatorProps) {
   // Basic content fields
-  const [contentType, setContentType] = useState<ContentType>(ContentType.TEXT);
+  const [contentType, setContentType] = useState<ContentType>(ContentType.Text);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
 
@@ -47,15 +47,15 @@ export default function EnhancedContentCreator({
 
   const getContentTypeIcon = (type: ContentType) => {
     switch (type) {
-      case ContentType.TEXT: return <FileText className="h-5 w-5" />;
-      case ContentType.QUESTION: return <HelpCircle className="h-5 w-5" />;
+      case ContentType.Text: return <FileText className="h-5 w-5" />;
+      case ContentType.Question: return <HelpCircle className="h-5 w-5" />;
     }
   };
 
   const getContentTypeDescription = (type: ContentType) => {
     switch (type) {
-      case ContentType.TEXT: return 'Rich text content with formatting, images, and links';
-      case ContentType.QUESTION: return 'Multiple choice questions with automatic grading';
+      case ContentType.Text: return 'Rich text content with formatting, images, and links';
+      case ContentType.Question: return 'Multiple choice questions with automatic grading';
     }
   };
 
@@ -83,7 +83,7 @@ export default function EnhancedContentCreator({
     if (!title.trim()) return 'Title is required';
     // Body is optional, so we don't validate it as required
 
-    if (contentType === ContentType.QUESTION) {
+    if (contentType === ContentType.Question) {
       const nonEmptyOptions = options.filter(opt => opt.trim());
       if (nonEmptyOptions.length < 2) return 'Questions must have at least 2 options';
       if (!correctAnswer.trim()) return 'Correct answer is required for questions';
@@ -109,7 +109,7 @@ export default function EnhancedContentCreator({
         title: title.trim(),
         body: body.trim() || null,
         moduleId,
-        ...(contentType === ContentType.QUESTION && {
+        ...(contentType === ContentType.Question && {
           options: options.filter(opt => opt.trim()),
           correctAnswer: correctAnswer.trim()
         })
@@ -122,7 +122,7 @@ export default function EnhancedContentCreator({
       setBody('');
       setOptions(['', '', '', '']);
       setCorrectAnswer('');
-      setContentType(ContentType.TEXT);
+      setContentType(ContentType.Text);
       setCurrentStep('type');
 
       onContentCreated(createdContent);
@@ -154,7 +154,7 @@ export default function EnhancedContentCreator({
     <div className="space-y-4">
       <h3 className="text-lg font-semibold mb-4">Choose Content Type</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {([ContentType.TEXT, ContentType.QUESTION] as ContentType[]).map((type) => (
+        {([ContentType.Text, ContentType.Question] as ContentType[]).map((type) => (
           <Card
             key={type}
             className={`cursor-pointer transition-all hover:shadow-md ${contentType === type ? 'ring-2 ring-blue-500 bg-blue-50' : ''
@@ -213,7 +213,7 @@ export default function EnhancedContentCreator({
 
             <div>
               <Label htmlFor="body">
-                {contentType === ContentType.QUESTION ? 'Question Text' : 'Content'}
+                {contentType === ContentType.Question ? 'Question Text' : 'Content'}
               </Label>
               <div className="mt-1" data-color-mode="light">
                 <MDEditor
@@ -225,7 +225,7 @@ export default function EnhancedContentCreator({
               </div>
             </div>
 
-            {contentType === ContentType.QUESTION && (
+            {contentType === ContentType.Question && (
               <div className="space-y-4">
                 <Label>Answer Options</Label>
                 {options.map((option, index) => (
