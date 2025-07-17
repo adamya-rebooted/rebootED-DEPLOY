@@ -1,12 +1,8 @@
 package rebootedmvp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -15,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
@@ -60,10 +55,11 @@ public abstract class Content implements HasID {
     // @Column(name = "question_text", columnDefinition = "TEXT")
     // protected String questionText;
 
-    @ElementCollection
-    @CollectionTable(name = "content_options", joinColumns = @JoinColumn(name = "content_id"))
-    @Column(name = "option_text")
-    protected List<String> optionText = new ArrayList<>();
+    // @ElementCollection
+    // @CollectionTable(name = "content_options", joinColumns = @JoinColumn(name =
+    // "content_id"))
+    // @Column(name = "option_text")
+    // protected List<String> optionText = new ArrayList<>();
 
     // @Column(name = "correct_answer")
     // protected String correctAnswer;

@@ -1,7 +1,6 @@
 package rebootedmvp.domain.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -21,7 +20,7 @@ import rebootedmvp.Module;
 // DiscriminatorType.STRING)
 // @DiscriminatorValue("CONTENT")
 
-public class ContentEntityImpl extends Content {
+public abstract class ContentEntityImpl extends Content {
 
     @PrePersist
     protected void onCreate() {
@@ -54,7 +53,6 @@ public class ContentEntityImpl extends Content {
         this.body = questionText; // Set body to questionText for consistency
         // this.questionText = questionText;
         this.contentType = ContentType.Question; // Set the content type!
-        this.optionText = new ArrayList<>(options);
         // this.correctAnswer = correctAnswer;
         this.moduleId = module.getId();
         this.isComplete = false;
@@ -148,9 +146,10 @@ public class ContentEntityImpl extends Content {
     // return new ArrayList<>(optionText);
     // }
 
-    public void setOptions(List<String> options) {
-        this.optionText = new ArrayList<>(options != null ? options : new ArrayList<>());
-    }
+    // public void setOptions(List<String> options) {
+    // this.optionText = new ArrayList<>(options != null ? options : new
+    // ArrayList<>());
+    // }
 
     // @Override
     // public String getCorrectAnswer() {

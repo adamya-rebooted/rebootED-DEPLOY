@@ -8,13 +8,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
 
 @Entity
 // @DiscriminatorValue("QUESTION")
+@Table(name = "Question_Info")
 public class QuestionContentImpl extends ContentEntityImpl {
 
     // private String questionText;
-    private boolean complete;
 
     @Column(name = "correct_answer")
     private String correctAnswer;
@@ -37,13 +38,7 @@ public class QuestionContentImpl extends ContentEntityImpl {
         this.options = new ArrayList<>(options);
         this.correctAnswer = correctAnswer;
         this.moduleId = moduleId;
-        complete = false;
         this.contentType = ContentType.Question;
-    }
-
-    @Override
-    public boolean isComplete() {
-        return complete;
     }
 
     @Override
@@ -78,7 +73,6 @@ public class QuestionContentImpl extends ContentEntityImpl {
         return new ArrayList<>(options);
     }
 
-    @Override
     public void setOptions(List<String> options) {
         this.options = new ArrayList<>(options);
     }
