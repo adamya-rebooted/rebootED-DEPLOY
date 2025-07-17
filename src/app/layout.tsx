@@ -2,6 +2,7 @@
 
 import './globals.css'
 import { UserProvider } from '@/contexts/UserContext'
+import { AIAssistantProvider, FloatingAIButton, AIAssistantOverlay } from '@/components/ai-assistant'
 
 export default function RootLayout({
   children,
@@ -12,7 +13,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <UserProvider>
-          {children}
+          <AIAssistantProvider>
+            {children}
+            <FloatingAIButton />
+            <AIAssistantOverlay />
+          </AIAssistantProvider>
         </UserProvider>
       </body>
     </html>
