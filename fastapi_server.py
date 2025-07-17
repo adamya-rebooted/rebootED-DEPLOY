@@ -16,7 +16,8 @@ from agent import (
     ModuleGrouper, 
     CourseContentGenerator,
     TextContentOut,
-    QuestionContentOut
+    QuestionContentOut,
+    PromptToCourseModule
 )
 
 load_dotenv()
@@ -71,10 +72,19 @@ class GeneratedCourseResponse(BaseModel):
     course_description: str
     modules: List[ModuleResponse]
 
+# Request/Response models for the new prompt-to-course endpoint
+class PromptToCourseRequest(BaseModel):
+    input_prompt: str
+
+class PromptToCourseResponse(BaseModel):
+    course_title: str
+    course_description: str
+
 # Initialize your agent components
 analyzer = KnowledgeGapAnalyzer()
 grouper = ModuleGrouper()
 content_generator = CourseContentGenerator()
+prompt_to_course_agent = PromptToCourseModule()
 
 # Add middleware for request logging
 @app.middleware("http")
@@ -231,6 +241,30 @@ async def generate_course_simple(request: GenerateCourseRequest):
     except Exception as e:
         logger.error(f"❌ Simple course generation failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Course generation failed: {str(e)}")
+
+@app.post("/prompt-to-course", response_model=PromptToCourseResponse)
+async def prompt_to_course(request: PromptToCourseRequest):
+    """
+    Generate a course title and description from a user's course idea prompt.
+    """
+    try:
+        logger.info(f"🎯 Prompt-to-course request received for prompt: {request.input_prompt[:50]}...")
+        
+        # Call the prompt-to-course agent
+        result = prompt_to_course_agent(input_prompt=request.input_prompt)
+        
+        # Transform result to response model
+        response = PromptToCourseResponse(
+            course_title=result.course_title,
+            course_description=result.course_description
+        )
+        
+        logger.info(f"✅ Prompt-to-course completed successfully: {response.course_title}")
+        return response
+        
+    except Exception as e:
+        logger.error(f"❌ Prompt-to-course failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Prompt-to-course failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

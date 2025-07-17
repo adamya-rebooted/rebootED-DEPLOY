@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/backend/backend.log
 
 # next.js
 /.next/

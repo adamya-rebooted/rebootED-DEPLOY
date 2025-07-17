@@ -36,8 +36,34 @@ sample_course_prompt = CoursePrompt(
 
 
 
-lm = dspy.LM('anthropic/claude-3-opus-20240229', api_key=os.getenv('ANTHROPIC_API_KEY'))
+#lm = dspy.LM('anthropic/claude-3-opus-20240229', api_key=os.getenv('ANTHROPIC_API_KEY'))
+lm = dspy.LM('gemini/gemini-1.5-flash', api_key=os.getenv('GEMINI_API_KEY'))
 dspy.configure(lm=lm)
+
+
+
+
+
+
+### START PROMPT --> COURSE AGENT CLASS
+#create prompt to course agent signature
+class PromptToCourse(dspy.Signature):
+    """Generates a course title and description from a user's course idea prompt."""
+    input_prompt = dspy.InputField(desc="A user-written prompt describing the course they want to create.")
+    course_title = dspy.OutputField(desc="A concise, engaging title for the course.")
+    course_description = dspy.OutputField(desc="A compelling and informative paragraph describing what the course covers.")
+
+#create prompt to course agent module by wrapping the signature
+class PromptToCourseModule(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.generator = dspy.Predict(PromptToCourse)  # uses default model unless you configure a custom one
+
+    def forward(self, input_prompt: str):
+        return self.generator(input_prompt=input_prompt)
+
+### END PROMPT --> COURSE AGENT CLASS
+
 
 
 
@@ -200,67 +226,69 @@ class CourseContentGenerator(dspy.Module):
 #TEST CODE
 # Test the knowledge gap analyzer
 if __name__ == "__main__":
-    # Do STEP 1
-    # Create analyzer instance
-    analyzer = KnowledgeGapAnalyzer()
+    pass
+    #THIS IS THE STUFF FOR THE ORIGINAL DEMO
+    # # Do STEP 1
+    # # Create analyzer instance
+    # analyzer = KnowledgeGapAnalyzer()
     
-    # Run the analysis
-    result = analyzer(
-        starting_point_description=sample_course_prompt.starting_point_description,
-        finish_line_description=sample_course_prompt.finish_line_description
-    )
+    # # Run the analysis
+    # result = analyzer(
+    #     starting_point_description=sample_course_prompt.starting_point_description,
+    #     finish_line_description=sample_course_prompt.finish_line_description
+    # )
     
-    # Print the results from STEP 1
-    print("=== KNOWLEDGE GAP ANALYSIS ===")
-    print(f"Starting Point: {sample_course_prompt.starting_point_description}")
-    print(f"Finish Line: {sample_course_prompt.finish_line_description}")
-    print(f"\nKnowledge/Skills Needed:")
+    # # Print the results from STEP 1
+    # print("=== KNOWLEDGE GAP ANALYSIS ===")
+    # print(f"Starting Point: {sample_course_prompt.starting_point_description}")
+    # print(f"Finish Line: {sample_course_prompt.finish_line_description}")
+    # print(f"\nKnowledge/Skills Needed:")
     
-    # Now you can access the structured list
-    skills_list = result.analysis.knowledge_skills_list
-    for i, skill in enumerate(skills_list, 1):
-        print(f"{i}. {skill}")
+    # # Now you can access the structured list
+    # skills_list = result.analysis.knowledge_skills_list
+    # for i, skill in enumerate(skills_list, 1):
+    #     print(f"{i}. {skill}")
     
-    # For step 2, you can now easily iterate over the list
-    print(f"\nTotal skills identified: {len(skills_list)}")
-    print("Skills for processing in Step 2:")
-    for skill in skills_list:
-        print(f"  - {skill}")
-    
-
-    # Do STEP 2
-    # Test the module grouper
-    grouper = ModuleGrouper()
-    grouping_result = grouper(knowledge_skills_list=skills_list)
-
-    # Print the results from STEP 2
-    # Print the grouped modules
-    print("\n=== MODULE GROUPING ===")
-    for i, module in enumerate(grouping_result.grouping.modules, 1):
-        print(f"Module {i}: {module.module_name}")
-        for skill in module.skills:
-            print(f"  - {skill}")
+    # # For step 2, you can now easily iterate over the list
+    # print(f"\nTotal skills identified: {len(skills_list)}")
+    # print("Skills for processing in Step 2:")
+    # for skill in skills_list:
+    #     print(f"  - {skill}")
     
 
-    # Do STEP 3
-    # Test the course content generator
-    course_generator = CourseContentGenerator()
-    course_content_result = course_generator(modules=grouping_result.grouping.modules)
+    # # Do STEP 2
+    # # Test the module grouper
+    # grouper = ModuleGrouper()
+    # grouping_result = grouper(knowledge_skills_list=skills_list)
 
-    # Print the results from STEP 3
-    print("\n=== COURSE CONTENT GENERATION ===")
-    for i, module_bundle in enumerate(course_content_result.modules, 1):
-        print(f"\nModule {i}: {module_bundle.module_name}")
-        print(f"Content blocks generated: {len(module_bundle.content_blocks)}")
+    # # Print the results from STEP 2
+    # # Print the grouped modules
+    # print("\n=== MODULE GROUPING ===")
+    # for i, module in enumerate(grouping_result.grouping.modules, 1):
+    #     print(f"Module {i}: {module.module_name}")
+    #     for skill in module.skills:
+    #         print(f"  - {skill}")
+    
+
+    # # Do STEP 3
+    # # Test the course content generator
+    # course_generator = CourseContentGenerator()
+    # course_content_result = course_generator(modules=grouping_result.grouping.modules)
+
+    # # Print the results from STEP 3
+    # print("\n=== COURSE CONTENT GENERATION ===")
+    # for i, module_bundle in enumerate(course_content_result.modules, 1):
+    #     print(f"\nModule {i}: {module_bundle.module_name}")
+    #     print(f"Content blocks generated: {len(module_bundle.content_blocks)}")
         
-        for j, content_block in enumerate(module_bundle.content_blocks, 1):
-            print(f"  Content Block {j}:")
-            print(f"    Type: {content_block.type}")
-            print(f"    Title: {content_block.title}")
+    #     for j, content_block in enumerate(module_bundle.content_blocks, 1):
+    #         print(f"  Content Block {j}:")
+    #         print(f"    Type: {content_block.type}")
+    #         print(f"    Title: {content_block.title}")
             
-            if content_block.type == "Text":
-                print(f"    Body: {content_block.body[:100]}..." if len(content_block.body) > 100 else f"    Body: {content_block.body}")
-            elif content_block.type == "Question":
-                print(f"    Question: {content_block.question_text}")
-                print(f"    Options: {content_block.options}")
-                print(f"    Correct Answer: {content_block.correct_answer}")
+    #         if content_block.type == "Text":
+    #             print(f"    Body: {content_block.body[:100]}..." if len(content_block.body) > 100 else f"    Body: {content_block.body}")
+    #         elif content_block.type == "Question":
+    #             print(f"    Question: {content_block.question_text}")
+    #             print(f"    Options: {content_block.options}")
+    #             print(f"    Correct Answer: {content_block.correct_answer}")
