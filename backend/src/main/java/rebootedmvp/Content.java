@@ -1,26 +1,27 @@
 package rebootedmvp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED) // or JOINED, TABLE_PER_CLASS
 @Table(name = "content")
+// @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
+// property = "type")
+// @JsonSubTypes({
+// @JsonSubTypes.Type(value = TextContentImpl.class, name = "Text"),
+// @JsonSubTypes.Type(value = QuestionContentImpl.class, name = "Question")
+// })
 public abstract class Content implements HasID {
 
     @Column(nullable = false)
@@ -30,7 +31,7 @@ public abstract class Content implements HasID {
     protected String body;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "content_type")
+    @Column(name = "content_type", nullable = false)
     protected Content.ContentType contentType;
 
     @Column(name = "is_complete")
@@ -50,20 +51,21 @@ public abstract class Content implements HasID {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    // Fields specific to Question content type
-    @Column(name = "question_text", columnDefinition = "TEXT")
-    protected String questionText;
+    // // Fields specific to Question content type
+    // @Column(name = "question_text", columnDefinition = "TEXT")
+    // protected String questionText;
 
-    @ElementCollection
-    @CollectionTable(name = "content_options", joinColumns = @JoinColumn(name = "content_id"))
-    @Column(name = "option_text")
-    protected List<String> optionText = new ArrayList<>();
+    // @ElementCollection
+    // @CollectionTable(name = "content_options", joinColumns = @JoinColumn(name =
+    // "content_id"))
+    // @Column(name = "option_text")
+    // protected List<String> optionText = new ArrayList<>();
 
-    @Column(name = "correct_answer")
-    protected String correctAnswer;
+    // @Column(name = "correct_answer")
+    // protected String correctAnswer;
 
-    @Column(name = "user_answer")
-    protected String userAnswer;
+    // @Column(name = "user_answer")
+    // protected String userAnswer;
 
     /**
      * Different atomic units of content blocks. Each one is an implementation
@@ -82,7 +84,9 @@ public abstract class Content implements HasID {
     /**
      * Returns the content type of the user
      */
-    abstract public ContentType getType();
+    public ContentType getType() {
+        return this.contentType;
+    }
 
     /**
      * Returns the id of the module that this content belongs to
@@ -103,14 +107,14 @@ public abstract class Content implements HasID {
      */
     abstract public void setComplete(boolean complete);
 
-    abstract public String getCorrectAnswer();
+    // abstract public String getCorrectAnswer();
 
-    abstract public List<String> getOptions();
+    // abstract public List<String> getOptions();
 
     /**
      * Returns the question text for Question content types
      * For Text content, this may return null or throw an exception
      */
-    abstract public String getQuestionText();
+    // abstract public String getQuestionText();
 
 }

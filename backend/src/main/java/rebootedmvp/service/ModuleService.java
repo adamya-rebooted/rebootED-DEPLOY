@@ -15,11 +15,11 @@ import rebootedmvp.Content;
 import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
-import rebootedmvp.domain.impl.ContentEntityImpl;
 import rebootedmvp.domain.impl.QuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.NewContentDTO;
+import rebootedmvp.dto.NewQuestionContentDTO;
 import rebootedmvp.dto.QuestionContentDTO;
 import rebootedmvp.dto.TextContentDTO;
 import rebootedmvp.repository.ContentRepository;
@@ -113,17 +113,16 @@ public class ModuleService {
             throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
         } else
             switch (newContentDTO.getType()) {
-                case "Text" -> content = new ContentEntityImpl(
+                case Text -> content = new TextContentImpl(
                         newContentDTO.getTitle().trim(),
                         newContentDTO.getBody(),
-                        module,
-                        Content.ContentType.Text);
-                case "Question" -> content = new ContentEntityImpl(
+                        module.getId());
+                case Question -> content = new QuestionContentImpl(
                         newContentDTO.getTitle().trim(),
                         newContentDTO.getBody(),
-                        newContentDTO.getOptions(),
+                        ((NewQuestionContentDTO) newContentDTO).getOptions(),
                         newContentDTO.getCorrectAnswer(),
-                        module);
+                        moduleId);
                 default -> throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
             }
 
@@ -158,24 +157,25 @@ public class ModuleService {
         }
 
         switch (content.getType()) {
-            case Text -> {
+            case Text:
                 content = (TextContentImpl) content;
                 if (updateDTO.getBody() != null) {
                     content.setBody(updateDTO.getBody());
                 }
-            }
-            case Question -> {
+                break;
+            case Question:
                 QuestionContentImpl questionContent = (QuestionContentImpl) content;
+                NewQuestionContentDTO qDTO = (NewQuestionContentDTO) updateDTO;
                 if (updateDTO.getBody() != null) {
                     questionContent.setQuestionText(updateDTO.getBody());
                 }
-                if (updateDTO.getOptions() != null) {
-                    questionContent.setOptions(updateDTO.getOptions());
+                if ((qDTO).getOptions() != null) {
+                    questionContent.setOptions(qDTO.getOptions());
                 }
                 if (updateDTO.getCorrectAnswer() != null) {
                     questionContent.setCorrectAnswer(updateDTO.getCorrectAnswer());
                 }
-            }
+                break;
         }
         contentRepository.save(ContentMapper.toEntity(content));
         logger.info("Updated content with ID: {} in module: {}", contentId, moduleId);
@@ -223,11 +223,11 @@ public class ModuleService {
             return new QuestionContentDTO(
                     content.getId(),
                     content.getTitle(),
-                    ((ContentEntityImpl) content).getQuestionText(),
+                    content.getBody(),
                     content.isComplete(),
                     content.getModuleId(),
-                    ((ContentEntityImpl) content).getOptions(),
-                    ((ContentEntityImpl) content).getCorrectAnswer());
+                    ((QuestionContentImpl) content).getOptions(),
+                    ((QuestionContentImpl) content).getCorrectAnswer());
         }
         return null;
     }

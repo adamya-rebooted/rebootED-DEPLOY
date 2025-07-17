@@ -2,6 +2,8 @@ package rebootedmvp.dto;
 
 import java.util.List;
 
+import rebootedmvp.Content.ContentType;
+
 public class NewQuestionContentDTO extends NewContentDTO {
 
     private List<String> options;
@@ -10,7 +12,7 @@ public class NewQuestionContentDTO extends NewContentDTO {
     public NewQuestionContentDTO() {
     }
 
-    public NewQuestionContentDTO(String type, String title, String body, Long moduleId,
+    public NewQuestionContentDTO(ContentType type, String title, String body, Long moduleId,
             List<String> options, String correctAnswer) {
         super(type, title, body, moduleId, options, correctAnswer);
     }
@@ -20,14 +22,17 @@ public class NewQuestionContentDTO extends NewContentDTO {
         return options;
     }
 
+    @Override
     public void setOptions(List<String> options) {
         this.options = options;
     }
 
+    @Override
     public String getCorrectAnswer() {
         return correctAnswer;
     }
 
+    @Override
     public void setCorrectAnswer(String correctAnswer) {
         this.correctAnswer = correctAnswer;
     }

@@ -3,37 +3,42 @@ package rebootedmvp.domain.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import rebootedmvp.Content;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
 
 @Entity
-@DiscriminatorValue("QUESTION")
-public class QuestionContentImpl extends Content {
+// @DiscriminatorValue("QUESTION")
+@Table(name = "Question_Info")
+public class QuestionContentImpl extends ContentEntityImpl {
 
-    private String questionText;
-    private List<String> options;
+    // private String questionText;
+
+    @Column(name = "correct_answer")
     private String correctAnswer;
-    private boolean complete;
+
+    @ElementCollection
+    @CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "content_id"))
+    @Column(name = "option_text")
+    private List<String> options;
 
     public QuestionContentImpl() {
         this.options = new ArrayList<>();
+        this.contentType = ContentType.Question;
+
     }
 
-    public QuestionContentImpl(Long id, String title, String questionText, List<String> options,
+    public QuestionContentImpl(String title, String questionText, List<String> options,
             String correctAnswer, Long moduleId) {
-        this.id = id;
         this.title = title;
-        this.questionText = questionText;
+        this.body = questionText;
         this.options = new ArrayList<>(options);
         this.correctAnswer = correctAnswer;
         this.moduleId = moduleId;
-        complete = false;
-    }
-
-    @Override
-    public boolean isComplete() {
-        return complete;
+        this.contentType = ContentType.Question;
     }
 
     @Override
@@ -41,6 +46,7 @@ public class QuestionContentImpl extends Content {
         return id;
     }
 
+    @Override
     public void setId(Long id) {
         this.id = id;
     }
@@ -56,11 +62,11 @@ public class QuestionContentImpl extends Content {
     }
 
     public String getQuestionText() {
-        return questionText;
+        return body;
     }
 
     public void setQuestionText(String questionText) {
-        this.questionText = questionText;
+        this.body = questionText;
     }
 
     public List<String> getOptions() {
@@ -96,12 +102,12 @@ public class QuestionContentImpl extends Content {
 
     @Override
     public String getBody() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return body;
     }
 
     @Override
     public void setBody(String newBody) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.body = newBody;
     }
 
     @Override

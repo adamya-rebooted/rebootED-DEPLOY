@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { NewContentRequest, ContentResponse } from '@/types/backend-api';
 import { apiService } from '@/services/api';
+import { ContentType } from '@/utils/api/backend-client';
 
 interface ContentCreatorProps {
   moduleId: number;
@@ -11,7 +12,7 @@ interface ContentCreatorProps {
 }
 
 export default function ContentCreator({ moduleId, onContentCreated, onCancel }: ContentCreatorProps) {
-  const [contentType, setContentType] = useState<'Text' | 'Question'>('Text');
+  const [contentType, setContentType] = useState<ContentType.Text | ContentType.Question>(ContentType.Text);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [options, setOptions] = useState<string[]>(['', '', '', '']);
@@ -21,7 +22,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     if (!title.trim()) {
       setError('Title is required');
@@ -30,7 +31,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
 
     // Body is optional, so we don't validate it as required
 
-    if (contentType === 'Question') {
+    if (contentType === ContentType.Question) {
       const nonEmptyOptions = options.filter(opt => opt.trim());
       if (nonEmptyOptions.length < 2) {
         setError('Questions must have at least 2 options');
@@ -53,7 +54,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
       let contentBody = body.trim() || null;
 
       // For Question type, format the body to include options and correct answer
-      if (contentType === 'Question') {
+      if (contentType === ContentType.Question) {
         const filteredOptions = options.filter(opt => opt.trim());
         const optionsText = filteredOptions.map((option, index) =>
           `${String.fromCharCode(65 + index)}. ${option}`
@@ -75,7 +76,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
         body: contentBody,
         type: contentType,
         moduleId,
-        ...(contentType === 'Question' && {
+        ...(contentType === ContentType.Question && {
           options: options.filter(opt => opt.trim()),
           correctAnswer: correctAnswer.trim()
         })
@@ -88,7 +89,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
       setBody('');
       setOptions(['', '', '', '']);
       setCorrectAnswer('');
-      setContentType('Text');
+      setContentType(ContentType.Text);
 
       onContentCreated(createdContent);
     } catch (err) {
@@ -103,7 +104,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
     const newOptions = [...options];
     newOptions[index] = value;
     setOptions(newOptions);
-    
+
     // Update correct answer if it matches the old value
     if (correctAnswer === options[index]) {
       setCorrectAnswer(value);
@@ -120,7 +121,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
     if (options.length > 2) {
       const newOptions = options.filter((_, i) => i !== index);
       setOptions(newOptions);
-      
+
       // Clear correct answer if it was the removed option
       if (correctAnswer === options[index]) {
         setCorrectAnswer('');
@@ -166,7 +167,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
                 type="radio"
                 value="Text"
                 checked={contentType === 'Text'}
-                onChange={(e) => setContentType(e.target.value as 'Text' | 'Question')}
+                onChange={(e) => setContentType(e.target.value as ContentType.Text | ContentType.Question)}
                 style={{ marginRight: '8px' }}
               />
               <span style={{ color: '#171717' }}>Text Content</span>
@@ -176,7 +177,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
                 type="radio"
                 value="Question"
                 checked={contentType === 'Question'}
-                onChange={(e) => setContentType(e.target.value as 'Text' | 'Question')}
+                onChange={(e) => setContentType(e.target.value as ContentType.Text | ContentType.Question)}
                 style={{ marginRight: '8px' }}
               />
               <span style={{ color: '#171717' }}>Question</span>
@@ -235,13 +236,13 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
             <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#171717' }}>
               Answer Options:
             </label>
-            
+
             {options.map((option, index) => (
               <div key={index} style={{ display: 'flex', gap: '10px', marginBottom: '8px', alignItems: 'center' }}>
-                <span style={{ 
-                  minWidth: '20px', 
-                  fontWeight: 'bold', 
-                  color: '#6c757d' 
+                <span style={{
+                  minWidth: '20px',
+                  fontWeight: 'bold',
+                  color: '#6c757d'
                 }}>
                   {String.fromCharCode(65 + index)}.
                 </span>
@@ -278,7 +279,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
                 )}
               </div>
             ))}
-            
+
             {options.length < 6 && (
               <button
                 type="button"

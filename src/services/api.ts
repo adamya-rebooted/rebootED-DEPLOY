@@ -1,6 +1,6 @@
 // Backend API Service - Clean Spring Boot Integration
 // Replaces Supabase with backend API calls
-
+import { ContentType } from '@/utils/api/backend-client';
 import { backendApiClient } from '@/utils/api/backend-client';
 import {
   Course,
@@ -18,9 +18,9 @@ import {
 
 
 export class BackendApiService {
-  
+
   // ================ Course Operations ================
-  
+
   async createCourse(courseData: NewCourseRequest): Promise<Course> {
     return backendApiClient.createCourse(courseData);
   }
@@ -42,7 +42,7 @@ export class BackendApiService {
   }
 
   // ================ Module Operations ================
-  
+
   async createModule(moduleData: NewModuleRequest): Promise<Module> {
     const response = await backendApiClient.createModule(moduleData);
     // Since backend only returns ID, we need to fetch the full module data
@@ -68,9 +68,13 @@ export class BackendApiService {
   }
 
   // ================ Content Operations ================
-  
+
   async createContent(contentData: NewContentRequest): Promise<ContentResponse> {
-    return backendApiClient.createContent(contentData);
+    if (contentData.type === ContentType.Question) {
+      return backendApiClient.createContent(contentData);
+    } else {
+      return backendApiClient.createContent(contentData);
+    }
   }
 
   async getContentByModuleId(moduleId: number): Promise<ContentResponse[]> {
@@ -81,7 +85,7 @@ export class BackendApiService {
     return backendApiClient.getContentById(id);
   }
 
-  async updateContent(id: number, contentData: { title: string; body: string; type: 'Text' | 'Question'; moduleId: number }): Promise<ContentResponse> {
+  async updateContent(id: number, contentData: { title: string; body: string; type: ContentType; moduleId: number }): Promise<ContentResponse> {
     return backendApiClient.updateContent(id, contentData);
   }
 
@@ -98,7 +102,7 @@ export class BackendApiService {
   }
 
   // ================ User Operations ================
-  
+
   async validateUsernames(usernames: string[]): Promise<Record<string, boolean>> {
     return backendApiClient.validateUsernames(usernames);
   }
@@ -116,7 +120,7 @@ export class BackendApiService {
   }
 
   // ================ Course Membership Operations ================
-  
+
   async addTeachersToCourse(courseId: number, usernames: string[]): Promise<void> {
     return backendApiClient.addTeachersToCourse(courseId, usernames);
   }
