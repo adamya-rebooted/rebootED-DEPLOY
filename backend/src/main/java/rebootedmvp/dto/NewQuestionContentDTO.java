@@ -22,17 +22,14 @@ public class NewQuestionContentDTO extends NewContentDTO {
         return options;
     }
 
-    @Override
     public void setOptions(List<String> options) {
         this.options = options;
     }
 
-    @Override
     public String getCorrectAnswer() {
         return correctAnswer;
     }
 
-    @Override
     public void setCorrectAnswer(String correctAnswer) {
         this.correctAnswer = correctAnswer;
     }

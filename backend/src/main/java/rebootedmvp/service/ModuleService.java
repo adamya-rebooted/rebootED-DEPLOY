@@ -17,9 +17,11 @@ import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
 import rebootedmvp.domain.impl.QuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
+import rebootedmvp.domain.impl.VideoContentImpl;
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.NewContentDTO;
 import rebootedmvp.dto.NewQuestionContentDTO;
+import rebootedmvp.dto.NewVideoContentDTO;
 import rebootedmvp.dto.QuestionContentDTO;
 import rebootedmvp.dto.TextContentDTO;
 import rebootedmvp.repository.ContentRepository;
@@ -121,7 +123,12 @@ public class ModuleService {
                         newContentDTO.getTitle().trim(),
                         newContentDTO.getBody(),
                         ((NewQuestionContentDTO) newContentDTO).getOptions(),
-                        newContentDTO.getCorrectAnswer(),
+                        ((NewQuestionContentDTO) newContentDTO).getCorrectAnswer(),
+                        moduleId);
+                case Video -> content = new VideoContentImpl(
+                        newContentDTO.getTitle().trim(),
+                        newContentDTO.getBody(),
+                        ((NewVideoContentDTO) newContentDTO).getVideoURL(),
                         moduleId);
                 default -> throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
             }
@@ -159,6 +166,9 @@ public class ModuleService {
         switch (content.getType()) {
             case Text:
                 content = (TextContentImpl) content;
+                if (updateDTO.getTitle() != null) {
+                    content.setTitle(updateDTO.getTitle());
+                }
                 if (updateDTO.getBody() != null) {
                     content.setBody(updateDTO.getBody());
                 }
@@ -166,14 +176,29 @@ public class ModuleService {
             case Question:
                 QuestionContentImpl questionContent = (QuestionContentImpl) content;
                 NewQuestionContentDTO qDTO = (NewQuestionContentDTO) updateDTO;
+                if (updateDTO.getTitle() != null) {
+                    content.setTitle(updateDTO.getTitle());
+                }
                 if (updateDTO.getBody() != null) {
                     questionContent.setQuestionText(updateDTO.getBody());
                 }
                 if ((qDTO).getOptions() != null) {
                     questionContent.setOptions(qDTO.getOptions());
                 }
-                if (updateDTO.getCorrectAnswer() != null) {
-                    questionContent.setCorrectAnswer(updateDTO.getCorrectAnswer());
+                if (((NewQuestionContentDTO) updateDTO).getCorrectAnswer() != null) {
+                    questionContent.setCorrectAnswer(((NewQuestionContentDTO) updateDTO).getCorrectAnswer());
+                }
+                break;
+            case Video:
+                VideoContentImpl videoContent = (VideoContentImpl) content;
+                if (updateDTO.getTitle() != null) {
+                    content.setTitle(updateDTO.getTitle());
+                }
+                if (updateDTO.getBody() != null) {
+                    videoContent.setBody(updateDTO.getBody());
+                }
+                if (((NewVideoContentDTO) updateDTO).getVideoURL() != null) {
+                    videoContent.setVideoURL(((NewVideoContentDTO) updateDTO).getVideoURL());
                 }
                 break;
         }

@@ -11,15 +11,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import rebootedmvp.Content;
-import rebootedmvp.Content.ContentType;
 import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
 import rebootedmvp.domain.impl.QuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
+import rebootedmvp.domain.impl.VideoContentImpl;
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.NewContentDTO;
 import rebootedmvp.dto.NewQuestionContentDTO;
+import rebootedmvp.dto.NewVideoContentDTO;
 import rebootedmvp.dto.QuestionContentDTO;
 import rebootedmvp.dto.TextContentDTO;
 import rebootedmvp.repository.ContentRepository;
@@ -83,37 +84,45 @@ public class ContentService {
 
         Content content;
 
-        if (ContentType.Text.equals(newContentDTO.getType())) {
-            content = new TextContentImpl(
-                    newContentDTO.getTitle().trim(),
-                    newContentDTO.getBody(),
-                    module.getId());
-        } else if (ContentType.Question.equals(newContentDTO.getType())) {
-            List<String> options = ((NewQuestionContentDTO) newContentDTO).getOptions() != null
-                    ? ((NewQuestionContentDTO) newContentDTO).getOptions()
-                    : List.of();
-            String correctAnswer = newContentDTO.getCorrectAnswer() != null ? newContentDTO.getCorrectAnswer() : "";
-
-            // Validate question data
-            if (options.size() < 2) {
-                throw new IllegalArgumentException("Question must have at least 2 options");
-            }
-            if (correctAnswer.isEmpty()) {
-                throw new IllegalArgumentException("Question must have a correct answer");
-            }
-            if (!options.contains(correctAnswer)) {
-                throw new IllegalArgumentException("Correct answer must be one of the provided options");
-            }
-
-            content = new QuestionContentImpl(
-                    newContentDTO.getTitle().trim(),
-                    newContentDTO.getBody(),
-                    options,
-                    correctAnswer,
-                    module.getId());
-        } else {
+        if (null == newContentDTO.getType()) {
             throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
-        }
+        } else
+            switch (newContentDTO.getType()) {
+                case Text -> content = new TextContentImpl(
+                        newContentDTO.getTitle().trim(),
+                        newContentDTO.getBody(),
+                        module.getId());
+                case Question -> {
+                    List<String> options = ((NewQuestionContentDTO) newContentDTO).getOptions() != null
+                            ? ((NewQuestionContentDTO) newContentDTO).getOptions()
+                            : List.of();
+                    String correctAnswer = ((NewQuestionContentDTO) newContentDTO).getCorrectAnswer() != null
+                            ? ((NewQuestionContentDTO) newContentDTO).getCorrectAnswer()
+                            : "";
+                    // Validate question data
+                    if (options.size() < 2) {
+                        throw new IllegalArgumentException("Question must have at least 2 options");
+                    }
+                    if (correctAnswer.isEmpty()) {
+                        throw new IllegalArgumentException("Question must have a correct answer");
+                    }
+                    if (!options.contains(correctAnswer)) {
+                        throw new IllegalArgumentException("Correct answer must be one of the provided options");
+                    }
+                    content = new QuestionContentImpl(
+                            newContentDTO.getTitle().trim(),
+                            newContentDTO.getBody(),
+                            options,
+                            correctAnswer,
+                            module.getId());
+                }
+                case Video -> content = new VideoContentImpl(
+                        newContentDTO.getTitle().trim(),
+                        newContentDTO.getBody(),
+                        ((NewVideoContentDTO) newContentDTO).getVideoURL(),
+                        module.getId());
+                default -> throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
+            }
 
         Content savedContent = contentRepository.save(ContentMapper.toEntity(content));
         logger.info("Created content with ID: {} in module: {}", savedContent.getId(), module.getId());
@@ -140,15 +149,27 @@ public class ContentService {
         }
 
         // Update question-specific fields if this is a question
+        switch (content.getType()) {
+            case Question:
+                QuestionContentDTO qDTO = (QuestionContentDTO) convertToDTO(content);
+                ((QuestionContentImpl) content).setQuestionText(updateContentDTO.getBody());
+                if ((qDTO).getOptions() != null) {
+                    ((QuestionContentImpl) content).setOptions(qDTO.getOptions());
+                }
+                if (((NewQuestionContentDTO) updateContentDTO).getCorrectAnswer() != null) {
+                    ((QuestionContentImpl) content)
+                            .setCorrectAnswer(((NewQuestionContentDTO) updateContentDTO).getCorrectAnswer());
+                }
+            case Video:
+                if (((NewVideoContentDTO) updateContentDTO).getVideoURL() != null) {
+                    ((VideoContentImpl) content).setVideoURL(((NewVideoContentDTO) updateContentDTO).getVideoURL());
+                }
+            case Text:
+                // No additional fields to update for TextContent
+                break;
+        }
         if (content.getType() == Content.ContentType.Question) {
-            QuestionContentDTO qDTO = (QuestionContentDTO) convertToDTO(content);
-            ((QuestionContentImpl) content).setQuestionText(updateContentDTO.getBody());
-            if ((qDTO).getOptions() != null) {
-                ((QuestionContentImpl) content).setOptions(qDTO.getOptions());
-            }
-            if (updateContentDTO.getCorrectAnswer() != null) {
-                ((QuestionContentImpl) content).setCorrectAnswer(updateContentDTO.getCorrectAnswer());
-            }
+
         }
 
         Content savedContent = contentRepository.save(ContentMapper.toEntity(content));

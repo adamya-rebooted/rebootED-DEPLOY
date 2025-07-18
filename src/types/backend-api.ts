@@ -112,7 +112,7 @@ export type ContentResponse = Content | QuestionContent;
 
 // Type guard to check if content is a question
 export function isQuestionContent(content: Content): content is QuestionContent {
-  return content.type === 'Question' && 'options' in content;
+  return content.type === ContentType.Question && 'options' in content;
 }
 
 export interface UserProfile {

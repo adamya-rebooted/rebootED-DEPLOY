@@ -74,6 +74,7 @@ public abstract class Content implements HasID {
     public enum ContentType {
         Text,
         Question,
+        Video,
     }
 
     /**

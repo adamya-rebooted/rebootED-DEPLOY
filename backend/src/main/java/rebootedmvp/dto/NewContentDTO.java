@@ -73,15 +73,15 @@ public class NewContentDTO implements NewDTO {
     // return options;
     // }
 
-    public void setOptions(List<String> options) {
-        this.options = options;
-    }
+    // public void setOptions(List<String> options) {
+    // this.options = options;
+    // }
 
-    public String getCorrectAnswer() {
-        return correctAnswer;
-    }
+    // public String getCorrectAnswer() {
+    // return correctAnswer;
+    // }
 
-    public void setCorrectAnswer(String correctAnswer) {
-        this.correctAnswer = correctAnswer;
-    }
+    // public void setCorrectAnswer(String correctAnswer) {
+    // this.correctAnswer = correctAnswer;
+    // }
 }

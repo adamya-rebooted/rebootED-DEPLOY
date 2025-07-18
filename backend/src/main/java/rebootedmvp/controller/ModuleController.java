@@ -19,6 +19,7 @@ import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.NewContentDTO;
 import rebootedmvp.dto.NewQuestionContentDTO;
 import rebootedmvp.dto.NewTextContentDTO;
+import rebootedmvp.dto.NewVideoContentDTO;
 import rebootedmvp.service.ModuleService;
 
 @RestController
@@ -56,6 +57,17 @@ public class ModuleController {
     @PostMapping("/addText")
     public ResponseEntity<Long> createTextContent(@PathVariable Long moduleId,
             @RequestBody NewTextContentDTO newContentDTO) {
+        try {
+            Long contentId = moduleService.addNew(moduleId, newContentDTO);
+            return ResponseEntity.ok(contentId);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/addVideo")
+    public ResponseEntity<Long> createVideoContent(@PathVariable Long moduleId,
+            @RequestBody NewVideoContentDTO newContentDTO) {
         try {
             Long contentId = moduleService.addNew(moduleId, newContentDTO);
             return ResponseEntity.ok(contentId);

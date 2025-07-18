@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import rebootedmvp.domain.impl.ContentEntityImpl;
 import rebootedmvp.domain.impl.QuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
+import rebootedmvp.domain.impl.VideoContentImpl;
 
 @Component
 public class ContentMapper {
@@ -16,6 +17,7 @@ public class ContentMapper {
         return switch (content.getType()) {
             case Text -> mapToTextContent(content);
             case Question -> mapToQuestionContent(content);
+            case Video -> mapToVideoContent(content);
         };
     }
 
@@ -37,5 +39,15 @@ public class ContentMapper {
                 content.getModuleId());
         question.setId(content.getId());
         return question;
+    }
+
+    private static VideoContentImpl mapToVideoContent(Content content) {
+        VideoContentImpl video = new VideoContentImpl(
+                content.getTitle(),
+                content.getBody(), // body as questionText
+                ((VideoContentImpl) content).getVideoURL(),
+                content.getModuleId());
+        video.setId(content.getId());
+        return video;
     }
 }
