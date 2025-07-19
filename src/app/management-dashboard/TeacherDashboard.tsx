@@ -137,10 +137,6 @@ const TeacherDashboard: React.FC = () => {
               <Plus className="h-4 w-4 mr-2 " />
               Create Course
             </Button>
-            <Button onClick={() => router.push('/ai-course-generation')}>
-              <Plus className="h-4 w-4 mr-2 " />
-              AI Course Generation
-            </Button>
           </div>
         </div>
 
