@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAIAssistant } from './AIAssistantProvider';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,6 +17,10 @@ interface CreatedCourse {
 
 export const AIAssistantOverlay: React.FC = () => {
   const { isVisible, hideAssistant } = useAIAssistant();
+  const pathname = usePathname();
+
+  // Check if we're on the management dashboard
+  const isOnManagementDashboard = pathname === '/management-dashboard';
 
   // Prompt-based course creation state
   const [coursePrompt, setCoursePrompt] = useState('');
@@ -98,47 +103,61 @@ export const AIAssistantOverlay: React.FC = () => {
         {/* Content */}
         <div className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-12rem)]">
           
-          {/* Prompt-based Course Creation Section */}
-          <div className="space-y-4">
-            <h3 className="font-medium text-lg">Create Course from Prompt</h3>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Course Idea</label>
-              <Textarea
-                value={coursePrompt}
-                onChange={(e) => setCoursePrompt(e.target.value)}
-                placeholder="Describe the course you want to create... (e.g., 'I want to teach people how to make websites from scratch')"
-                rows={3}
-              />
+          {/* Conditionally render course creation section only on management dashboard */}
+          {isOnManagementDashboard && (
+            <div className="space-y-4">
+              <h3 className="font-medium text-lg">Create Course from Prompt</h3>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Course Idea</label>
+                <Textarea
+                  value={coursePrompt}
+                  onChange={(e) => setCoursePrompt(e.target.value)}
+                  placeholder="Describe the course you want to create... (e.g., 'I want to teach people how to make websites from scratch')"
+                  rows={3}
+                />
+              </div>
+
+              {error && (
+                <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                  ❌ {error}
+                </div>
+              )}
+
+              <Button 
+                onClick={handleCreateCourse}
+                disabled={isGeneratingFromPrompt}
+                className="w-full"
+              >
+                {isGeneratingFromPrompt ? 'Creating Course...' : 'Create Course from Prompt'}
+              </Button>
+
+              {/* Success Message */}
+              {createdCourse && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <h4 className="font-medium text-green-800">
+                    ✅ Course Created Successfully!
+                  </h4>
+                  <p className="text-sm text-green-700 mt-1">
+                    &ldquo;{createdCourse.title}&rdquo; has been created with ID: {createdCourse.id}
+                  </p>
+                </div>
+              )}
             </div>
+          )}
 
-            {error && (
-              <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
-                ❌ {error}
+          {/* Fallback content for other pages */}
+          {!isOnManagementDashboard && (
+            <div className="space-y-4">
+              <h3 className="font-medium text-lg">AI Assistant</h3>
+              <p className="text-sm text-muted-foreground">
+                Navigate to the Management Dashboard to access course creation features.
+              </p>
+              <div className="text-xs text-muted-foreground">
+                Current page: {pathname}
               </div>
-            )}
-
-            <Button 
-              onClick={handleCreateCourse}
-              disabled={isGeneratingFromPrompt}
-              className="w-full"
-            >
-              {isGeneratingFromPrompt ? 'Creating Course...' : 'Create Course from Prompt'}
-            </Button>
-
-            {/* Success Message */}
-            {createdCourse && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                <h4 className="font-medium text-green-800">
-                  ✅ Course Created Successfully!
-                </h4>
-                <p className="text-sm text-green-700 mt-1">
-                  &ldquo;{createdCourse.title}&rdquo; has been created with ID: {createdCourse.id}
-                </p>
-              </div>
-            )}
-          </div>
-
+            </div>
+          )}
 
         </div>
       </div>
