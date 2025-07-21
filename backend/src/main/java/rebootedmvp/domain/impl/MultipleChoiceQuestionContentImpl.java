@@ -12,8 +12,8 @@ import jakarta.persistence.Table;
 
 @Entity
 // @DiscriminatorValue("QUESTION")
-@Table(name = "Question_Info")
-public class QuestionContentImpl extends ContentEntityImpl {
+@Table(name = "Multiple_Choice_Question_Info")
+public class MultipleChoiceQuestionContentImpl extends ContentEntityImpl {
 
     // private String questionText;
 
@@ -21,24 +21,24 @@ public class QuestionContentImpl extends ContentEntityImpl {
     private String correctAnswer;
 
     @ElementCollection
-    @CollectionTable(name = "question_options", joinColumns = @JoinColumn(name = "content_id"))
+    @CollectionTable(name = "multiple_choice_question_options", joinColumns = @JoinColumn(name = "content_id"))
     @Column(name = "option_text")
     private List<String> options;
 
-    public QuestionContentImpl() {
+    public MultipleChoiceQuestionContentImpl() {
         this.options = new ArrayList<>();
-        this.contentType = ContentType.Question;
+        this.contentType = ContentType.MultipleChoiceQuestion;
 
     }
 
-    public QuestionContentImpl(String title, String questionText, List<String> options,
+    public MultipleChoiceQuestionContentImpl(String title, String questionText, List<String> options,
             String correctAnswer, Long moduleId) {
         this.title = title;
         this.body = questionText;
         this.options = new ArrayList<>(options);
         this.correctAnswer = correctAnswer;
         this.moduleId = moduleId;
-        this.contentType = ContentType.Question;
+        this.contentType = ContentType.MultipleChoiceQuestion;
     }
 
     @Override
@@ -97,7 +97,7 @@ public class QuestionContentImpl extends ContentEntityImpl {
 
     @Override
     public ContentType getType() {
-        return ContentType.Question;
+        return ContentType.MultipleChoiceQuestion;
     }
 
     @Override

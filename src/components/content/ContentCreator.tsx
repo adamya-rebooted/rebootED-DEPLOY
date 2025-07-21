@@ -12,7 +12,7 @@ interface ContentCreatorProps {
 }
 
 export default function ContentCreator({ moduleId, onContentCreated, onCancel }: ContentCreatorProps) {
-  const [contentType, setContentType] = useState<ContentType.Text | ContentType.Question>(ContentType.Text);
+  const [contentType, setContentType] = useState<ContentType.Text | ContentType.MultipleChoiceQuestion>(ContentType.Text);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [options, setOptions] = useState<string[]>(['', '', '', '']);
@@ -31,7 +31,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
 
     // Body is optional, so we don't validate it as required
 
-    if (contentType === ContentType.Question) {
+    if (contentType === ContentType.MultipleChoiceQuestion) {
       const nonEmptyOptions = options.filter(opt => opt.trim());
       if (nonEmptyOptions.length < 2) {
         setError('Questions must have at least 2 options');
@@ -54,7 +54,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
       let contentBody = body.trim() || null;
 
       // For Question type, format the body to include options and correct answer
-      if (contentType === ContentType.Question) {
+      if (contentType === ContentType.MultipleChoiceQuestion) {
         const filteredOptions = options.filter(opt => opt.trim());
         const optionsText = filteredOptions.map((option, index) =>
           `${String.fromCharCode(65 + index)}. ${option}`
@@ -76,7 +76,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
         body: contentBody,
         type: contentType,
         moduleId,
-        ...(contentType === ContentType.Question && {
+        ...(contentType === ContentType.MultipleChoiceQuestion && {
           options: options.filter(opt => opt.trim()),
           correctAnswer: correctAnswer.trim()
         })
@@ -167,7 +167,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
                 type="radio"
                 value="Text"
                 checked={contentType === 'Text'}
-                onChange={(e) => setContentType(e.target.value as ContentType.Text | ContentType.Question)}
+                onChange={(e) => setContentType(e.target.value as ContentType.Text | ContentType.MultipleChoiceQuestion)}
                 style={{ marginRight: '8px' }}
               />
               <span style={{ color: '#171717' }}>Text Content</span>
@@ -175,9 +175,9 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
             <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
               <input
                 type="radio"
-                value="Question"
-                checked={contentType === 'Question'}
-                onChange={(e) => setContentType(e.target.value as ContentType.Text | ContentType.Question)}
+                value="MultipleChoiceQuestion"
+                checked={contentType === 'MultipleChoiceQuestion'}
+                onChange={(e) => setContentType(e.target.value as ContentType.Text | ContentType.MultipleChoiceQuestion)}
                 style={{ marginRight: '8px' }}
               />
               <span style={{ color: '#171717' }}>Question</span>
@@ -231,7 +231,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
         </div>
 
         {/* Question-specific fields */}
-        {contentType === 'Question' && (
+        {contentType === 'MultipleChoiceQuestion' && (
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#171717' }}>
               Answer Options:

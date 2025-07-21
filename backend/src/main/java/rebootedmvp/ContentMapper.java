@@ -3,9 +3,10 @@ package rebootedmvp;
 import org.springframework.stereotype.Component;
 
 import rebootedmvp.domain.impl.ContentEntityImpl;
-import rebootedmvp.domain.impl.QuestionContentImpl;
+import rebootedmvp.domain.impl.MultipleChoiceQuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.domain.impl.VideoContentImpl;
+import rebootedmvp.domain.impl.*;
 
 @Component
 public class ContentMapper {
@@ -16,8 +17,9 @@ public class ContentMapper {
     public static ContentEntityImpl toEntity(Content content) {
         return switch (content.getType()) {
             case Text -> mapToTextContent(content);
-            case Question -> mapToQuestionContent(content);
+            case MultipleChoiceQuestion -> mapToQuestionContent(content);
             case Video -> mapToVideoContent(content);
+            case MatchingQuestion -> mapToMatchingQuestionContent(content);
         };
     }
 
@@ -30,12 +32,12 @@ public class ContentMapper {
         return text;
     }
 
-    private static QuestionContentImpl mapToQuestionContent(Content content) {
-        QuestionContentImpl question = new QuestionContentImpl(
+    private static MultipleChoiceQuestionContentImpl mapToQuestionContent(Content content) {
+        MultipleChoiceQuestionContentImpl question = new MultipleChoiceQuestionContentImpl(
                 content.getTitle(),
                 content.getBody(), // body as questionText
-                ((QuestionContentImpl) content).getOptions(),
-                content instanceof QuestionContentImpl qc ? qc.getCorrectAnswer() : null,
+                ((MultipleChoiceQuestionContentImpl) content).getOptions(),
+                content instanceof MultipleChoiceQuestionContentImpl qc ? qc.getCorrectAnswer() : null,
                 content.getModuleId());
         question.setId(content.getId());
         return question;
@@ -49,5 +51,15 @@ public class ContentMapper {
                 content.getModuleId());
         video.setId(content.getId());
         return video;
+    }
+
+    private static MatchingQuestionContentImpl mapToMatchingQuestionContent(Content content) {
+        MatchingQuestionContentImpl matching = new MatchingQuestionContentImpl(
+                content.getTitle(),
+                content.getBody(), // body as questionText
+                ((MatchingQuestionContentImpl) content).getMatches(),
+                content.getModuleId());
+        matching.setId(content.getId());
+        return matching;
     }
 }

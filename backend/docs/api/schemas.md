@@ -162,7 +162,7 @@ Represents content blocks (text or questions) in API responses.
 
 **Fields:**
 - `id` (Long) - Unique identifier for the content
-- `type` (String) - Content type ("Text" or "Question")
+- `type` (String) - Content type ("Text" or "MultipleChoiceQuestion")
 - `title` (String) - Content title
 - `body` (String) - Content body/description
 - `isComplete` (Boolean) - Whether the content has been completed
@@ -180,10 +180,10 @@ Used for creating and updating content blocks.
 }
 ```
 
-**For Question Content:**
+**For Multiple Choice Question Content:**
 ```json
 {
-  "type": "Question",
+  "type": "MultipleChoiceQuestion",
   "title": "string",
   "body": "string",
   "moduleId": 1,
@@ -193,12 +193,12 @@ Used for creating and updating content blocks.
 ```
 
 **Fields:**
-- `type` (String, required) - Content type ("Text" or "Question")
+- `type` (String, required) - Content type ("Text" or "MultipleChoiceQuestion")
 - `title` (String, required) - Content title. Cannot be empty or null.
 - `body` (String, optional) - Content body/description
 - `moduleId` (Long, required) - ID of the module this content belongs to
-- `options` (List<String>, required for Question) - Available answer options
-- `correctAnswer` (String, required for Question) - The correct answer
+- `options` (List<String>, required for MultipleChoiceQuestion) - Available answer options
+- `correctAnswer` (String, required for MultipleChoiceQuestion) - The correct answer
 
 ### QuestionContentDTO
 Extended DTO for question content with answer tracking.
@@ -206,7 +206,7 @@ Extended DTO for question content with answer tracking.
 ```json
 {
   "id": 1,
-  "type": "Question",
+  "type": "MultipleChoiceQuestion",
   "title": "string",
   "body": "string",
   "isComplete": true,
