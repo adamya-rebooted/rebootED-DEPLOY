@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Layout from "@/components/content/Layout";
+import Navbar from "@/components/content/Navbar";
 import {
   Card,
   CardContent,
@@ -108,20 +108,22 @@ const TakeCoursePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Layout>
+      <>
+        <Navbar />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading course...</p>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   if (error) {
     return (
-      <Layout>
+      <>
+        <Navbar />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <p className="text-red-600 mb-4">Error: {error}</p>
@@ -131,13 +133,14 @@ const TakeCoursePage: React.FC = () => {
             </Button>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <>
+      <Navbar />
+      <div className="space-y-6 bg-[var(--background)] min-h-screen">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -145,34 +148,34 @@ const TakeCoursePage: React.FC = () => {
               onClick={handleBackToDashboard}
               variant="outline"
               size="sm"
+              className="border-[var(--border)] text-[var(--primary)]"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">{course?.title}</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-3xl font-bold text-[var(--primary)]">{course?.title}</h1>
+              <p className="text-[var(--muted-foreground)]">
                 Learn at your own pace and track your progress
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-[var(--muted-foreground)]">
             <User className="h-4 w-4" />
             <span>Student View</span>
           </div>
         </div>
-
         {/* Course Information Section */}
-        <Card>
+        <Card className="bg-[var(--card)] text-[var(--card-foreground)] border-[var(--border)]">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-lg">Course Overview</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-lg text-[var(--primary)]">Course Overview</CardTitle>
+                <CardDescription className="text-[var(--muted-foreground)]">
                   Course description and learning objectives
                 </CardDescription>
               </div>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-4 text-sm text-[var(--muted-foreground)]">
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
                   <span>Self-paced</span>
@@ -187,29 +190,28 @@ const TakeCoursePage: React.FC = () => {
           <CardContent>
             <div className="space-y-2">
               <div>
-                <h3 className="font-medium">{course?.title}</h3>
+                <h3 className="font-medium text-[var(--primary)]">{course?.title}</h3>
               </div>
               {course?.body && (
                 <div>
-                  <p className="text-muted-foreground">{course.body}</p>
+                  <p className="text-[var(--muted-foreground)]">{course.body}</p>
                 </div>
               )}
               {!course?.body && (
-                <p className="text-muted-foreground italic">No description provided</p>
+                <p className="text-[var(--muted-foreground)] italic">No description provided</p>
               )}
             </div>
           </CardContent>
         </Card>
-
         {/* Modules Section */}
-        <Card>
+        <Card className="bg-[var(--card)] text-[var(--card-foreground)] border-[var(--border)]">
           <CardHeader>
             <div>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-[var(--primary)]">
                 <BookOpen className="h-5 w-5" />
                 Course Modules ({modules.length})
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-[var(--muted-foreground)]">
                 Complete modules in order to progress through the course
               </CardDescription>
             </div>
@@ -218,30 +220,30 @@ const TakeCoursePage: React.FC = () => {
             {modules.length > 0 ? (
               <div className="space-y-4">
                 {modules.map((module, index) => (
-                  <Card key={module.id} className="border-l-4 border-l-primary">
+                  <Card key={module.id} className="border-l-4 border-l-[var(--primary)] bg-[var(--background)]">
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-medium">
+                            <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: 'var(--muted)', color: 'var(--primary)' }}>
                               Module {index + 1}
                             </span>
                             {module.progress === 100 && (
-                              <CheckCircle className="h-4 w-4 text-green-600" />
+                              <CheckCircle className="h-4 w-4 text-[var(--secondary)]" />
                             )}
                           </div>
-                          <h3 className="font-semibold text-lg mb-2">{module.title}</h3>
+                          <h3 className="font-semibold text-lg mb-2 text-[var(--primary)]">{module.title}</h3>
                           {module.body && (
-                            <p className="text-muted-foreground mb-3">{module.body}</p>
+                            <p className="text-[var(--muted-foreground)] mb-3">{module.body}</p>
                           )}
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-4 text-sm text-[var(--muted-foreground)]">
                             <span>Content: {module.contentCount || 0} items</span>
                             {module.progress !== undefined && (
                               <div className="flex items-center gap-2">
                                 <span>Progress: {Math.round(module.progress)}%</span>
-                                <div className="w-20 h-2 bg-gray-200 rounded-full">
-                                  <div 
-                                    className="h-2 bg-primary rounded-full transition-all duration-300"
+                                <div className="w-20 h-2 bg-[var(--muted)] rounded-full">
+                                  <div
+                                    className="h-2 bg-[var(--primary)] rounded-full transition-all duration-300"
                                     style={{ width: `${module.progress}%` }}
                                   />
                                 </div>
@@ -254,6 +256,7 @@ const TakeCoursePage: React.FC = () => {
                             onClick={() => toggleModuleExpansion(module.id)}
                             variant="outline"
                             size="sm"
+                            className="border-[var(--border)] text-[var(--primary)]"
                           >
                             {expandedModules.has(module.id) ? (
                               <>
@@ -269,20 +272,18 @@ const TakeCoursePage: React.FC = () => {
                           </Button>
                         </div>
                       </div>
-
                       {/* Expandable Content Section */}
                       {expandedModules.has(module.id) && (
-                        <div className="mt-6 pt-6 border-t">
+                        <div className="mt-6 pt-6 border-t border-[var(--border)]">
                           <div className="mb-4">
-                            <h4 className="font-medium flex items-center gap-2">
+                            <h4 className="font-medium flex items-center gap-2 text-[var(--primary)]">
                               <FileText className="h-4 w-4" />
                               Module Content
                             </h4>
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <p className="text-sm text-[var(--muted-foreground)] mt-1">
                               Complete all content items to finish this module
                             </p>
                           </div>
-
                           {/* Content Block List for this module - Student view */}
                           <ContentBlockList
                             moduleId={module.id}
@@ -298,9 +299,9 @@ const TakeCoursePage: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-16">
-                <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No Modules Available</h3>
-                <p className="text-muted-foreground mb-4">
+                <BookOpen className="h-12 w-12 text-[var(--muted-foreground)] mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2 text-[var(--primary)]">No Modules Available</h3>
+                <p className="text-[var(--muted-foreground)] mb-4">
                   This course doesn't have any modules yet. Please check back later.
                 </p>
               </div>
@@ -308,7 +309,7 @@ const TakeCoursePage: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </Layout>
+    </>
   );
 };
 

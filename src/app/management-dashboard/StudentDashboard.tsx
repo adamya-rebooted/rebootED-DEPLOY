@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from "react";
-import Layout from "@/components/content/Layout";
+import Navbar from "@/components/content/Navbar";
 import CourseCard, { Course } from "@/components/content/CourseCard";
 import {
   Card,
@@ -113,93 +113,78 @@ const StudentDashboard: React.FC = () => {
   );
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-[var(--background)] max-w-6xl mx-auto px-6 py-10 space-y-10">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bolD">
-            My Learning Dashboard
-          </h1>
-          <p className=" mt-1">
-            Track your progress and continue your professional development
-            journey
-          </p>
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-[var(--primary)]">My Learning Dashboard</h1>
+          <p className="mt-1 text-[var(--muted-foreground)]">Track your progress and continue your professional development journey</p>
         </div>
 
         {/* Stats Cards */}
-        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Courses
-              </CardTitle>
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-[var(--primary)] text-[var(--primary-foreground)] shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
+              <BookOpen className="h-5 w-5 text-[var(--primary-foreground)]/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalCourses}</div>
-              <p className="text-xs text-muted-foreground">Assigned to you</p>
+              <p className="text-xs text-[var(--primary-foreground)]/80">Assigned to you</p>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="bg-[var(--secondary)] text-[var(--secondary-foreground)] shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Completed</CardTitle>
-              <Trophy className="h-4 w-4 text-muted-foreground" />
+              <Trophy className="h-5 w-5 text-[var(--secondary-foreground)]/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{completedCourses}</div>
-              <p className="text-xs text-muted-foreground">Courses finished</p>
+              <p className="text-xs text-[var(--secondary-foreground)]/80">Courses finished</p>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="bg-[var(--muted-foreground)] text-[var(--primary-foreground)] shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <Clock className="h-5 w-5 text-[var(--primary-foreground)]/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{inProgressCourses}</div>
-              <p className="text-xs text-muted-foreground">
-                Currently learning
-              </p>
+              <p className="text-xs text-[var(--primary-foreground)]/80">Currently learning</p>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Avg. Progress
-              </CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <Card className="bg-[var(--accent)] text-[var(--accent-foreground)] shadow-md">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Avg. Progress</CardTitle>
+              <TrendingUp className="h-5 w-5 text-[var(--accent-foreground)]/80" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{averageProgress}%</div>
-              <p className="text-xs text-muted-foreground">
-                Across all courses
-              </p>
+              <p className="text-xs text-[var(--accent-foreground)]/80">Across all courses</p>
             </CardContent>
           </Card>
-        </div> */}
+        </div>
 
-        {/* Current Progress Overview */}
-        {/* <Card>
+        {/* Progress Overview */}
+        {/* <Card className="bg-white/90 shadow border border-[#e3e8f0]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-[#223366]">
+              <Target className="h-5 w-5 text-[#3b82f6]" />
               Overall Learning Progress
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-[#64748b]">
               Your progress across all assigned courses
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Completion Rate</span>
-                <span>{averageProgress}%</span>
+                <span className="text-[#223366] font-medium">Completion Rate</span>
+                <span className="text-[#223366] font-semibold">{averageProgress}%</span>
               </div>
-              <Progress value={averageProgress} className="h-3" />
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <Progress value={averageProgress} className="h-3 bg-[#eaf1fb]" />
+              <div className="flex justify-between text-xs text-[#64748b]">
                 <span>
                   {completedCourses}/{totalCourses} courses completed
                 </span>
@@ -209,56 +194,80 @@ const StudentDashboard: React.FC = () => {
           </CardContent>
         </Card> */}
 
-        {/* Filters and Search */}
-        {/* <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search courses..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Courses</SelectItem>
-              <SelectItem value="not-started">Not Started</SelectItem>
-              <SelectItem value="in-progress">In Progress</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div> */}
-
         {/* Courses Grid */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl">My Courses</h2>
-            {/* <Badge variant="outline">
-              {filteredCourses.length} of {totalCourses} courses
-            </Badge> */}
+            <h2 className="text-xl text-[var(--primary)] font-semibold">My Courses</h2>
           </div>
-
           {filteredCourses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCourses.map((course) => (
-                <CourseCard
+                <Card
                   key={course.id}
-                  course={course}
-                  onAction={handleCourseAction}
-                />
+                  className={
+                    `transition-all duration-200 shadow-md border-2 border-[var(--border)] bg-[var(--card)] hover:shadow-lg hover:border-[var(--primary)] rounded-xl group`
+                  }
+                >
+                  <CardHeader className="pb-4">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant={
+                            course.status === "completed"
+                              ? "default"
+                              : course.status === "in-progress"
+                              ? "secondary"
+                              : "outline"
+                          }
+                          className={
+                            course.status === "completed"
+                              ? "bg-green-500 text-white"
+                              : course.status === "in-progress"
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-300 text-gray-700"
+                          }
+                        >
+                          {course.status === "completed"
+                            ? "Completed"
+                            : course.status === "in-progress"
+                            ? "In Progress"
+                            : "Not Started"}
+                        </Badge>
+                        <span className="text-xs text-[var(--muted-foreground)]">{course.category}</span>
+                      </div>
+                      <CardTitle className="text-lg text-[var(--primary)] group-hover:text-[var(--accent)] transition-colors">
+                        {course.title}
+                      </CardTitle>
+                      <CardDescription className="text-[var(--muted-foreground)]">
+                        {course.description}
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm mt-3">
+                      <span className="text-[var(--muted-foreground)]">{course.duration}</span>
+                      <span className="text-[var(--muted-foreground)]">{course.modules} modules</span>
+                      {course.dueDate && (
+                        <span className="text-xs text-[var(--muted-foreground)]">Due: {new Date(course.dueDate).toLocaleDateString()}</span>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs text-[var(--muted-foreground)]">
+                        <span>Progress</span>
+                        <span className="font-medium">{course.progress}%</span>
+                      </div>
+                      <Progress value={course.progress} className="h-2 bg-[var(--muted)]" />
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           ) : (
-            <Card>
+            <Card className="bg-[var(--card)] border-2 border-[var(--border)]">
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No courses found</h3>
-                <p className="text-muted-foreground text-center">
+                <BookOpen className="h-12 w-12 text-[var(--primary)] mb-4" />
+                <h3 className="text-lg font-medium mb-2 text-[var(--primary)]">No courses found</h3>
+                <p className="text-[var(--muted-foreground)] text-center">
                   {searchTerm || statusFilter !== "all"
                     ? "Try adjusting your search or filter criteria."
                     : "You haven't been assigned any courses yet."}
@@ -268,7 +277,7 @@ const StudentDashboard: React.FC = () => {
           )}
         </div>
       </div>
-    </Layout>
+    </>
   );
 };
 

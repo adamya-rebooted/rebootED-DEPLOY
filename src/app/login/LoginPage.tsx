@@ -84,45 +84,45 @@ export default function LoginPage() {
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '100vh',
-      backgroundColor: 'var(--muted)',
+      background: 'var(--background)',
       color: 'var(--text)'
     }}>
       <div style={{
-        padding: '40px',
+        padding: '48px 32px',
         border: '1px solid var(--border)',
-        borderRadius: '12px',
-        backgroundColor: 'var(--card)',
+        borderRadius: '16px',
+        background: 'var(--card)',
         textAlign: 'center',
-        minWidth: '400px',
-        maxWidth: '500px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        minWidth: '340px',
+        maxWidth: '90vw',
+        boxShadow: '0 4px 24px 0 rgba(31, 58, 96, 0.08)'
       }}>
         <h1 style={{
-          marginBottom: '8px',
-          fontSize: '24px',
-          fontWeight: '600',
-          color: 'var(--card-foreground)'
+          marginBottom: '16px',
+          fontSize: '2rem',
+          fontWeight: '700',
+          color: 'var(--primary)'
         }}>
           Welcome to L&D Platform
         </h1>
         <p style={{
           color: 'var(--muted-foreground)',
-          marginBottom: '30px',
-          fontSize: '14px'
+          marginBottom: '32px',
+          fontSize: '1.1rem'
         }}>
           Sign in to access your courses and learning materials
         </p>
-        
         {error && (
           <div style={{
             backgroundColor: 'var(--destructive)',
             border: '1px solid var(--destructive)',
-            borderRadius: '6px',
-            padding: '12px',
-            marginBottom: '20px',
+            borderRadius: '8px',
+            padding: '14px',
+            marginBottom: '24px',
             color: 'var(--destructive-foreground)',
-            fontSize: '14px',
-            lineHeight: '1.4'
+            fontSize: '15px',
+            lineHeight: '1.4',
+            fontWeight: 500
           }}>
             {error}
           </div>
@@ -138,14 +138,28 @@ export default function LoginPage() {
               backgroundColor: '#4285f4',
               color: 'white',
               border: 'none',
-              borderRadius: '6px',
+              borderRadius: '8px',
               cursor: isLoading ? 'not-allowed' : 'pointer',
               fontSize: '16px',
               fontWeight: '500',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '10px'
+              gap: '10px',
+            }}
+            onMouseOver={e => {
+              if (!isLoading) {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--accent)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent-foreground)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px 0 rgba(31, 58, 96, 0.15)';
+              }
+            }}
+            onMouseOut={e => {
+              if (!isLoading) {
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--primary)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--primary-foreground)';
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px 0 rgba(31, 58, 96, 0.10)';
+              }
             }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24">
@@ -161,10 +175,11 @@ export default function LoginPage() {
         <div style={{
           padding: '15px',
           backgroundColor: 'var(--muted)',
-          borderRadius: '6px',
-          fontSize: '14px',
+          borderRadius: '8px',
+          fontSize: '15px',
           color: 'var(--text)',
-          textAlign: 'left'
+          textAlign: 'left',
+          border: '1px solid var(--border)',
         }}>
           <p style={{margin: '0 0 10px 0', fontWeight: 'bold' }}>Phase 2 Status:</p>
           <p style={{margin: '0', fontSize: '12px' }}>
@@ -174,7 +189,6 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
-      
       <style jsx>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Layout from "@/components/content/Layout";
+import Navbar from "@/components/content/Navbar";
 import {
   Card,
   CardContent,
@@ -280,20 +280,22 @@ const ModifyCoursePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Layout>
+      <>
+        <Navbar />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading course data...</p>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   if (error) {
     return (
-      <Layout>
+      <>
+        <Navbar />
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <p className="text-red-600 mb-4">Error: {error}</p>
@@ -303,308 +305,312 @@ const ModifyCoursePage: React.FC = () => {
             </Button>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              onClick={handleBackToDashboard}
-              variant="outline"
-              size="sm"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold">{course?.title}</h1>
-              <p className="text-muted-foreground">
-                Modify course content, add modules, and manage course structure
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handlePreviewCourse} variant="outline">
-              <BookOpen className="h-4 w-4 mr-2" />
-              Preview Course
-            </Button>
-          </div>
-        </div>
-
-        {/* Course Information Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
+    <>
+      <Navbar />
+      <div className="container mx-auto p-6 bg-[var(--background)] min-h-screen">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={handleBackToDashboard}
+                variant="outline"
+                size="sm"
+                className="border-[var(--border)] text-[var(--primary)]"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
               <div>
-                <CardTitle className="text-lg">Course Information</CardTitle>
-                <CardDescription>
-                  Manage course title and description
-                </CardDescription>
+                <h1 className="text-3xl font-bold text-[var(--primary)]">{course?.title}</h1>
+                <p className="text-[var(--muted-foreground)]">
+                  Modify course content, add modules, and manage course structure
+                </p>
               </div>
-              {!isEditingCourse && (
-                <Button onClick={handleEditCourse} variant="outline" size="sm">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Course
-                </Button>
-              )}
             </div>
-          </CardHeader>
-          <CardContent>
-            {isEditingCourse ? (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="course-title">Course Title *</Label>
-                  <Input
-                    id="course-title"
-                    value={editCourseTitle}
-                    onChange={(e) => setEditCourseTitle(e.target.value)}
-                    placeholder="Enter course title..."
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="course-description">Course Description</Label>
-                  <Textarea
-                    id="course-description"
-                    value={editCourseDescription}
-                    onChange={(e) => setEditCourseDescription(e.target.value)}
-                    placeholder="Enter course description..."
-                    rows={3}
-                    className="mt-1"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleSaveCourse}
-                    disabled={isSavingCourse || !editCourseTitle.trim()}
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {isSavingCourse ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                  <Button
-                    onClick={handleCancelEditCourse}
-                    variant="outline"
-                    disabled={isSavingCourse}
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div>
-                  <h3 className="font-medium">{course?.title}</h3>
-                </div>
-                {course?.body && (
-                  <div>
-                    <p className="text-muted-foreground">{course.body}</p>
-                  </div>
-                )}
-                {!course?.body && (
-                  <p className="text-muted-foreground italic">No description provided</p>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Modules Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  Course Modules ({modules.length})
-                </CardTitle>
-                <CardDescription>
-                  Create and organize modules for your course content
-                </CardDescription>
-              </div>
-              <Button onClick={() => setShowModuleCreator(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Module
+            <div className="flex gap-2">
+              <Button onClick={handlePreviewCourse} variant="outline" className="border-[var(--border)] text-[var(--primary)]">
+                <BookOpen className="h-4 w-4 mr-2" />
+                Preview Course
               </Button>
             </div>
-          </CardHeader>
-          <CardContent>
-            {/* Module Creator */}
-            {showModuleCreator && (
-              <Card className="mb-6 border-dashed">
-                <CardHeader>
-                  <CardTitle className="text-lg">Create New Module</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+          </div>
+          {/* Course Information Section */}
+          <Card className="bg-[var(--card)] text-[var(--card-foreground)] border-[var(--border)]">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg text-[var(--primary)]">Course Information</CardTitle>
+                  <CardDescription className="text-[var(--muted-foreground)]">
+                    Manage course title and description
+                  </CardDescription>
+                </div>
+                {!isEditingCourse && (
+                  <Button onClick={handleEditCourse} variant="outline" size="sm" className="border-[var(--border)] text-[var(--primary)]">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Course
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {isEditingCourse ? (
+                <div className="space-y-4">
                   <div>
-                    <Label htmlFor="module-title">Module Title *</Label>
+                    <Label htmlFor="course-title">Course Title *</Label>
                     <Input
-                      id="module-title"
-                      value={newModuleTitle}
-                      onChange={(e) => setNewModuleTitle(e.target.value)}
-                      placeholder="Enter module title..."
+                      id="course-title"
+                      value={editCourseTitle}
+                      onChange={(e) => setEditCourseTitle(e.target.value)}
+                      placeholder="Enter course title..."
                       className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="module-description">Module Description</Label>
+                    <Label htmlFor="course-description">Course Description</Label>
                     <Textarea
-                      id="module-description"
-                      value={newModuleDescription}
-                      onChange={(e) => setNewModuleDescription(e.target.value)}
-                      placeholder="Enter module description..."
+                      id="course-description"
+                      value={editCourseDescription}
+                      onChange={(e) => setEditCourseDescription(e.target.value)}
+                      placeholder="Enter course description..."
                       rows={3}
                       className="mt-1"
                     />
                   </div>
-                  {moduleCreationError && (
-                    <p className="text-sm text-red-600">{moduleCreationError}</p>
-                  )}
                   <div className="flex gap-2">
                     <Button
-                      onClick={handleCreateModule}
-                      disabled={isCreatingModule || !newModuleTitle.trim()}
+                      onClick={handleSaveCourse}
+                      disabled={isSavingCourse || !editCourseTitle.trim()}
+                      className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      {isCreatingModule ? 'Creating...' : 'Create Module'}
+                      <Save className="h-4 w-4 mr-2" />
+                      {isSavingCourse ? 'Saving...' : 'Save Changes'}
                     </Button>
                     <Button
-                      onClick={() => {
-                        setShowModuleCreator(false);
-                        setNewModuleTitle('');
-                        setNewModuleDescription('');
-                        setModuleCreationError(null);
-                      }}
+                      onClick={handleCancelEditCourse}
                       variant="outline"
-                      disabled={isCreatingModule}
+                      disabled={isSavingCourse}
+                      className="border-[var(--border)] text-[var(--primary)]"
                     >
                       <X className="h-4 w-4 mr-2" />
                       Cancel
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Modules List */}
-            {modules.length > 0 ? (
-              <div className="space-y-4">
-                {modules.map((module, index) => (
-                  <Card key={module.id} className="border-l-4 border-l-primary">
-                    <CardContent className="pt-6">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="bg-primary/10 text-primary px-2 py-1 rounded text-sm font-medium">
-                              Module {index + 1}
-                            </span>
-                          </div>
-                          <h3 className="font-semibold text-lg mb-2">{module.title}</h3>
-                          {module.body && (
-                            <p className="text-muted-foreground mb-3">{module.body}</p>
-                          )}
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>Content: {module.contentCount || 0} items</span>
-                            {module.progress !== undefined && (
-                              <span>Progress: {Math.round(module.progress)}%</span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            onClick={() => toggleModuleExpansion(module.id)}
-                            variant="outline"
-                            size="sm"
-                          >
-                            {expandedModules.has(module.id) ? (
-                              <>
-                                <ChevronDown className="h-4 w-4 mr-2" />
-                                Hide Content
-                              </>
-                            ) : (
-                              <>
-                                <ChevronRight className="h-4 w-4 mr-2" />
-                                Manage Content
-                              </>
-                            )}
-                          </Button>
-                          <Button
-                            onClick={() => handleDeleteModule(module.id, module.title)}
-                            variant="outline"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* Expandable Content Management Section */}
-                      {expandedModules.has(module.id) && (
-                        <div className="mt-6 pt-6 border-t">
-                          <div className="flex items-center justify-between mb-4">
-                            <h4 className="font-medium flex items-center gap-2">
-                              <FileText className="h-4 w-4" />
-                              Module Content
-                            </h4>
-                            {!moduleContentCreators.has(module.id) && (
-                              <Button
-                                onClick={() => handleShowModuleContentCreator(module.id)}
-                                size="sm"
-                              >
-                                <Plus className="h-4 w-4 mr-2" />
-                                New Item
-                              </Button>
-                            )}
-                          </div>
-
-                          {/* Content Creator for this module */}
-                          {moduleContentCreators.has(module.id) && (
-                            <div className="mb-6">
-                              <EnhancedContentCreator
-                                moduleId={module.id}
-                                onContentCreated={handleModuleContentCreated(module.id)}
-                                onCancel={() => handleHideModuleContentCreator(module.id)}
-                              />
-                            </div>
-                          )}
-
-                          {/* Content Block List for this module */}
-                          <ContentBlockList
-                            moduleId={module.id}
-                            moduleName={module.title}
-                            isInteractive={true}
-                            onContentUpdate={handleModuleContentUpdate}
-                            onAddContent={addContentCallbacksMap.get(module.id)}
-                          />
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No Modules Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Start building your course by adding your first module
-                </p>
-                <Button onClick={() => setShowModuleCreator(true)}>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div>
+                    <h3 className="font-medium text-[var(--primary)]">{course?.title}</h3>
+                  </div>
+                  {course?.body && (
+                    <div>
+                      <p className="text-[var(--muted-foreground)]">{course.body}</p>
+                    </div>
+                  )}
+                  {!course?.body && (
+                    <p className="text-[var(--muted-foreground)] italic">No description provided</p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          {/* Modules Section */}
+          <Card className="bg-[var(--card)] text-[var(--card-foreground)] border-[var(--border)]">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-[var(--primary)]">
+                    <BookOpen className="h-5 w-5" />
+                    Course Modules ({modules.length})
+                  </CardTitle>
+                  <CardDescription className="text-[var(--muted-foreground)]">
+                    Create and organize modules for your course content
+                  </CardDescription>
+                </div>
+                <Button onClick={() => setShowModuleCreator(true)} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add First Module
+                  Add Module
                 </Button>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              {/* Module Creator */}
+              {showModuleCreator && (
+                <Card className="mb-6 border-dashed bg-[var(--muted)] border-[var(--border)]">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-[var(--primary)]">Create New Module</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor="module-title">Module Title *</Label>
+                      <Input
+                        id="module-title"
+                        value={newModuleTitle}
+                        onChange={(e) => setNewModuleTitle(e.target.value)}
+                        placeholder="Enter module title..."
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="module-description">Module Description</Label>
+                      <Textarea
+                        id="module-description"
+                        value={newModuleDescription}
+                        onChange={(e) => setNewModuleDescription(e.target.value)}
+                        placeholder="Enter module description..."
+                        rows={3}
+                        className="mt-1"
+                      />
+                    </div>
+                    {moduleCreationError && (
+                      <p className="text-sm text-[var(--destructive)]">{moduleCreationError}</p>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleCreateModule}
+                        disabled={isCreatingModule || !newModuleTitle.trim()}
+                        className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        {isCreatingModule ? 'Creating...' : 'Create Module'}
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setShowModuleCreator(false);
+                          setNewModuleTitle('');
+                          setNewModuleDescription('');
+                          setModuleCreationError(null);
+                        }}
+                        variant="outline"
+                        disabled={isCreatingModule}
+                        className="border-[var(--border)] text-[var(--primary)]"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+              {/* Modules List */}
+              {modules.length > 0 ? (
+                <div className="space-y-4">
+                  {modules.map((module, index) => (
+                    <Card key={module.id} className="border-l-4 border-l-[var(--primary)] bg-[var(--background)]">
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: 'var(--muted)', color: 'var(--primary)' }}>
+                                Module {index + 1}
+                              </span>
+                            </div>
+                            <h3 className="font-semibold text-lg mb-2 text-[var(--primary)]">{module.title}</h3>
+                            {module.body && (
+                              <p className="text-[var(--muted-foreground)] mb-3">{module.body}</p>
+                            )}
+                            <div className="flex items-center gap-4 text-sm text-[var(--muted-foreground)]">
+                              <span>Content: {module.contentCount || 0} items</span>
+                              {module.progress !== undefined && (
+                                <span>Progress: {Math.round(module.progress)}%</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              onClick={() => toggleModuleExpansion(module.id)}
+                              variant="outline"
+                              size="sm"
+                              className="border-[var(--border)] text-[var(--primary)]"
+                            >
+                              {expandedModules.has(module.id) ? (
+                                <>
+                                  <ChevronDown className="h-4 w-4 mr-2" />
+                                  Hide Content
+                                </>
+                              ) : (
+                                <>
+                                  <ChevronRight className="h-4 w-4 mr-2" />
+                                  Manage Content
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              onClick={() => handleDeleteModule(module.id, module.title)}
+                              variant="outline"
+                              size="sm"
+                              className="text-[var(--destructive)] border-[var(--destructive)] hover:text-[var(--destructive)] hover:border-[var(--destructive)]"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        {/* Expandable Content Management Section */}
+                        {expandedModules.has(module.id) && (
+                          <div className="mt-6 pt-6 border-t border-[var(--border)]">
+                            <div className="flex items-center justify-between mb-4">
+                              <h4 className="font-medium flex items-center gap-2 text-[var(--primary)]">
+                                <FileText className="h-4 w-4" />
+                                Module Content
+                              </h4>
+                              {!moduleContentCreators.has(module.id) && (
+                                <Button
+                                  onClick={() => handleShowModuleContentCreator(module.id)}
+                                  size="sm"
+                                  className="bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+                                >
+                                  <Plus className="h-4 w-4 mr-2" />
+                                  New Item
+                                </Button>
+                              )}
+                            </div>
+                            {/* Content Creator for this module */}
+                            {moduleContentCreators.has(module.id) && (
+                              <div className="mb-6">
+                                <EnhancedContentCreator
+                                  moduleId={module.id}
+                                  onContentCreated={handleModuleContentCreated(module.id)}
+                                  onCancel={() => handleHideModuleContentCreator(module.id)}
+                                />
+                              </div>
+                            )}
+                            {/* Content Block List for this module */}
+                            <ContentBlockList
+                              moduleId={module.id}
+                              moduleName={module.title}
+                              isInteractive={true}
+                              onContentUpdate={handleModuleContentUpdate}
+                              onAddContent={addContentCallbacksMap.get(module.id)}
+                            />
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <BookOpen className="h-12 w-12 text-[var(--muted-foreground)] mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2 text-[var(--primary)]">No Modules Yet</h3>
+                  <p className="text-[var(--muted-foreground)] mb-4">
+                    Start building your course by adding your first module
+                  </p>
+                  <Button onClick={() => setShowModuleCreator(true)} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add First Module
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </Layout>
+    </>
   );
 };
 

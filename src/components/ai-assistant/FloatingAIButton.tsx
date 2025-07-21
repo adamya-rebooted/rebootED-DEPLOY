@@ -19,7 +19,9 @@ export const FloatingAIButton: React.FC = () => {
       `}
       aria-label="Toggle AI Assistant"
     >
-      <Bot className="h-6 w-6" />
+      {/* <Bot className="h-6 w-6" /> */}
+      <img src="/placeholder.svg" alt="Logo" className="h-8 w-8 invert" />
+      
     </Button>
   );
 }; 

@@ -33,85 +33,56 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
   const hasAnswered = content.userAnswer !== undefined && content.userAnswer !== null;
 
   return (
-    <div style={{
-      border: '1px solid var(--border)',
-      borderRadius: '8px',
-      padding: '20px',
-      marginBottom: '16px',
-      backgroundColor: hasAnswered ? (isCorrect ? 'var(--secondary)' : 'var(--destructive)') : 'var(--card)',
-      borderLeft: `4px solid ${hasAnswered ? (isCorrect ? 'var(--secondary)' : 'var(--destructive)') : 'var(--accent)'}`
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-        <h4 style={{
-          margin: 0,
-          color: hasAnswered ? (isCorrect ? 'var(--secondary-foreground)' : 'var(--destructive-foreground)') : 'var(--card-foreground)',
-          fontSize: '18px',
-          fontWeight: '600'
-        }}>
+    <div
+      className="mb-4 p-5 rounded-lg border relative"
+      style={{
+        backgroundColor: hasAnswered ? (isCorrect ? 'var(--secondary)' : 'var(--destructive)') : 'var(--card)',
+        borderColor: 'var(--border)',
+        borderLeft: `4px solid ${hasAnswered ? (isCorrect ? 'var(--secondary)' : 'var(--destructive)') : 'var(--accent)'}`
+      }}
+    >
+      <div className="flex justify-between items-start mb-3">
+        <h4
+          className="m-0 text-lg font-semibold"
+          style={{ color: hasAnswered ? (isCorrect ? 'var(--secondary-foreground)' : 'var(--destructive-foreground)') : 'var(--card-foreground)' }}
+        >
           {content.title}
         </h4>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="flex items-center gap-2">
           {hasAnswered && (
-            <span style={{
-              color: isCorrect ? 'var(--secondary-foreground)' : 'var(--destructive-foreground)',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}>
+            <span className="text-sm font-medium" style={{ color: isCorrect ? 'var(--secondary-foreground)' : 'var(--destructive-foreground)' }}>
               {isCorrect ? '✓ Correct' : '✗ Incorrect'}
             </span>
           )}
-          <span style={{
-            padding: '4px 8px',
-            backgroundColor: '#ffc107',
-            color: '#212529',
-            borderRadius: '4px',
-            fontSize: '12px',
-            fontWeight: '500'
-          }}>
+          <span className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}>
             Question
           </span>
         </div>
       </div>
-
-      <div style={{
-        color: '#374151',
-        lineHeight: '1.6',
-        marginBottom: '20px'
-      }}>
+      <div className="mb-5 text-[var(--muted-foreground)] leading-relaxed">
         {content.body ? (
           content.body.split('\n').map((paragraph, index) => (
-            <p key={index} style={{ margin: '0 0 12px 0', fontWeight: index === 0 ? '500' : '400' }}>
-              {paragraph}
-            </p>
+            <p key={index} className={`mb-3 last:mb-0 ${index === 0 ? 'font-medium' : 'font-normal'}`}>{paragraph}</p>
           ))
         ) : (
-          <p style={{ margin: '0 0 16px 0', fontWeight: '500' }}>
-            No question description provided.
-          </p>
+          <p className="mb-4 font-medium">No question description provided.</p>
         )}
       </div>
-
       {content.options && content.options.length > 0 && (
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ marginBottom: '12px' }}>
-            <strong style={{ color: '#374151', fontSize: '14px' }}>Choose your answer:</strong>
+        <div className="mb-4">
+          <div className="mb-3">
+            <strong className="text-sm text-[var(--card-foreground)]">Choose your answer:</strong>
           </div>
-          
           {content.options.map((option, index) => {
-            const optionLetter = String.fromCharCode(65 + index); // A, B, C, D...
+            const optionLetter = String.fromCharCode(65 + index);
             const isSelectedOption = selectedAnswer === option;
             const isCorrectOption = content.correctAnswer === option;
             const isUserAnswer = content.userAnswer === option;
-
             return (
               <label
                 key={index}
+                className="block mb-2 cursor-pointer"
                 style={{
-                  display: 'block',
-                  padding: '12px',
-                  margin: '8px 0',
-                  border: '1px solid var(--border)',
-                  borderRadius: '6px',
                   backgroundColor: hasAnswered
                     ? (isUserAnswer
                         ? (isCorrectOption ? 'var(--secondary)' : 'var(--destructive)')
@@ -120,16 +91,21 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
                   color: hasAnswered
                     ? (isUserAnswer || isCorrectOption ? 'var(--background)' : 'var(--text)')
                     : (isSelectedOption ? 'var(--background)' : 'var(--text)'),
-                  cursor: isInteractive && !hasAnswered ? 'pointer' : 'default',
-                  transition: 'all 0.2s ease',
                   borderColor: hasAnswered
                     ? (isUserAnswer
                         ? (isCorrectOption ? 'var(--secondary)' : 'var(--destructive)')
                         : (isCorrectOption ? 'var(--secondary)' : 'var(--border)'))
-                    : (isSelectedOption ? 'var(--accent)' : 'var(--border)')
+                    : (isSelectedOption ? 'var(--accent)' : 'var(--border)'),
+                  borderWidth: 1,
+                  borderStyle: 'solid',
+                  borderRadius: 8,
+                  padding: 12,
+                  transition: 'all 0.2s ease',
+                  margin: '8px 0',
+                  display: 'block',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="flex items-center gap-3">
                   <input
                     type="radio"
                     name={`question-${content.id}`}
@@ -137,26 +113,15 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
                     checked={isSelectedOption}
                     onChange={(e) => setSelectedAnswer(e.target.value)}
                     disabled={!isInteractive || hasAnswered}
-                    style={{ margin: 0 }}
+                    className="mr-2 accent-[var(--primary)]"
                   />
-                  <span style={{ 
-                    fontWeight: '500', 
-                    color: '#6c757d',
-                    minWidth: '20px'
-                  }}>
-                    {optionLetter}.
-                  </span>
-                  <span style={{ 
-                    color: '#374151',
-                    flex: 1
-                  }}>
-                    {option}
-                  </span>
+                  <span className="font-medium text-[var(--muted-foreground)] min-w-[20px]">{optionLetter}.</span>
+                  <span className="flex-1 text-[var(--card-foreground)]">{option}</span>
                   {hasAnswered && isCorrectOption && (
-                    <span style={{ color: '#28a745', fontSize: '16px' }}>✓</span>
+                    <span className="text-lg" style={{ color: 'var(--secondary)' }}>✓</span>
                   )}
                   {hasAnswered && isUserAnswer && !isCorrectOption && (
-                    <span style={{ color: '#dc3545', fontSize: '16px' }}>✗</span>
+                    <span className="text-lg" style={{ color: 'var(--destructive)' }}>✗</span>
                   )}
                 </div>
               </label>
@@ -164,54 +129,30 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
           })}
         </div>
       )}
-
       {hasAnswered && (
-        <div style={{
-          padding: '12px',
-          backgroundColor: isCorrect ? '#d1ecf1' : '#f8d7da',
-          border: `1px solid ${isCorrect ? '#bee5eb' : '#f5c6cb'}`,
-          borderRadius: '6px',
-          marginBottom: '16px'
-        }}>
-          <div style={{ fontSize: '14px', color: '#374151' }}>
+        <div
+          className="mb-4 p-3 rounded border text-sm"
+          style={{
+            backgroundColor: isCorrect ? 'var(--muted)' : 'var(--destructive)',
+            color: isCorrect ? 'var(--card-foreground)' : 'var(--destructive-foreground)',
+            borderColor: isCorrect ? 'var(--secondary)' : 'var(--destructive)',
+          }}
+        >
+          <div>
             <strong>Your answer:</strong> {content.userAnswer}
           </div>
           {!isCorrect && (
-            <div style={{ fontSize: '14px', color: '#374151', marginTop: '4px' }}>
+            <div className="mt-1">
               <strong>Correct answer:</strong> {content.correctAnswer}
             </div>
           )}
         </div>
       )}
-
-      {/* {error && (
-        <div style={{
-          padding: '8px 12px',
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          border: '1px solid #f5c6cb',
-          borderRadius: '4px',
-          marginBottom: '12px',
-          fontSize: '14px'
-        }}>
-          {error}
-        </div>
-      )} */}
-
       {/* {isInteractive && !hasAnswered && (
         <button
           onClick={handleSubmit}
           disabled={submitting || !selectedAnswer.trim()}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: submitting || !selectedAnswer.trim() ? '#6c757d' : '#007cba',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: submitting || !selectedAnswer.trim() ? 'not-allowed' : 'pointer',
-            fontSize: '14px',
-            fontWeight: '500'
-          }}
+          className={`px-5 py-2 rounded font-medium text-sm transition-colors mt-2 ${submitting || !selectedAnswer.trim() ? 'bg-[var(--muted-foreground)] cursor-not-allowed' : 'bg-[var(--primary)] hover:bg-[var(--accent)] cursor-pointer'} text-[var(--primary-foreground)]`}
         >
           {submitting ? 'Submitting...' : 'Submit Answer'}
         </button>

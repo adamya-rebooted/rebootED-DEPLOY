@@ -86,13 +86,13 @@ export default function PreviewCoursePage() {
   if (loading) {
     return (
       <div style={{
-        padding: '20px',
+        padding: '32px',
         maxWidth: '1200px',
         margin: '0 auto',
-        backgroundColor: '#ffffff',
+        background: 'var(--background)',
         minHeight: '100vh',
-        color: '#171717',
-        textAlign: 'center'
+        color: 'var(--text)',
+        textAlign: 'center',
       }}>
         <p>Loading course data...</p>
       </div>
@@ -102,32 +102,47 @@ export default function PreviewCoursePage() {
   if (error) {
     return (
       <div style={{
-        padding: '20px',
+        padding: '32px',
         maxWidth: '1200px',
         margin: '0 auto',
-        backgroundColor: '#ffffff',
+        background: 'var(--background)',
         minHeight: '100vh',
-        color: '#171717',
-        textAlign: 'center'
+        color: 'var(--text)',
+        textAlign: 'center',
       }}>
         <div style={{
-          border: '1px solid #ff6b6b',
-          borderRadius: '8px',
-          padding: '20px',
-          backgroundColor: '#fff5f5',
-          marginBottom: '20px'
+          border: '1px solid var(--destructive)',
+          borderRadius: '12px',
+          padding: '28px',
+          backgroundColor: 'var(--muted)',
+          marginBottom: '24px',
+          boxShadow: '0 2px 8px 0 rgba(31, 58, 96, 0.06)'
         }}>
-          <h2 style={{ color: '#dc3545', marginBottom: '10px' }}>Error</h2>
-          <p style={{ marginBottom: '20px' }}>{error}</p>
+          <h2 style={{ color: 'var(--destructive)', marginBottom: '12px' }}>Error</h2>
+          <p style={{ marginBottom: '24px' }}>{error}</p>
           <button
             onClick={handleBackToDashboard}
             style={{
-              padding: '10px 20px',
-              backgroundColor: '#007cba',
-              color: 'white',
+              padding: '12px 28px',
+              backgroundColor: 'var(--primary)',
+              color: 'var(--primary-foreground)',
               border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '1rem',
+              boxShadow: '0 2px 8px 0 rgba(31, 58, 96, 0.10)',
+              cursor: 'pointer',
+              transition: 'background 0.2s, box-shadow 0.2s',
+            }}
+            onMouseOver={e => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--accent)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent-foreground)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px 0 rgba(31, 58, 96, 0.15)';
+            }}
+            onMouseOut={e => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--primary)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--primary-foreground)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px 0 rgba(31, 58, 96, 0.10)';
             }}
           >
             Back to Dashboard
@@ -139,10 +154,10 @@ export default function PreviewCoursePage() {
 
   return (
     <div style={{
-      padding: '20px',
+      padding: '32px',
       maxWidth: '1200px',
       margin: '0 auto',
-      backgroundColor: 'var(--background)',
+      background: 'var(--background)',
       minHeight: '100vh',
       color: 'var(--text)'
     }}>
@@ -150,19 +165,33 @@ export default function PreviewCoursePage() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '20px'
+        marginBottom: '28px',
       }}>
-        <h1>Course Preview</h1>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <h1 style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '2rem' }}>Course Preview</h1>
+        <div style={{ display: 'flex', gap: '14px' }}>
           <button
             onClick={handleBackToEdit}
             style={{
-              padding: '10px 20px',
+              padding: '12px 28px',
               backgroundColor: 'var(--primary)',
               color: 'var(--primary-foreground)',
               border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '1rem',
+              boxShadow: '0 2px 8px 0 rgba(31, 58, 96, 0.10)',
+              cursor: 'pointer',
+              transition: 'background 0.2s, box-shadow 0.2s',
+            }}
+            onMouseOver={e => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--accent)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent-foreground)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px 0 rgba(31, 58, 96, 0.15)';
+            }}
+            onMouseOut={e => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--primary)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--primary-foreground)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px 0 rgba(31, 58, 96, 0.10)';
             }}
           >
             Back to Edit
@@ -170,12 +199,26 @@ export default function PreviewCoursePage() {
           <button
             onClick={handlePublishCourse}
             style={{
-              padding: '10px 20px',
+              padding: '12px 28px',
               backgroundColor: 'var(--secondary)',
               color: 'var(--secondary-foreground)',
               border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '1rem',
+              boxShadow: '0 2px 8px 0 rgba(31, 58, 96, 0.10)',
+              cursor: 'pointer',
+              transition: 'background 0.2s, box-shadow 0.2s',
+            }}
+            onMouseOver={e => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--accent)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent-foreground)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px 0 rgba(31, 58, 96, 0.15)';
+            }}
+            onMouseOut={e => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--secondary)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--secondary-foreground)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px 0 rgba(31, 58, 96, 0.10)';
             }}
           >
             Publish Course
@@ -183,81 +226,95 @@ export default function PreviewCoursePage() {
           <button
             onClick={handleBackToDashboard}
             style={{
-              padding: '10px 20px',
+              padding: '12px 28px',
               backgroundColor: 'var(--muted-foreground)',
               color: 'var(--primary-foreground)',
               border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '1rem',
+              boxShadow: '0 2px 8px 0 rgba(31, 58, 96, 0.10)',
+              cursor: 'pointer',
+              transition: 'background 0.2s, box-shadow 0.2s',
+            }}
+            onMouseOver={e => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--destructive)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--destructive-foreground)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px 0 rgba(31, 58, 96, 0.15)';
+            }}
+            onMouseOut={e => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--muted-foreground)';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--primary-foreground)';
+              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px 0 rgba(31, 58, 96, 0.10)';
             }}
           >
             Back to Dashboard
           </button>
         </div>
       </div>
-
-      <div style={{ display: 'flex', gap: '20px' }}>
+      <div style={{ display: 'flex', gap: '32px' }}>
         {/* Left Column - Course Overview and Modules */}
         <div style={{ flex: '0 0 400px' }}>
           {course && (
             <div style={{
               border: '1px solid var(--border)',
-              borderRadius: '8px',
-              padding: '20px',
-              marginBottom: '20px',
-              backgroundColor: 'var(--card)'
+              borderRadius: '12px',
+              padding: '28px',
+              marginBottom: '24px',
+              backgroundColor: 'var(--card)',
+              boxShadow: '0 2px 8px 0 rgba(31, 58, 96, 0.06)'
             }}>
-              <h2 style={{ marginBottom: '10px', color: 'var(--card-foreground)' }}>{course.title}</h2>
-              <p style={{ color: 'var(--muted-foreground)', marginBottom: '20px' }}>{course.body}</p>
-              
+              <h2 style={{ marginBottom: '14px', color: 'var(--primary)' }}>{course.title}</h2>
+              <p style={{ color: 'var(--muted-foreground)', marginBottom: '24px' }}>{course.body}</p>
               <div style={{
-                padding: '15px',
+                padding: '16px',
                 backgroundColor: 'var(--accent)',
-                borderRadius: '4px',
+                borderRadius: '8px',
                 border: '1px solid var(--accent)',
-                marginBottom: '20px'
+                marginBottom: '24px',
               }}>
                 <h4 style={{ margin: '0 0 10px 0', color: 'var(--accent-foreground)' }}>Preview Mode</h4>
-                <p style={{ margin: '0', fontSize: '14px', color: 'var(--accent-foreground)' }}>
+                <p style={{ margin: '0', fontSize: '15px', color: 'var(--accent-foreground)' }}>
                   This is how your course appears to students. Content is fully interactive.
                 </p>
               </div>
-
               <div>
-                <h3 style={{ marginBottom: '10px' }}>Course Modules ({modules.length})</h3>
-                <p style={{ color: '#666', marginBottom: '15px', fontSize: '14px' }}>
+                <h3 style={{ marginBottom: '12px', color: 'var(--primary)' }}>Course Modules ({modules.length})</h3>
+                <p style={{ color: 'var(--muted-foreground)', marginBottom: '18px', fontSize: '15px' }}>
                   Click on a module to explore its content
                 </p>
-
                 {modules.length > 0 ? (
                   <div>
                     {modules.map((module, index) => (
                       <div key={module.id} style={{
-                        padding: '15px',
-                        border: '1px solid #ddd',
-                        borderRadius: '6px',
-                        marginBottom: '10px',
-                        backgroundColor: selectedModuleId === module.id ? '#e3f2fd' : '#ffffff',
+                        padding: '16px',
+                        border: '1px solid var(--input)',
+                        borderRadius: '8px',
+                        marginBottom: '12px',
+                        backgroundColor: selectedModuleId === module.id ? 'var(--secondary)' : 'var(--background)',
+                        color: selectedModuleId === module.id ? 'var(--secondary-foreground)' : 'var(--text)',
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.2s ease',
+                        fontWeight: selectedModuleId === module.id ? 600 : 400,
+                        boxShadow: selectedModuleId === module.id ? '0 2px 8px 0 rgba(31, 58, 96, 0.10)' : 'none',
                       }}
                         onClick={() => handleModuleClick(module.id)}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ flex: 1 }}>
-                            <strong style={{ color: '#171717' }}>{index + 1}. {module.title}</strong>
+                            <strong style={{ color: selectedModuleId === module.id ? 'var(--secondary-foreground)' : 'var(--primary)' }}>{index + 1}. {module.title}</strong>
                             {module.body && (
-                              <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '14px' }}>
+                              <p style={{ margin: '5px 0 0 0', color: 'var(--muted-foreground)', fontSize: '15px' }}>
                                 {module.body}
                               </p>
                             )}
                           </div>
                           <span style={{
-                            color: '#007cba',
-                            fontSize: '18px',
+                            color: 'var(--accent)',
+                            fontSize: '20px',
                             transform: selectedModuleId === module.id ? 'rotate(90deg)' : 'rotate(0deg)',
                             transition: 'transform 0.2s ease',
-                            marginLeft: '10px'
+                            marginLeft: '12px',
                           }}>
                             ▶
                           </span>
@@ -266,13 +323,12 @@ export default function PreviewCoursePage() {
                     ))}
                   </div>
                 ) : (
-                  <p style={{ color: '#666', fontStyle: 'italic' }}>No modules available</p>
+                  <p style={{ color: 'var(--muted-foreground)', fontStyle: 'italic' }}>No modules available</p>
                 )}
               </div>
             </div>
           )}
         </div>
-
         {/* Right Column - Content Blocks */}
         <div style={{ flex: 1 }}>
           {selectedModuleId ? (
@@ -284,14 +340,14 @@ export default function PreviewCoursePage() {
             />
           ) : (
             <div style={{
-              padding: '40px',
+              padding: '48px',
               textAlign: 'center',
-              border: '2px dashed #dee2e6',
-              borderRadius: '8px',
-              color: '#6c757d',
-              backgroundColor: '#f8f9fa'
+              border: '2px dashed var(--input)',
+              borderRadius: '12px',
+              color: 'var(--muted-foreground)',
+              backgroundColor: 'var(--muted)'
             }}>
-              <h3 style={{ margin: '0 0 10px 0' }}>Explore Course Content</h3>
+              <h3 style={{ margin: '0 0 12px 0' }}>Explore Course Content</h3>
               <p style={{ margin: 0 }}>
                 Select a module from the left panel to start learning. You can read text content, answer questions, and track your progress.
               </p>

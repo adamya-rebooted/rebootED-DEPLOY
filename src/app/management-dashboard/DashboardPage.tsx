@@ -60,10 +60,36 @@ export default function DashboardPage() {
 
   // Fallback if the user has an unknown role
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h1>Error</h1>
-      <p>Your user role is not recognized. Please contact support.</p>
-      <button onClick={() => router.push('/login')}>Go to Login</button>
+    <div style={{ padding: '32px', textAlign: 'center', background: 'var(--background)', minHeight: '100vh', color: 'var(--text)' }}>
+      <h1 style={{ color: 'var(--destructive)', marginBottom: '12px' }}>Error</h1>
+      <p style={{ marginBottom: '24px', color: 'var(--muted-foreground)' }}>Your user role is not recognized. Please contact support.</p>
+      <button
+        onClick={() => router.push('/login')}
+        style={{
+          padding: '12px 28px',
+          backgroundColor: 'var(--primary)',
+          color: 'var(--primary-foreground)',
+          border: 'none',
+          borderRadius: '8px',
+          fontWeight: 600,
+          fontSize: '1rem',
+          boxShadow: '0 2px 8px 0 rgba(31, 58, 96, 0.10)',
+          cursor: 'pointer',
+          transition: 'background 0.2s, box-shadow 0.2s',
+        }}
+        onMouseOver={e => {
+          (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--accent)';
+          (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent-foreground)';
+          (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px 0 rgba(31, 58, 96, 0.15)';
+        }}
+        onMouseOut={e => {
+          (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--primary)';
+          (e.currentTarget as HTMLButtonElement).style.color = 'var(--primary-foreground)';
+          (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px 0 rgba(31, 58, 96, 0.10)';
+        }}
+      >
+        Go to Login
+      </button>
     </div>
   )
 }

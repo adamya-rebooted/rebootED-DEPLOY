@@ -29,96 +29,59 @@ export default function TextContentBlock({ content, onComplete, isInteractive = 
   };
 
   return (
-    <div style={{
-      border: '1px solid var(--border)',
-      borderRadius: '8px',
-      padding: '20px',
-      marginBottom: '16px',
-      backgroundColor: content.isComplete ? 'var(--secondary)' : 'var(--card)',
-      borderLeft: `4px solid ${content.isComplete ? 'var(--secondary)' : 'var(--primary)'}`
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-        <h4 style={{
-          margin: 0,
-          color: content.isComplete ? 'var(--secondary-foreground)' : 'var(--card-foreground)',
-          fontSize: '18px',
-          fontWeight: '600'
-        }}>
+    <div
+      className="mb-4 p-5 rounded-lg border relative"
+      style={{
+        backgroundColor: content.isComplete ? 'var(--secondary)' : 'var(--card)',
+        borderColor: 'var(--border)',
+        borderLeft: `4px solid ${content.isComplete ? 'var(--secondary)' : 'var(--primary)'}`
+      }}
+    >
+      <div className="flex justify-between items-start mb-3">
+        <h4
+          className="m-0 text-lg font-semibold"
+          style={{ color: content.isComplete ? 'var(--secondary-foreground)' : 'var(--card-foreground)' }}
+        >
           {content.title}
         </h4>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="flex items-center gap-2">
           {content.isComplete && (
-            <span style={{
-              color: 'var(--secondary-foreground)',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}>
+            <span className="text-sm font-medium" style={{ color: 'var(--secondary-foreground)' }}>
               ✓ Complete
             </span>
           )}
-          <span style={{
-            padding: '4px 8px',
-            backgroundColor: '#007cba',
-            color: 'white',
-            borderRadius: '4px',
-            fontSize: '12px',
-            fontWeight: '500'
-          }}>
+          <span className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}>
             Text
           </span>
         </div>
       </div>
-
-      <div style={{
-        color: '#374151',
-        lineHeight: '1.6',
-        marginBottom: '16px'
-      }}>
+      <div className="mb-4 text-[var(--muted-foreground)] leading-relaxed">
         {content.body ? (
           content.body.split('\n').map((paragraph, index) => (
-            <p key={index} style={{ margin: '0 0 12px 0' }}>
+            <p key={index} className="mb-3 last:mb-0">
               {paragraph}
             </p>
           ))
         ) : (
-          <p style={{ margin: '0 0 12px 0', fontStyle: 'italic', color: '#9CA3AF' }}>
+          <p className="mb-3 italic text-[var(--muted-foreground)]">
             No content body provided.
           </p>
         )}
       </div>
-
       {error && (
-        <div style={{
-          padding: '8px 12px',
-          backgroundColor: '#f8d7da',
-          color: '#721c24',
-          border: '1px solid #f5c6cb',
-          borderRadius: '4px',
-          marginBottom: '12px',
-          fontSize: '14px'
-        }}>
+        <div className="mb-3 p-2 rounded border text-sm" style={{ backgroundColor: 'var(--destructive)', color: 'var(--destructive-foreground)', borderColor: 'var(--destructive)' }}>
           {error}
         </div>
       )}
-
-      {isInteractive && !content.isComplete && (
+      {/* {isInteractive && !content.isComplete && (
         <button
           onClick={handleComplete}
           disabled={completing}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: completing ? '#6c757d' : '#28a745',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: completing ? 'not-allowed' : 'pointer',
-            fontSize: '14px',
-            fontWeight: '500'
-          }}
+          className={`px-4 py-2 rounded font-medium text-sm transition-colors ${completing ? 'bg-[var(--muted-foreground)] cursor-not-allowed' : 'bg-[var(--secondary)] hover:bg-[var(--accent)] cursor-pointer'} text-[var(--secondary-foreground)]`}
         >
           {completing ? 'Marking Complete...' : 'Mark as Complete'}
         </button>
-      )}
+      )} */}
     </div>
   );
 } 

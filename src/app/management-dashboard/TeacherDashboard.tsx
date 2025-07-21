@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from "react";
-import Layout from "@/components/content/Layout";
+import Navbar from "@/components/content/Navbar";
 import CreateCourseDialog, {
   CourseFormData,
 } from "@/components/content/CreateCourseDialog";
@@ -122,22 +122,18 @@ const TeacherDashboard: React.FC = () => {
   };
 
   return (
-    <Layout>
-      <div className="space-y-6">
+    <>
+      <Navbar />
+      <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl">
-              Course Management
-            </h1>
-            <p className="">
-              Manage your courses and track student progress
-            </p>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0 text-center md:text-left">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-[var(--primary)]">Course Management</h1>
+            <p className="text-[var(--muted-foreground)]">Manage your courses and track student progress</p>
           </div>
-          <div className="flex gap-2">
-           <Button onClick={() => setIsCreateDialogOpen(true)}>
-            {/* <Button onClick={() => router.push('/create-course')}> */}
-              <Plus className="h-4 w-4 mr-2 " />
+          <div className="flex justify-center md:justify-end w-full md:w-auto">
+            <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full md:w-auto bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
+              <Plus className="h-4 w-4 mr-2" />
               Create Course
             </Button>
           </div>
@@ -202,10 +198,10 @@ const TeacherDashboard: React.FC = () => {
         </div> */}
 
         {/* Recent Courses */}
-        <Card className="bg-primary text-white">
+        <Card className="bg-[var(--primary)] text-[var(--primary-foreground)]">
           <CardHeader>
             <CardTitle>Recent Courses</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-[var(--muted-foreground)]">
               Your most recently created courses
             </CardDescription>
           </CardHeader>
@@ -213,15 +209,15 @@ const TeacherDashboard: React.FC = () => {
             {isLoading ? (
               <div className="text-center py-8">
                 <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                <p className="mt-2 text-muted-foreground">Loading courses...</p>
+                <p className="mt-2 text-[var(--muted-foreground)]">Loading courses...</p>
               </div>
             ) : error ? (
               <div className="text-center py-8">
-                <p className="text-destructive">{error}</p>
+                <p className="text-[var(--destructive)]">{error}</p>
                 <Button 
                   onClick={() => window.location.reload()} 
                   variant="outline" 
-                  className="mt-2"
+                  className="mt-2 border-[var(--border)] text-[var(--primary)]"
                 >
                   Retry
                 </Button>
@@ -231,20 +227,20 @@ const TeacherDashboard: React.FC = () => {
                 {recentCourses.map((course) => (
                   <div
                     key={course.id}
-                    className=" bg-background text-black flex items-center justify-between p-4 border rounded-lg hover:bg-muted/ transition-colors"
+                    className="bg-[var(--card)] text-[var(--card-foreground)] flex items-center justify-between p-4 border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors"
                   >
                     <div className="flex-1">
-                      <h4 className="font-medium">{course.title}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <h4 className="font-medium text-[var(--primary)]">{course.title}</h4>
+                      <p className="text-sm text-[var(--muted-foreground)]">
                         {course.body || 'No description available'}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-[var(--muted-foreground)] mt-1">
                         Created: {course.createdAt ? new Date(course.createdAt).toLocaleDateString() : 'Unknown'}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button 
-                        className="border-secondary drop-shadow-md border-2"
+                        className="border-[var(--secondary)] drop-shadow-md border-2 text-[var(--secondary)]"
                         variant="outline" 
                         size="sm"
                         onClick={() => router.push(`/modify-course?id=${course.id}`)}
@@ -252,7 +248,7 @@ const TeacherDashboard: React.FC = () => {
                         Edit
                       </Button>
                       <Button 
-                        className="!border-red-500 text-red-500 drop-shadow-md"
+                        className="!border-[var(--destructive)] text-[var(--destructive)] drop-shadow-md"
                         variant="outline" 
                         size="sm"
                         onClick={() => handleDeleteClick(course)}
@@ -265,11 +261,11 @@ const TeacherDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <h3 className="text-lg mb-2">Create Your First Course</h3>
-                <p className="text-muted-foreground mb-4">
+                <h3 className="text-lg mb-2 text-[var(--primary)]">Create Your First Course</h3>
+                <p className="text-[var(--muted-foreground)] mb-4">
                   Get started by creating your first course to manage students and content.
                 </p>
-                <Button className="border-secondary" onClick={() => setIsCreateDialogOpen(true)}>
+                <Button className="border-[var(--secondary)] bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors" onClick={() => setIsCreateDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First Course
                 </Button>
@@ -293,7 +289,7 @@ const TeacherDashboard: React.FC = () => {
           onConfirmDelete={handleConfirmDelete}
         />
       </div>
-    </Layout>
+    </>
   );
 };
 
