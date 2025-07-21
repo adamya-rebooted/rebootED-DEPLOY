@@ -43,6 +43,25 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${origin}/login?error=user_not_found`)
       }
 
+      // Check if this is a first-time user by calling the backend
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${user.id}`, {
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`
+          }
+        })
+        
+        if (backendResponse.status === 404 || backendResponse.status === 401) {
+          // User doesn't exist in backend or JWT auth failed, redirect to signup
+          return NextResponse.redirect(`${origin}/signup`)
+        }
+      } catch (error) {
+        console.error('Error checking user existence:', error)
+        // If we can't check, redirect to signup to be safe
+        return NextResponse.redirect(`${origin}/signup`)
+      }
+
       // Add a small delay to ensure session is fully established
       await new Promise(resolve => setTimeout(resolve, 100))
       

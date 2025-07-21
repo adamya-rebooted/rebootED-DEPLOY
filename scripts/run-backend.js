@@ -37,10 +37,12 @@ function runBackend() {
     });
   } else if (isMac) {
     // macOS: clear backend.log before running
-    mvnProcess = spawn('> backend.log; ./mvnw spring-boot:run | tee backend.log', {
+    const command = 'set -o pipefail; > backend.log; ./mvnw spring-boot:run | tee backend.log';
+    mvnProcess = spawn(command, {
       cwd: backendDir,
       stdio: 'inherit',
-      shell: true
+      shell: true,
+      executable: '/bin/bash'
     });
   } else {
     // Other Unix (Linux, etc.)

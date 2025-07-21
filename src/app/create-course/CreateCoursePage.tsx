@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { apiService } from '@/services/api';
-import { mockAuth } from '@/contexts/UserContext';
+import { createClient } from '@/utils/supabase/client';
 
 interface ContentBlock {
   id: string;
@@ -49,7 +49,8 @@ export default function CreateCoursePage() {
       }
 
       // Get current user
-      const { data: { user }, error: userError } = await mockAuth.getUser();
+      const supabase = createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
         throw new Error('You must be logged in to create a course');
       }

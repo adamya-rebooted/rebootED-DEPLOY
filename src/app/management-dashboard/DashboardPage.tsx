@@ -43,11 +43,19 @@ export default function DashboardPage() {
   }
 
   if (user.role === 'teacher') {
-    return <TeacherDashboard />
+    return (
+      <div>
+        <TeacherDashboard />
+      </div>
+    )
   }
 
   if (user.role === 'student') {
-    return <StudentDashboard />
+    return (
+      <div>
+        <StudentDashboard />
+      </div>
+    )
   }
 
   // Fallback if the user has an unknown role

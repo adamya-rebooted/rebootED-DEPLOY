@@ -22,6 +22,7 @@ import {
   SubmitAnswerRequest,
 } from '@/types/backend-api';
 import { getBackendConfig } from '@/utils/config/backend';
+import { createClient } from '@/utils/supabase/client';
 
 export interface ApiResponse<T = any> {
   data?: T;
@@ -39,12 +40,34 @@ export class BackendApiClient {
   private baseUrl: string;
   private timeout: number;
   private retryAttempts: number;
+  private supabase = createClient();
 
   constructor() {
     const config = getBackendConfig();
     this.baseUrl = config.baseUrl;
     this.timeout = config.timeout;
     this.retryAttempts = config.retryAttempts;
+  }
+
+  private async getAuthToken(): Promise<string | null> {
+    try {
+      let { data: { session } } = await this.supabase.auth.getSession();
+      
+      // If no session, try to refresh it
+      if (!session) {
+        const { data, error } = await this.supabase.auth.refreshSession();
+        if (error) {
+          console.warn('Failed to refresh session:', error);
+          return null;
+        }
+        session = data.session;
+      }
+
+      return session?.access_token || null;
+    } catch (error) {
+      console.warn('Failed to get auth token:', error);
+      return null;
+    }
   }
 
   private async request<T>(
@@ -54,11 +77,21 @@ export class BackendApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
+    // Get authentication token
+    const authToken = await this.getAuthToken();
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    // Add Authorization header if token exists and the endpoint is not for creating a user
+    if (authToken && endpoint !== '/users/add') {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+
     const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
       ...options,
     };
 
@@ -212,6 +245,10 @@ export class BackendApiClient {
 
   async getUserByUsername(username: string): Promise<UserProfile> {
     return this.get<UserProfile>(`/users/username/${username}`);
+  }
+
+  async createUser(userData: { username: string; userType: 'LDUser' | 'EmployeeUser'; email: string }): Promise<number> {
+    return this.post<number>('/users/add', userData);
   }
 
   // Course membership operations

@@ -1,0 +1,102 @@
+package rebootedmvp.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import rebootedmvp.security.JwtAuthenticationFilter;
+
+import java.util.Arrays;
+import java.util.Collections;
+import javax.crypto.spec.SecretKeySpec;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                // Enable CORS and disable CSRF for API usage
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+
+                // Set session management to stateless (JWT-based)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Use Spring Security's built-in OAuth2 Resource Server with JWT
+                .oauth2ResourceServer(oauth2 -> 
+                    oauth2.jwt(jwt -> 
+                        jwt.decoder(jwtDecoder())
+                           .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                    )
+                )
+
+                // Add custom JWT authentication filter for user syncing (after OAuth2 validation)
+                .addFilterAfter(jwtAuthenticationFilter, org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter.class)
+
+                // Configure authorization
+                .authorizeHttpRequests(authz -> authz
+                        // Public endpoints - no authentication required
+                        .requestMatchers("/api/health", "/api/docs/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+
+                        // API endpoints require authentication
+                        .requestMatchers("/api/**").authenticated()
+
+                        // Allow all other requests (for now)
+                        .anyRequest().permitAll());
+
+        return http.build();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        // Supabase uses HS256 with symmetric key (JWT secret)
+        // Not RS256/JWKS - that's why the JWKS endpoint was empty
+        String jwtSecret = "i686VSoGnUUwqzVeVDlulBLapDgMI8mH8jrrIs3EnTmoK11pcaSYwfwD5oAw6+W8+oDQMRuzNn5CliLUE0C/1w==";
+        byte[] secretBytes = java.util.Base64.getDecoder().decode(jwtSecret);
+        SecretKeySpec secretKey = new SecretKeySpec(secretBytes, "HmacSHA256");
+        return NimbusJwtDecoder.withSecretKey(secretKey).build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            // Extract roles from JWT claims
+            String role = jwt.getClaimAsString("role");
+            if (role != null) {
+                return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+            }
+            return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        });
+        return converter;
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://127.0.0.1:3000"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", configuration);
+        return source;
+    }
+}

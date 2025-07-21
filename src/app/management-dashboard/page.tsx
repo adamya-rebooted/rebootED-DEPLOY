@@ -6,7 +6,7 @@ import TeacherDashboard from './TeacherDashboard';
 import StudentDashboard from './StudentDashboard';
 import DashboardPage from './DashboardPage';
 import { apiService } from '@/services/api';
-import { mockAuth } from '@/contexts/UserContext';
+
 
 export default function Page() {
   return <DashboardPage />;

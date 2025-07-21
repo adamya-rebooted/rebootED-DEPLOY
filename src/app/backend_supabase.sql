@@ -1,72 +1,113 @@
--- 1️⃣ Enable UUID generation
-create extension if not exists "pgcrypto";
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
 
--- 2️⃣ (Re)create your enums
-drop type if exists course_role cascade;
-create type course_role as enum ('teacher','student');
-
-drop type if exists content_type cascade;
-create type content_type as enum ('Text','Question');
-
-drop type if exists user_type cascade;
-create type user_type as enum ('LDUser','EmployeeUser');
-
--- 3️⃣ Extend Supabase Auth
-create table if not exists profiles (
-  id         uuid        primary key
-    references auth.users(id) on delete cascade,
-  username   text        not null unique,
-  full_name  text,
-  user_type  user_type   not null default 'EmployeeUser',
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+CREATE TABLE public.content (
+  is_complete boolean,
+  created_at timestamp without time zone,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  module_id bigint NOT NULL,
+  updated_at timestamp without time zone,
+  body text,
+  content_type character varying NOT NULL CHECK (content_type::text = ANY (ARRAY['Text'::character varying, 'Question'::character varying, 'Video'::character varying]::text[])),
+  title character varying NOT NULL,
+  CONSTRAINT content_pkey PRIMARY KEY (id),
+  CONSTRAINT fkocp0sy1tgu9n363yvnb6xirfd FOREIGN KEY (module_id) REFERENCES public.modules(id)
 );
-
--- auto-update updated_at
-create or replace function trigger_set_timestamp()
-returns trigger language plpgsql as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$;
-drop trigger if exists set_profiles_updated_at on profiles;
-create trigger set_profiles_updated_at
-  before update on profiles
-  for each row execute procedure trigger_set_timestamp();
-
--- 4️⃣ Courses
-create table if not exists courses (
-  id          uuid        primary key default gen_random_uuid(),
-  name        text        not null unique,
-  description text,
-  created_at  timestamptz not null default now()
+CREATE TABLE public.content_entity_impl (
+  id bigint NOT NULL,
+  CONSTRAINT content_entity_impl_pkey PRIMARY KEY (id),
+  CONSTRAINT fk3otbuqyvq4r8ir8hwonlkvupq FOREIGN KEY (id) REFERENCES public.content(id)
 );
-
--- 5️⃣ Modules (ordered)
-create table if not exists modules (
-  id         uuid      primary key default gen_random_uuid(),
-  course_id  uuid      not null references courses(id) on delete cascade,
-  title      text,
-  position   int       not null,
-  unique (course_id, position)
+CREATE TABLE public.course_entity_impl (
+  id bigint NOT NULL,
+  CONSTRAINT course_entity_impl_pkey PRIMARY KEY (id),
+  CONSTRAINT fkbxtrhc37j6ucd70cd7qw57dkc FOREIGN KEY (id) REFERENCES public.courses(id)
 );
-
--- 6️⃣ Content blocks (ordered & completable)
-create table if not exists content (
-  id            uuid          primary key default gen_random_uuid(),
-  module_id     uuid          not null references modules(id) on delete cascade,
-  content_type  content_type  not null,
-  content_text  text,
-  is_complete   boolean       not null default false,
-  position      int           not null,
-  unique (module_id, position)
+CREATE TABLE public.course_students (
+  course_id bigint NOT NULL,
+  supabase_user_id bigint NOT NULL,
+  CONSTRAINT course_students_pkey PRIMARY KEY (course_id, supabase_user_id),
+  CONSTRAINT fkj5fbpmgy0y0es0gvk0311jor3 FOREIGN KEY (course_id) REFERENCES public.courses(id),
+  CONSTRAINT fkklcy1d0dr74ueyc6igvu8dbqx FOREIGN KEY (supabase_user_id) REFERENCES public.users(id)
 );
-
--- 7️⃣ Who’s in which course?
-create table if not exists course_users (
-  course_id  uuid         not null references courses(id) on delete cascade,
-  user_id    uuid         not null references profiles(id) on delete cascade,
-  role       course_role  not null,
-  primary key (course_id, user_id)
+CREATE TABLE public.course_teachers (
+  course_id bigint NOT NULL,
+  supabase_user_id bigint NOT NULL,
+  CONSTRAINT course_teachers_pkey PRIMARY KEY (course_id, supabase_user_id),
+  CONSTRAINT fk84v77efghiwpxgicxggm5rpdv FOREIGN KEY (course_id) REFERENCES public.courses(id),
+  CONSTRAINT fklelg3t68s723scornxyr1rrug FOREIGN KEY (supabase_user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.courses (
+  created_at timestamp without time zone,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  updated_at timestamp without time zone,
+  body text,
+  title character varying NOT NULL,
+  CONSTRAINT courses_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.module_entity_impl (
+  id bigint NOT NULL,
+  CONSTRAINT module_entity_impl_pkey PRIMARY KEY (id),
+  CONSTRAINT fkqvbfr4192dciatxu442cw3c8d FOREIGN KEY (id) REFERENCES public.modules(id)
+);
+CREATE TABLE public.modules (
+  weight double precision NOT NULL,
+  course_id bigint NOT NULL,
+  created_at timestamp without time zone,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  updated_at timestamp without time zone,
+  body text,
+  title character varying NOT NULL,
+  CONSTRAINT modules_pkey PRIMARY KEY (id),
+  CONSTRAINT fk8qnnp812q1jd38fx7mxrhpw9 FOREIGN KEY (course_id) REFERENCES public.courses(id)
+);
+CREATE TABLE public.question_info (
+  id bigint NOT NULL,
+  correct_answer character varying,
+  CONSTRAINT question_info_pkey PRIMARY KEY (id),
+  CONSTRAINT fk50ck5cklyig2k5e6mr4v9imxa FOREIGN KEY (id) REFERENCES public.content_entity_impl(id)
+);
+CREATE TABLE public.question_options (
+  content_id bigint NOT NULL,
+  option_text character varying,
+  CONSTRAINT fkfbnmwd4ry5837kw84k2kuyn21 FOREIGN KEY (content_id) REFERENCES public.question_info(id)
+);
+CREATE TABLE public.roster_entity_impl (
+  id bigint NOT NULL,
+  CONSTRAINT roster_entity_impl_pkey PRIMARY KEY (id),
+  CONSTRAINT fkepm999upuk557xlyhq810ghn3 FOREIGN KEY (id) REFERENCES public.rosters(id)
+);
+CREATE TABLE public.rosters (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  body text,
+  title character varying NOT NULL,
+  all_courses bytea,
+  CONSTRAINT rosters_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.text_content_impl (
+  id bigint NOT NULL,
+  CONSTRAINT text_content_impl_pkey PRIMARY KEY (id),
+  CONSTRAINT fk64xffdmo4jeimy6hhxp5d468n FOREIGN KEY (id) REFERENCES public.content_entity_impl(id)
+);
+CREATE TABLE public.user_profile_impl (
+  id bigint NOT NULL,
+  CONSTRAINT user_profile_impl_pkey PRIMARY KEY (id),
+  CONSTRAINT fk3ud0ams86bymb2kj5ie81gwe9 FOREIGN KEY (id) REFERENCES public.users(id)
+);
+CREATE TABLE public.users (
+  user_type smallint NOT NULL CHECK (user_type >= 0 AND user_type <= 1),
+  created_at timestamp without time zone,
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  updated_at timestamp without time zone,
+  email character varying,
+  full_name character varying,
+  supabase_user_id character varying NOT NULL UNIQUE,
+  username character varying NOT NULL UNIQUE,
+  CONSTRAINT users_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.video_info (
+  id bigint NOT NULL,
+  video_url character varying NOT NULL,
+  CONSTRAINT video_info_pkey PRIMARY KEY (id),
+  CONSTRAINT fk8n4gpcjtdwl98sgydrkongjji FOREIGN KEY (id) REFERENCES public.content_entity_impl(id)
 );

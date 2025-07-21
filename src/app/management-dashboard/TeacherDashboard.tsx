@@ -18,6 +18,7 @@ import { Plus, Trash2 } from "lucide-react";
 import {toast} from "sonner"
 import { useRouter } from "next/navigation";
 import { apiService } from "@/services/api";
+import { useUser } from "@/contexts/UserContext";
 import { Course } from "@/types/backend-api";
 
 const TeacherDashboard: React.FC = () => {
@@ -28,6 +29,7 @@ const TeacherDashboard: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { user } = useUser(); // Get user from context
 
   // Function to fetch and refresh courses
   const refreshCourses = async () => {
@@ -42,9 +44,10 @@ const TeacherDashboard: React.FC = () => {
     }
   };
 
-  // Fetch courses from backend on component mount
+  // Fetch courses from backend on component mount, if user is authenticated
   useEffect(() => {
     const fetchCourses = async () => {
+      if (!user) return; // Don't fetch if user is not available
       try {
         setIsLoading(true);
         setError(null);
@@ -58,7 +61,7 @@ const TeacherDashboard: React.FC = () => {
     };
 
     fetchCourses();
-  }, []);
+  }, [user]); // Add user as a dependency
 
   // Listen for course creation events from AI assistant
   useEffect(() => {

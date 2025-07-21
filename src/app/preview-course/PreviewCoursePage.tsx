@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { apiService } from '@/services/api';
-import { mockAuth } from '@/contexts/UserContext';
+import { createClient } from '@/utils/supabase/client';
 import { Course, Module } from '@/types/backend-api';
 import ContentBlockList from '@/components/content/ContentBlockList';
 import ContentCreator from '@/components/content/ContentCreator';
@@ -36,7 +36,8 @@ export default function PreviewCoursePage() {
       setError(null);
 
       // Get current user
-      const { data: { user }, error: userError } = await mockAuth.getUser();
+              const supabase = createClient();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
         router.push('/login');
         return;

@@ -19,7 +19,7 @@ spring:
     hibernate:
       #ddl-auto: update
       ddl-auto: create-drop
-      # create-drop? deletes all data on restart, only use temporarily to hard reset database
+      # create-drop deletes all data on restart, only use temporarily to hard reset database
     show-sql: true
     properties:
       hibernate:
@@ -29,16 +29,17 @@ spring:
         generate_statistics: true
     open-in-view: false
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://snvasvzrqiordsgmfcai.supabase.co/auth/v1
+  # OAuth2 Resource Server configuration removed - using manual JWT decoder
+  # security:
+  #   oauth2:
+  #     resourceserver:
+  #       jwt:
+  #         # Manual configuration in SecurityConfig instead
 
 # Supabase Configuration
 supabase:
   project-url: https://snvasvzrqiordsgmfcai.supabase.co
-  jwt-secret: i686VSoGnUUwqzVeVDlulBLapDgMI8mH8jrrIs3EnTmoK11pcaSYwfwD5oAw6+W8+oDQMRuzNn5CliLUE0C/1w==
+  jwt-secret: 8ded79f6-e7d7-4232-8fa4-7ed7f6434d04
   anon-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudmFzdnpycWlvcmRzZ21mY2FpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxNjk1OTMsImV4cCI6MjA2NTc0NTU5M30.Ya0nx3pHDl2Pwtatkjw_BjTvo_mxJmSlam2XKbEKTvA
   service-role-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudmFzdnpycWlvcmRzZ21mY2FpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDE2OTU5MywiZXhwIjoyMDY1NzQ1NTkzfQ.YUlpVsDQJTsjEl3bV6X2O-32mGeIL42CMQOpODkqGMY
 

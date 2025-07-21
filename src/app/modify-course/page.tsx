@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
-import { mockAuth } from "@/contexts/UserContext";
+import { createClient } from '@/utils/supabase/client';
 import { Course, Module, ContentResponse, NewModuleRequest } from "@/types/backend-api";
 import ContentBlockList from "@/components/content/ContentBlockList";
 import EnhancedContentCreator from "@/components/content/EnhancedContentCreator";
@@ -79,7 +79,8 @@ const ModifyCoursePage: React.FC = () => {
       setError(null);
 
       // Get current user to check permissions
-      const { data: { user }, error: userError } = await mockAuth.getUser();
+              const supabase = createClient();
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
         router.push('/login');
         return;

@@ -11,7 +11,7 @@ public class NewTeacherDTO extends NewUserDTO {
 
     // Constructor with all fields
     public NewTeacherDTO(String username, String email) {
-        super(username, User.UserType.LDUser, email);
+        super(username, User.UserType.LDUser, email, null);
     }
 
 }

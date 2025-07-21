@@ -1,128 +1,194 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/utils/supabase/client';
+import { User, Session } from '@supabase/supabase-js';
 
-// Mock user type to replace Supabase user
-export interface MockUser {
+// Real Supabase user type
+export interface RealUser {
   id: string;
   email: string;
-  role: 'teacher' | 'student';
+  role: 'teacher' | 'student' | null;
   user_metadata?: {
     full_name?: string;
     preferred_username?: string;
   };
 }
 
-// Mock auth data structure
-export interface MockAuthData {
-  user: MockUser | null;
-}
-
 interface UserContextType {
-  user: MockUser | null;
-  signIn: (username: string, password: string) => Promise<{ data: MockAuthData; error: any }>;
+  user: RealUser | null;
+  signInWithGoogle: () => Promise<{ data: any; error: any }>;
   signOut: () => Promise<void>;
-  getUser: () => Promise<{ data: MockAuthData; error: any }>;
+  getUser: () => Promise<{ data: any; error: any }>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// Test users that match backend test data
-const TEST_USERS: { [key: string]: MockUser } = {
-  'teacher1': {
-    id: 'teacher1-uuid',
-    email: 'teacher1@example.com',
-    role: 'teacher',
-    user_metadata: {
-      full_name: 'Teacher One',
-      preferred_username: 'teacher1'
-    }
-  },
-  'teacher2': {
-    id: 'teacher2-uuid',
-    email: 'teacher2@example.com',
-    role: 'teacher',
-    user_metadata: {
-      full_name: 'Teacher Two',
-      preferred_username: 'teacher2'
-    }
-  },
-  'student1': {
-    id: 'student1-uuid',
-    email: 'student1@example.com',
-    role: 'student',
-    user_metadata: {
-      full_name: 'Student One',
-      preferred_username: 'student1'
-    }
-  },
-  'student2': {
-    id: 'student2-uuid',
-    email: 'student2@example.com',
-    role: 'student',
-    user_metadata: {
-      full_name: 'Student Two',
-      preferred_username: 'student2'
-    }
-  },
-  'student3': {
-    id: 'student3-uuid',
-    email: 'student3@example.com',
-    role: 'student',
-    user_metadata: {
-      full_name: 'Student Three',
-      preferred_username: 'student3'
-    }
-  }
-};
-
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<MockUser | null>(null);
+  const [user, setUser] = useState<RealUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+  const router = useRouter();
 
-  // Load user from localStorage on mount
-  useEffect(() => {
-    const savedUser = localStorage.getItem('mockUser');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error('Error parsing saved user:', error);
-        localStorage.removeItem('mockUser');
+  // Convert Supabase user to our RealUser format
+  const convertSupabaseUser = async (supabaseUser: User): Promise<RealUser> => {
+    // Skip backend call if user is on signup page (they're creating their backend profile)
+    if (typeof window !== 'undefined' && window.location.pathname === '/signup') {
+      return {
+        id: supabaseUser.id,
+        email: supabaseUser.email || '',
+        role: (supabaseUser.user_metadata?.role as 'teacher' | 'student') || null,
+        user_metadata: {
+          full_name: supabaseUser.user_metadata?.full_name,
+          preferred_username: supabaseUser.user_metadata?.preferred_username,
+        }
       }
     }
-  }, []);
-
-  const signIn = async (username: string, password: string): Promise<{ data: MockAuthData; error: any }> => {
-    // Simple mock authentication - any password works for test users
-    const mockUser = TEST_USERS[username.toLowerCase()];
     
-    if (mockUser) {
-      setUser(mockUser);
-      localStorage.setItem('mockUser', JSON.stringify(mockUser));
-      return { data: { user: mockUser }, error: null };
-    } else {
-      return { 
-        data: { user: null }, 
-        error: { message: 'Invalid username. Use: teacher1, teacher2, student1, student2, or student3' }
-      };
+    try {
+      // Try to get role from backend first
+      const { data: { session } } = await supabase.auth.getSession()
+      console.log('=== JWT DEBUG INFO ===');
+      console.log('Supabase user ID:', supabaseUser.id);
+      console.log('Session:', session);
+      console.log('Access token:', session?.access_token);
+      console.log('Token length:', session?.access_token?.length);
+      console.log('Token starts with:', session?.access_token?.substring(0, 20) + '...');
+      console.log('Backend URL:', `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${supabaseUser.id}`);
+      console.log('=====================');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${supabaseUser.id}`, {
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`
+        }
+      })
+      
+      if (response.ok) {
+        const backendUser = await response.json()
+        const role = backendUser.userType === 'LDUser' ? 'teacher' : 'student'
+        
+        return {
+          id: supabaseUser.id,
+          email: supabaseUser.email || '',
+          role,
+          user_metadata: {
+            full_name: supabaseUser.user_metadata?.full_name,
+            preferred_username: supabaseUser.user_metadata?.preferred_username,
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to get role from backend, falling back to metadata:', error)
+    }
+    
+    // Fallback to Supabase metadata if backend fails
+    return {
+      id: supabaseUser.id,
+      email: supabaseUser.email || '',
+      role: (supabaseUser.user_metadata?.role as 'teacher' | 'student') || null,
+      user_metadata: {
+        full_name: supabaseUser.user_metadata?.full_name,
+        preferred_username: supabaseUser.user_metadata?.preferred_username,
+      }
     }
   };
 
-  const signOut = async (): Promise<void> => {
-    setUser(null);
-    localStorage.removeItem('mockUser');
+  // Initialize auth state
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        // Get initial session
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          const convertedUser = await convertSupabaseUser(session.user);
+          setUser(convertedUser);
+          if (!convertedUser.role && window.location.pathname !== '/signup') {
+            router.push('/signup');
+          }
+        }
+        setLoading(false); // Set loading to false after initial check
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            if (session?.user) {
+              const convertedUser = await convertSupabaseUser(session.user);
+              setUser(convertedUser);
+              if (!convertedUser.role && window.location.pathname !== '/signup') {
+                router.push('/signup');
+              }
+            } else {
+              setUser(null);
+            }
+            // Also set loading to false on auth changes to handle subsequent updates
+            setLoading(false);
+          }
+        );
+
+        return () => subscription.unsubscribe();
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, [supabase.auth]);
+
+  const signInWithGoogle = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+      
+      return { data, error };
+    } catch (error) {
+      return { data: null, error };
+    }
   };
 
-  const getUser = async (): Promise<{ data: MockAuthData; error: any }> => {
-    return { data: { user }, error: null };
+  const signOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
+
+  const getUser = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const convertedUser = user ? await convertSupabaseUser(user) : null;
+      return { data: { user: convertedUser }, error: null };
+    } catch (error) {
+      return { data: { user: null }, error };
+    }
   };
 
   const value: UserContextType = {
     user,
-    signIn,
+    signInWithGoogle,
     signOut,
     getUser
   };
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh'
+      }}>
+        <div>Loading authentication...</div>
+      </div>
+    );
+  }
 
   return (
     <UserContext.Provider value={value}>
@@ -139,18 +205,3 @@ export function useUser() {
   return context;
 }
 
-// Mock auth object to replace Supabase auth
-export const mockAuth = {
-  getUser: async (): Promise<{ data: MockAuthData; error: any }> => {
-    const savedUser = localStorage.getItem('mockUser');
-    if (savedUser) {
-      try {
-        const user = JSON.parse(savedUser);
-        return { data: { user }, error: null };
-      } catch (error) {
-        return { data: { user: null }, error };
-      }
-    }
-    return { data: { user: null }, error: null };
-  }
-};

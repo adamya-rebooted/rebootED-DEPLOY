@@ -40,16 +40,15 @@ public class UserProfileController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Long> createUser(
-            @RequestBody NewUserDTO newUserDTO,
-            @RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<Long> createUser(@RequestBody NewUserDTO newUserDTO) {
         System.out.println("Incoming DTO = " + newUserDTO);
 
-        // String supabaseUserId = jwtService.extractUserId(authHeader);
-        String supabaseUserId = "test-user-id-123"; // TEMPORARY HARDCODE
+        // Use proper JWT validation now that we fixed the HS256 configuration
+        String supabaseUserId = newUserDTO.getSupabaseUserId();
         Long userId = userProfileService.addUser(supabaseUserId, newUserDTO);
         return ResponseEntity.ok(userId);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<UserProfileDTO> getUserById(@PathVariable String id) {
