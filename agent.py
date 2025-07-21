@@ -51,7 +51,7 @@ load_dotenv()
 #     modules: List[ModuleContentBundle]
 # ####TEMP OLD PYDANTIC MODELS
 # Configure DSPy with the language model
-lm = dspy.LM('anthropic/claude-3-opus-20240229', api_key=os.getenv('ANTHROPIC_API_KEY'))
+lm = dspy.LM('anthropic/claude-3-haiku-20240307', api_key=os.getenv('ANTHROPIC_API_KEY'))
 #lm = dspy.LM('gemini/gemini-1.5-flash', api_key=os.getenv('GEMINI_API_KEY'))
 dspy.configure(lm=lm)
 
