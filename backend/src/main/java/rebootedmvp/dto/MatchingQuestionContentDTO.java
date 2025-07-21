@@ -3,8 +3,6 @@ package rebootedmvp.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.javatuples.Pair;
-
 import rebootedmvp.Content.ContentType;
 import rebootedmvp.Match;
 
