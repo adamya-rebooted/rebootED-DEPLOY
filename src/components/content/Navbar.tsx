@@ -84,7 +84,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center space-x-6">
           <div className="text-base text-white/90 font-medium flex items-center gap-2">
             <User className="h-5 w-5 text-secondary" />
-            <span>{user?.id}</span>
+            <span>{user?.user_metadata?.full_name}</span>
           </div>
           <div className="flex items-center space-x-2 text-sm text-white/70">
             <div className={`h-2 w-2 rounded-full ${isTeacher ? "bg-secondary" : "bg-green-400"}`} />

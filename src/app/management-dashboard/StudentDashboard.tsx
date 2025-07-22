@@ -144,7 +144,8 @@ const StudentDashboard: React.FC = () => {
               <p className="text-xs text-[var(--secondary-foreground)]/80">Courses finished</p>
             </CardContent>
           </Card>
-          <Card className="bg-[var(--muted-foreground)] text-[var(--primary-foreground)] shadow-md">
+          {/* <Card className="bg-[var(--muted-foreground)] text-[var(--primary-foreground)] shadow-md"> */}
+          <Card className="bg-slate-400/80 rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-sm border border-slate-400">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">In Progress</CardTitle>
               <Clock className="h-5 w-5 text-[var(--primary-foreground)]/80" />
