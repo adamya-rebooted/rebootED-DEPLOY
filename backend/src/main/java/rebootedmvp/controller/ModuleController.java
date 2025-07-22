@@ -17,7 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.NewContentDTO;
-import rebootedmvp.dto.NewQuestionContentDTO;
+import rebootedmvp.dto.NewMatchingQuestionContentDTO;
+import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewTextContentDTO;
 import rebootedmvp.dto.NewVideoContentDTO;
 import rebootedmvp.service.ModuleService;
@@ -43,9 +44,20 @@ public class ModuleController {
         return ResponseEntity.ok(con);
     }
 
-    @PostMapping("/addQuestion")
-    public ResponseEntity<Long> createQuestionContent(@PathVariable Long moduleId,
-            @RequestBody NewQuestionContentDTO newContentDTO) {
+    @PostMapping("/addMultipleChoiceQuestion")
+    public ResponseEntity<Long> createMultipleChoiceQuestionContent(@PathVariable Long moduleId,
+            @RequestBody NewMultipleChoiceQuestionContentDTO newContentDTO) {
+        try {
+            Long contentId = moduleService.addNew(moduleId, newContentDTO);
+            return ResponseEntity.ok(contentId);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/addMatchingQuestion")
+    public ResponseEntity<Long> createMatchingQuestionContent(@PathVariable Long moduleId,
+            @RequestBody NewMatchingQuestionContentDTO newContentDTO) {
         try {
             Long contentId = moduleService.addNew(moduleId, newContentDTO);
             return ResponseEntity.ok(contentId);

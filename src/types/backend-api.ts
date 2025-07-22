@@ -91,7 +91,7 @@ export interface Content {
   id: number;
   title: string;
   body: string | null;
-  type: 'Text' | 'Question';
+  type: 'Text' | 'MultipleChoiceQuestion';
   moduleId: number;
   position: number;
   isComplete?: boolean;
@@ -101,7 +101,7 @@ export interface Content {
 
 // Question-specific content interface (extends Content for QuestionContentDTO)
 export interface QuestionContent extends Content {
-  type: 'Question';
+  type: 'MultipleChoiceQuestion';
   options: string[];
   correctAnswer: string;
   userAnswer?: string;
@@ -112,7 +112,7 @@ export type ContentResponse = Content | QuestionContent;
 
 // Type guard to check if content is a question
 export function isQuestionContent(content: Content): content is QuestionContent {
-  return content.type === ContentType.Question && 'options' in content;
+  return content.type === ContentType.MultipleChoiceQuestion && 'options' in content;
 }
 
 export interface UserProfile {
@@ -219,7 +219,7 @@ export interface LDUser {
 
 export interface ContentBlock {
   id: string;
-  type: 'Text' | 'Question';
+  type: 'Text' | 'MultipleChoiceQuestion';
   title: string;
   content: string;
   isComplete: boolean;

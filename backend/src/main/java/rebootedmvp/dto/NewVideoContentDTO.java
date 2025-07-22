@@ -9,8 +9,8 @@ public class NewVideoContentDTO extends NewContentDTO {
     public NewVideoContentDTO() {
     }
 
-    public NewVideoContentDTO(ContentType type, String title, String body, Long moduleId) {
-        super(type, title, body, moduleId);
+    public NewVideoContentDTO(String title, String body, Long moduleId) {
+        super(ContentType.Video, title, body, moduleId);
     }
 
     public String getVideoURL() {

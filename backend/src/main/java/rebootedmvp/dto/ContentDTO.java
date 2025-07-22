@@ -4,12 +4,12 @@ import rebootedmvp.Content;
 
 public abstract class ContentDTO {
 
-    private Long id;
+    protected Long id;
     protected Content.ContentType type;
-    private String title;
-    private String body;
-    private boolean isComplete;
-    private Long moduleId;
+    protected String title;
+    protected String body;
+    protected boolean isComplete;
+    protected Long moduleId;
 
     public ContentDTO(Content c) {
         this.id = c.getId();

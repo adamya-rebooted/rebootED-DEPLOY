@@ -52,7 +52,7 @@ public abstract class ContentEntityImpl extends Content {
         this.title = title;
         this.body = questionText; // Set body to questionText for consistency
         // this.questionText = questionText;
-        this.contentType = ContentType.Question; // Set the content type!
+        this.contentType = contentType;
         // this.correctAnswer = correctAnswer;
         this.moduleId = module.getId();
         this.isComplete = false;

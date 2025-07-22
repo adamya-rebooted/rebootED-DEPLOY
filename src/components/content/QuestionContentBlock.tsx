@@ -85,16 +85,16 @@ export default function QuestionContentBlock({ content, onSubmitAnswer, isIntera
                 style={{
                   backgroundColor: hasAnswered
                     ? (isUserAnswer
-                        ? (isCorrectOption ? 'var(--secondary)' : 'var(--destructive)')
-                        : (isCorrectOption ? 'var(--secondary)' : 'var(--background)'))
+                      ? (isCorrectOption ? 'var(--secondary)' : 'var(--destructive)')
+                      : (isCorrectOption ? 'var(--secondary)' : 'var(--background)'))
                     : (isSelectedOption ? 'var(--accent)' : 'var(--background)'),
                   color: hasAnswered
                     ? (isUserAnswer || isCorrectOption ? 'var(--background)' : 'var(--text)')
                     : (isSelectedOption ? 'var(--background)' : 'var(--text)'),
                   borderColor: hasAnswered
                     ? (isUserAnswer
-                        ? (isCorrectOption ? 'var(--secondary)' : 'var(--destructive)')
-                        : (isCorrectOption ? 'var(--secondary)' : 'var(--border)'))
+                      ? (isCorrectOption ? 'var(--secondary)' : 'var(--destructive)')
+                      : (isCorrectOption ? 'var(--secondary)' : 'var(--border)'))
                     : (isSelectedOption ? 'var(--accent)' : 'var(--border)'),
                   borderWidth: 1,
                   borderStyle: 'solid',

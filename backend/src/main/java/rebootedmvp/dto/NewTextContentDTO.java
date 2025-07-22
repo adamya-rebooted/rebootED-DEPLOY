@@ -7,8 +7,8 @@ public class NewTextContentDTO extends NewContentDTO {
     public NewTextContentDTO() {
     }
 
-    public NewTextContentDTO(ContentType type, String title, String body, Long moduleId) {
-        super(type, title, body, moduleId);
+    public NewTextContentDTO(String title, String body, Long moduleId) {
+        super(ContentType.Text, title, body, moduleId);
     }
 
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 import rebootedmvp.Content;
 
-public class QuestionContentDTO extends ContentDTO {
+public class MultipleChoiceQuestionContentDTO extends ContentDTO {
 
     private List<String> options;
     private String correctAnswer;
@@ -12,9 +12,9 @@ public class QuestionContentDTO extends ContentDTO {
     // public QuestionContentDTO() {
     // super()
     // }
-    public QuestionContentDTO(Long id, String title, String body, boolean isComplete, Long moduleId,
+    public MultipleChoiceQuestionContentDTO(Long id, String title, String body, boolean isComplete, Long moduleId,
             List<String> options, String correctAnswer) {
-        super(id, Content.ContentType.Question, title, body, isComplete, moduleId);
+        super(id, Content.ContentType.MultipleChoiceQuestion, title, body, isComplete, moduleId);
         this.options = options;
         this.correctAnswer = correctAnswer;
     }

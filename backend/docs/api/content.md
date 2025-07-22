@@ -29,7 +29,7 @@ Content-Type: application/json
   },
   {
     "id": 2,
-    "type": "Question",
+    "type": "MultipleChoiceQuestion",
     "title": "Java Basics Quiz",
     "body": "What is the main method signature?",
     "isComplete": true,
@@ -122,7 +122,7 @@ POST /api/content
 Content-Type: application/json
 
 {
-  "type": "Question",
+  "type": "MultipleChoiceQuestion",
   "title": "Java Basics Quiz",
   "body": "What is the main method signature?",
   "moduleId": 1
@@ -271,7 +271,7 @@ Content-Type: application/json
 
 {
   "id": 2,
-  "type": "Question",
+  "type": "MultipleChoiceQuestion",
   "title": "Java Basics Quiz",
   "body": "What is the main method signature?",
   "isComplete": true,

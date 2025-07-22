@@ -2,16 +2,17 @@ package rebootedmvp.dto;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+
 import rebootedmvp.Content.ContentType;
 
 public class NewContentDTO implements NewDTO {
 
-    private ContentType type;
-    private String title;
-    private String body;
-    private Long moduleId;
-    private List<String> options;
-    private String correctAnswer;
+    protected ContentType type;
+    protected String title;
+    protected String body;
+    protected Long moduleId;
 
     public NewContentDTO() {
     }
@@ -21,16 +22,6 @@ public class NewContentDTO implements NewDTO {
         this.title = title;
         this.body = body;
         this.moduleId = moduleId;
-    }
-
-    public NewContentDTO(ContentType type, String title, String body, Long moduleId, List<String> options,
-            String correctAnswer) {
-        this.type = type;
-        this.title = title;
-        this.body = body;
-        this.moduleId = moduleId;
-        this.options = options;
-        this.correctAnswer = correctAnswer;
     }
 
     public ContentType getType() {

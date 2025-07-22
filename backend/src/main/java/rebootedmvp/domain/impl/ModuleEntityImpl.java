@@ -74,10 +74,18 @@ public class ModuleEntityImpl extends Module {
     }
 
     public Content create(Long id, String title, String body, Content.ContentType type) {
-        if (type == Content.ContentType.Question) {
-            return new QuestionContentImpl(title, body, new ArrayList<>(), "", this.id);
-        } else {
-            return new TextContentImpl(title, body, this.getId());
+        switch (type) {
+            case MultipleChoiceQuestion:
+                return new MultipleChoiceQuestionContentImpl(title, body, new ArrayList<>(), "", this.id);
+            case Text:
+                return new TextContentImpl(title, body, this.id);
+            case Video:
+                return new VideoContentImpl(title, body, "", this.id);
+            case MatchingQuestion:
+                return new MatchingQuestionContentImpl(title, body, new ArrayList<>(), this.id);
+            default:
+                // Default to TextContent if type is not recognized
+                return new TextContentImpl(title, body, this.id);
         }
     }
 

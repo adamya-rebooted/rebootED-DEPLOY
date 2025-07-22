@@ -2,7 +2,9 @@
 // Clean implementation with comprehensive error handling
 export enum ContentType {
   Text = 'Text',
-  Question = 'Question',
+  MultipleChoiceQuestion = 'MultipleChoiceQuestion',
+  Video = 'Video',
+  MatchingQuestion = 'MatchingQuestion',
 }
 
 import {
@@ -277,12 +279,7 @@ export class BackendApiClient {
 
 
   async createContent(contentData: NewContentRequest): Promise<ContentResponse> {
-    // if (contentData.type === ContentType.Question) {
-    //   return this.post<ContentResponse>(`/modules/${contentData.moduleId}/addQuestion`, contentData);
-    // }
-    // else {
-    //   return this.post<ContentResponse>(`/modules/${contentData.moduleId}/addText`, contentData);
-    // }
+
     const { moduleId, type, ...payload } = contentData;
 
     if (type === ContentType.Text) {
@@ -294,9 +291,9 @@ export class BackendApiClient {
       });
       // Since we only get back the ID, fetch the full content data
       return this.getContentById(contentId);
-    } else if (type === ContentType.Question) {
+    } else if (type === ContentType.MultipleChoiceQuestion) {
       // Use the module-specific addQuestion endpoint  
-      const contentId = await this.post<number>(`/modules/${moduleId}/addQuestion`, {
+      const contentId = await this.post<number>(`/modules/${moduleId}/addMultipleChoiceQuestion`, {
         type,
         ...payload,
         moduleId

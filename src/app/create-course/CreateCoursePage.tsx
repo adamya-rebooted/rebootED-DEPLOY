@@ -7,7 +7,7 @@ import { createClient } from '@/utils/supabase/client';
 
 interface ContentBlock {
   id: string;
-  type: 'Text' | 'Question';
+  type: 'Text' | 'MultipleChoiceQuestion';
   title: string;
   content: string;
   isComplete: boolean;
@@ -50,7 +50,7 @@ export default function CreateCoursePage() {
 
       // Get current user
       const supabase = createClient();
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       if (userError || !user) {
         throw new Error('You must be logged in to create a course');
       }
@@ -60,7 +60,7 @@ export default function CreateCoursePage() {
       if (allUsernames.length > 0) {
         const validationResult = await apiService.validateUsernames(allUsernames);
         const missingUsers = allUsernames.filter(username => !validationResult[username]);
-        
+
         if (missingUsers.length > 0) {
           throw new Error(`These users don't exist: ${missingUsers.join(', ')}`);
         }

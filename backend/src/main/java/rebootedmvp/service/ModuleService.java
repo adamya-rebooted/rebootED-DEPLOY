@@ -15,15 +15,19 @@ import rebootedmvp.Content;
 import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
-import rebootedmvp.domain.impl.QuestionContentImpl;
+import rebootedmvp.domain.impl.MatchingQuestionContentImpl;
+import rebootedmvp.domain.impl.MultipleChoiceQuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.domain.impl.VideoContentImpl;
 import rebootedmvp.dto.ContentDTO;
+import rebootedmvp.dto.MatchingQuestionContentDTO;
 import rebootedmvp.dto.NewContentDTO;
-import rebootedmvp.dto.NewQuestionContentDTO;
+import rebootedmvp.dto.NewMatchingQuestionContentDTO;
+import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewVideoContentDTO;
-import rebootedmvp.dto.QuestionContentDTO;
+import rebootedmvp.dto.MultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.TextContentDTO;
+import rebootedmvp.dto.VideoContentDTO;
 import rebootedmvp.repository.ContentRepository;
 import rebootedmvp.repository.ModuleRepository;
 
@@ -119,16 +123,21 @@ public class ModuleService {
                         newContentDTO.getTitle().trim(),
                         newContentDTO.getBody(),
                         module.getId());
-                case Question -> content = new QuestionContentImpl(
+                case MultipleChoiceQuestion -> content = new MultipleChoiceQuestionContentImpl(
                         newContentDTO.getTitle().trim(),
                         newContentDTO.getBody(),
-                        ((NewQuestionContentDTO) newContentDTO).getOptions(),
-                        ((NewQuestionContentDTO) newContentDTO).getCorrectAnswer(),
+                        ((NewMultipleChoiceQuestionContentDTO) newContentDTO).getOptions(),
+                        ((NewMultipleChoiceQuestionContentDTO) newContentDTO).getCorrectAnswer(),
                         moduleId);
                 case Video -> content = new VideoContentImpl(
                         newContentDTO.getTitle().trim(),
                         newContentDTO.getBody(),
                         ((NewVideoContentDTO) newContentDTO).getVideoURL(),
+                        moduleId);
+                case MatchingQuestion -> content = new MatchingQuestionContentImpl(
+                        newContentDTO.getTitle().trim(),
+                        newContentDTO.getBody(),
+                        ((NewMatchingQuestionContentDTO) newContentDTO).getMatches(),
                         moduleId);
                 default -> throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
             }
@@ -164,7 +173,7 @@ public class ModuleService {
         }
 
         switch (content.getType()) {
-            case Text:
+            case Text -> {
                 content = (TextContentImpl) content;
                 if (updateDTO.getTitle() != null) {
                     content.setTitle(updateDTO.getTitle());
@@ -172,10 +181,10 @@ public class ModuleService {
                 if (updateDTO.getBody() != null) {
                     content.setBody(updateDTO.getBody());
                 }
-                break;
-            case Question:
-                QuestionContentImpl questionContent = (QuestionContentImpl) content;
-                NewQuestionContentDTO qDTO = (NewQuestionContentDTO) updateDTO;
+            }
+            case MultipleChoiceQuestion -> {
+                MultipleChoiceQuestionContentImpl questionContent = (MultipleChoiceQuestionContentImpl) content;
+                NewMultipleChoiceQuestionContentDTO qDTO = (NewMultipleChoiceQuestionContentDTO) updateDTO;
                 if (updateDTO.getTitle() != null) {
                     content.setTitle(updateDTO.getTitle());
                 }
@@ -185,11 +194,12 @@ public class ModuleService {
                 if ((qDTO).getOptions() != null) {
                     questionContent.setOptions(qDTO.getOptions());
                 }
-                if (((NewQuestionContentDTO) updateDTO).getCorrectAnswer() != null) {
-                    questionContent.setCorrectAnswer(((NewQuestionContentDTO) updateDTO).getCorrectAnswer());
+                if (((NewMultipleChoiceQuestionContentDTO) updateDTO).getCorrectAnswer() != null) {
+                    questionContent
+                            .setCorrectAnswer(((NewMultipleChoiceQuestionContentDTO) updateDTO).getCorrectAnswer());
                 }
-                break;
-            case Video:
+            }
+            case Video -> {
                 VideoContentImpl videoContent = (VideoContentImpl) content;
                 if (updateDTO.getTitle() != null) {
                     content.setTitle(updateDTO.getTitle());
@@ -200,7 +210,20 @@ public class ModuleService {
                 if (((NewVideoContentDTO) updateDTO).getVideoURL() != null) {
                     videoContent.setVideoURL(((NewVideoContentDTO) updateDTO).getVideoURL());
                 }
-                break;
+            }
+            case MatchingQuestion -> {
+                MatchingQuestionContentImpl matchingContent = (MatchingQuestionContentImpl) content;
+                NewMatchingQuestionContentDTO mDTO = (NewMatchingQuestionContentDTO) updateDTO;
+                if (updateDTO.getTitle() != null) {
+                    content.setTitle(updateDTO.getTitle());
+                }
+                if (updateDTO.getBody() != null) {
+                    matchingContent.setBody(updateDTO.getBody());
+                }
+                if (mDTO.getMatches() != null) {
+                    matchingContent.setMatches(mDTO.getMatches());
+                }
+            }
         }
         contentRepository.save(ContentMapper.toEntity(content));
         logger.info("Updated content with ID: {} in module: {}", contentId, moduleId);
@@ -237,23 +260,38 @@ public class ModuleService {
     }
 
     private static ContentDTO convertToDTO(Content content) {
-        if (content.getType() == Content.ContentType.Text) {
-            return new TextContentDTO(
+        return switch (content.getType()) {
+            case Text -> new TextContentDTO(
                     content.getId(),
                     content.getTitle(),
                     content.getBody(),
                     content.isComplete(),
                     content.getModuleId());
-        } else if (content.getType() == Content.ContentType.Question) {
-            return new QuestionContentDTO(
+
+            case MultipleChoiceQuestion -> new MultipleChoiceQuestionContentDTO(
                     content.getId(),
                     content.getTitle(),
                     content.getBody(),
                     content.isComplete(),
                     content.getModuleId(),
-                    ((QuestionContentImpl) content).getOptions(),
-                    ((QuestionContentImpl) content).getCorrectAnswer());
-        }
-        return null;
+                    ((MultipleChoiceQuestionContentImpl) content).getOptions(),
+                    ((MultipleChoiceQuestionContentImpl) content).getCorrectAnswer());
+
+            case Video -> new VideoContentDTO(
+                    content.getId(),
+                    content.getTitle(),
+                    content.getBody(),
+                    content.isComplete(),
+                    content.getModuleId(),
+                    ((VideoContentImpl) content).getVideoURL());
+
+            case MatchingQuestion -> new MatchingQuestionContentDTO(
+                    content.getId(),
+                    content.getTitle(),
+                    content.getBody(),
+                    content.isComplete(),
+                    ((MatchingQuestionContentImpl) content).getMatches(),
+                    content.getModuleId());
+        };
     }
 }

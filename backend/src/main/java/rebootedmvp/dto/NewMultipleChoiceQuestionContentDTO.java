@@ -4,17 +4,22 @@ import java.util.List;
 
 import rebootedmvp.Content.ContentType;
 
-public class NewQuestionContentDTO extends NewContentDTO {
+public class NewMultipleChoiceQuestionContentDTO extends NewContentDTO {
 
     private List<String> options;
     private String correctAnswer;
 
-    public NewQuestionContentDTO() {
+    public NewMultipleChoiceQuestionContentDTO() {
     }
 
-    public NewQuestionContentDTO(ContentType type, String title, String body, Long moduleId,
+    public NewMultipleChoiceQuestionContentDTO(String title, String body, Long moduleId,
             List<String> options, String correctAnswer) {
-        super(type, title, body, moduleId, options, correctAnswer);
+        this.type = ContentType.MultipleChoiceQuestion;
+        this.title = title;
+        this.body = body;
+        this.moduleId = moduleId;
+        this.options = options;
+        this.correctAnswer = correctAnswer;
     }
 
     // Getters and Setters
