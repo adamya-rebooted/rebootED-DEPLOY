@@ -3,6 +3,7 @@
 import './globals.css'
 import { UserProvider, useUser } from '@/contexts/UserContext'
 import { AIAssistantProvider, FloatingAIButton, AIAssistantOverlay } from '@/components/ai-assistant'
+import { ThemeProvider } from 'next-themes'
 import { Gochi_Hand } from 'next/font/google'
 import { usePathname } from 'next/navigation'
 import React from 'react';
@@ -33,11 +34,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <UserProvider>
-          <LayoutWithAIAssistant>{children}</LayoutWithAIAssistant>
-        </UserProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <UserProvider>
+            <LayoutWithAIAssistant>{children}</LayoutWithAIAssistant>
+          </UserProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

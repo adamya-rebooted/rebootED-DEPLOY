@@ -1,15 +1,6 @@
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { BookOpen, Clock, Users, Play, CheckCircle } from "lucide-react";
+import React from "react";
+import { Users } from "lucide-react";
 
 export interface Course {
   id: string;
@@ -22,6 +13,7 @@ export interface Course {
   status?: "not-started" | "in-progress" | "completed";
   dueDate?: string;
   category: string;
+  imageUrl?: string; // Optional: for future image support
 }
 
 interface CourseCardProps {
@@ -35,105 +27,49 @@ const CourseCard: React.FC<CourseCardProps> = ({
   isTeacher = false,
   onAction,
 }) => {
-  const getStatusColor = (status: Course["status"]) => {
-    switch (status) {
-      // case "completed":
-        // return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-      // case "in-progress":
-        // return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
-    }
-  };
-
-  const getStatusIcon = (status: Course["status"]) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-4 w-4" />;
-      case "in-progress":
-        return <Play className="h-4 w-4" />;
-      default:
-        return <BookOpen className="h-4 w-4" />;
-    }
-  };
-
-  const formatStatus = (status: Course["status"]) => {
-    switch (status) {
-      case "completed":
-        return "Completed";
-      case "in-progress":
-        return "In Progress";
-      default:
-        return "Not Started";
-    }
-  };
-
   return (
-    <Card className="group ">
-      <CardHeader className="pb-4">
-        <div className="flex ">
-          <div className="flex-1">
-            <CardTitle className="text-lg ">
-              {course.title}
-            </CardTitle>
-            <CardDescription className="mt-1 ">
-              {course.description}
-            </CardDescription>
-          </div>
-          {/* {!isTeacher && course.status && (
-            <Badge variant="outline" className={getStatusColor(course.status)}>
-              <span className="flex items-center gap-1">
-                {getStatusIcon(course.status)}
-                {formatStatus(course.status)}
-              </span>
-            </Badge>
-          )} */}
-        </div>
-
-        <div className="flex items-center gap-4 text-sm mt-3">
-          <div className="flex items-center gap-1">
-            {/* <Clock className="h-4 w-4" /> */}
-            <span>{course.duration}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            {/* <BookOpen className="h-4 w-4" /> */}
-            <span>{course.modules} modules</span>
-          </div>
-          {isTeacher && course.enrolled !== undefined && (
-            <div className="flex items-center gap-1">
-              <Users className="h-4 w-4" />
-              <span>{course.enrolled} enrolled</span>
+    <div className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 p-4 w-full max-w-xs flex flex-col cursor-pointer">
+      {/* Optional: Add image support here if available */}
+      {/* {course.imageUrl && (
+        <img
+          src={course.imageUrl}
+          alt={course.title}
+          className="rounded-lg w-full h-36 object-cover mb-4"
+        />
+      )} */}
+      <div className="mb-2 text-gray-800 font-semibold text-lg truncate">{course.title}</div>
+      <div className="flex items-center text-xs text-gray-500 mb-2 gap-2">
+        <span className="bg-gray-100 text-gray-600 rounded px-2 py-0.5">{course.category}</span>
+        <span className="mx-1">•</span>
+        <span>{course.duration}</span>
+        <span className="mx-1">•</span>
+        <span>{course.modules} modules</span>
+      </div>
+      <div className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-[2.5em]">{course.description}</div>
+      <div className="flex items-center justify-between mt-auto">
+        {!isTeacher && course.progress !== undefined && (
+          <div className="flex flex-col">
+            <span className="text-xs text-gray-400">Progress</span>
+            <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden mt-1">
+              <div
+                className="h-full bg-blue-400 rounded-full transition-all"
+                style={{ width: `${course.progress}%` }}
+              ></div>
             </div>
-          )}
-        </div>
-
-        {/* <Badge variant="secondary" className="w-fit mt-2">
-          {course.category}
-        </Badge> */}
-        <p>{course.category}</p>
-        <p>Completed: {course.progress}%</p>  
-        {course.dueDate && !isTeacher && (
-          <div className="text-sm text-muted-foreground mb-4">
-            Due: {new Date(course.dueDate).toLocaleDateString()}
+            <span className="text-xs text-gray-500 mt-1">{course.progress}%</span>
           </div>
         )}
-      </CardHeader>
-
-      <CardContent className="pt-0">
-        {/* {!isTeacher && course.progress !== undefined && (
-          <div className="space-y-2 mb-4">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Progress</span>
-              <span className="font-medium">{course.progress}%</span>
-            </div>
-            <Progress value={course.progress} className="h-2" />
+        {isTeacher && course.enrolled !== undefined && (
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <Users className="h-4 w-4" />
+            <span>{course.enrolled} enrolled</span>
           </div>
-        )} */}
-       
-
-        
-      </CardContent>
-    </Card>
+        )}
+        {course.dueDate && !isTeacher && (
+          <div className="text-xs text-gray-400 ml-2">Due: {new Date(course.dueDate).toLocaleDateString()}</div>
+        )}
+      </div>
+    </div>
   );
 };
 

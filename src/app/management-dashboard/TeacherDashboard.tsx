@@ -261,7 +261,7 @@ const TeacherDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-12">
-                <h3 className="text-lg mb-2 text-[var(--primary)]">Create Your First Course</h3>
+                <h3 className="text-lg mb-2 text-[var(--primary-foreground)]">Create Your First Course</h3>
                 <p className="text-[var(--muted-foreground)] mb-4">
                   Get started by creating your first course to manage students and content.
                 </p>

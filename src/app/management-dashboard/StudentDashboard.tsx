@@ -1,34 +1,39 @@
 'use client'
 
-import React, { useState } from "react";
+import React from "react";
 import Navbar from "@/components/content/Navbar";
 import CourseCard, { Course } from "@/components/content/CourseCard";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   BookOpen,
   Clock,
   Trophy,
-  Target,
-  Search,
-  Filter,
   TrendingUp,
 } from "lucide-react";
+
+// Study-related background images for courses
+const studyImages = [
+  // "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=200&fit=crop&crop=center", // Books and study materials
+  // "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=200&fit=crop&crop=center", // Laptop and notebook
+  // "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=200&fit=crop&crop=center", // Study desk with books
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=200&fit=crop&crop=center", // Open book with coffee
+  "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=200&fit=crop&crop=center", // Library books
+  "https://images.unsplash.com/photo-1472173148041-00294f0814a2?w=400&h=200&fit=crop&crop=center", // Computer and books
+  "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&h=200&fit=crop&crop=center", // Stack of books
+  "https://images.unsplash.com/photo-1519452575417-564c1401ecc0?w=400&h=200&fit=crop&crop=center", // Study materials and pen
+];
+
+// Function to get a consistent image for each course based on its ID
+const getCourseImage = (courseId: string) => {
+  const index = parseInt(courseId) % studyImages.length;
+  return studyImages[index];
+};
 
 // Mock data for student courses
 const mockCourses: Course[] = [
@@ -82,17 +87,7 @@ const mockCourses: Course[] = [
 ];
 
 const StudentDashboard: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-
-  const filteredCourses = mockCourses.filter((course) => {
-    const matchesSearch =
-      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" || course.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredCourses = mockCourses;
 
   const handleCourseAction = (course: Course) => {
     console.log("Opening course:", course.title);
@@ -197,70 +192,96 @@ const StudentDashboard: React.FC = () => {
 
         {/* Courses Grid */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl text-[var(--primary)] font-semibold">My Courses</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-[var(--text)]">My Courses</h2>
+            <div className="flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--primary)] cursor-pointer transition-colors">
+              <span className="text-sm">View All</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
           </div>
           {filteredCourses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredCourses.map((course) => (
-                <Card
+                <div
                   key={course.id}
-                  className={
-                    `transition-all duration-200 shadow-md border-2 border-[var(--border)] bg-[var(--card)] hover:shadow-lg hover:border-[var(--primary)] rounded-xl group`
-                  }
+                  className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group h-64"
+                  onClick={() => handleCourseAction(course)}
                 >
-                  <CardHeader className="pb-4">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={
-                            course.status === "completed"
-                              ? "default"
-                              : course.status === "in-progress"
-                              ? "secondary"
-                              : "outline"
-                          }
-                          className={
-                            course.status === "completed"
-                              ? "bg-green-500 text-white"
-                              : course.status === "in-progress"
-                              ? "bg-blue-500 text-white"
-                              : "bg-gray-300 text-gray-700"
-                          }
-                        >
-                          {course.status === "completed"
-                            ? "Completed"
+                  {/* Background Image Section */}
+                  <div
+                    className="h-3/5 bg-cover bg-center bg-no-repeat relative"
+                    style={{
+                      backgroundImage: `url(${getCourseImage(course.id)})`,
+                    }}
+                  >
+                    {/* Dark overlay for better badge visibility */}
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300"></div>
+
+                    {/* Status Badge */}
+                    <div className="absolute top-4 right-4 z-10">
+                      <Badge
+                        className={
+                          course.status === "completed"
+                            ? "bg-green-500/90 text-white border-0"
                             : course.status === "in-progress"
-                            ? "In Progress"
-                            : "Not Started"}
-                        </Badge>
-                        <span className="text-xs text-[var(--muted-foreground)]">{course.category}</span>
-                      </div>
-                      <CardTitle className="text-lg text-[var(--primary)] group-hover:text-[var(--accent)] transition-colors">
-                        {course.title}
-                      </CardTitle>
-                      <CardDescription className="text-[var(--muted-foreground)]">
-                        {course.description}
-                      </CardDescription>
+                            ? "bg-blue-500/90 text-white border-0"
+                            : "bg-gray-500/90 text-white border-0"
+                        }
+                      >
+                        {course.status === "completed"
+                          ? "Completed"
+                          : course.status === "in-progress"
+                          ? "In Progress"
+                          : "Not Started"}
+                      </Badge>
                     </div>
-                    <div className="flex items-center gap-4 text-sm mt-3">
-                      <span className="text-[var(--muted-foreground)]">{course.duration}</span>
-                      <span className="text-[var(--muted-foreground)]">{course.modules} modules</span>
-                      {course.dueDate && (
-                        <span className="text-xs text-[var(--muted-foreground)]">Due: {new Date(course.dueDate).toLocaleDateString()}</span>
+                  </div>
+
+                  {/* White Bottom Section with Course Info */}
+                  <div className="h-2/5 bg-white/70 p-4 flex flex-col justify-center">
+                    <div className="space-y-3">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-[var(--primary)] transition-colors line-clamp-2">
+                          {course.title}
+                        </h3>
+                        {/* <p className="text-sm text-gray-600 mb-2"> */}
+                          {/* By Mr. Raj Mehta */}
+                        {/* </p> */}
+                      </div>
+
+                      {/* Progress Bar */}
+                      {course.progress !== undefined && (
+                        <div>
+                          <div className="flex justify-between text-xs text-gray-700 mb-1">
+                            <span>Progress</span>
+                            <span className="font-medium text-gray-900">{course.progress}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div
+                              className="bg-[var(--primary)] h-1.5 rounded-full transition-all duration-300"
+                              style={{ width: `${course.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
                       )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-xs text-[var(--muted-foreground)]">
-                        <span>Progress</span>
-                        <span className="font-medium">{course.progress}%</span>
+
+                      {/* Course Details */}
+                      <div className="flex items-center gap-3 text-xs text-gray-600">
+                        <span>{course.duration}</span>
+                        <span>•</span>
+                        <span>{course.modules} modules</span>
+                        {course.dueDate && (
+                          <>
+                            <span>•</span>
+                            <span>Due: {new Date(course.dueDate).toLocaleDateString()}</span>
+                          </>
+                        )}
                       </div>
-                      <Progress value={course.progress} className="h-2 bg-[var(--muted)]" />
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
@@ -269,9 +290,7 @@ const StudentDashboard: React.FC = () => {
                 <BookOpen className="h-12 w-12 text-[var(--primary)] mb-4" />
                 <h3 className="text-lg font-medium mb-2 text-[var(--primary)]">No courses found</h3>
                 <p className="text-[var(--muted-foreground)] text-center">
-                  {searchTerm || statusFilter !== "all"
-                    ? "Try adjusting your search or filter criteria."
-                    : "You haven't been assigned any courses yet."}
+                  You haven't been assigned any courses yet.
                 </p>
               </CardContent>
             </Card>
