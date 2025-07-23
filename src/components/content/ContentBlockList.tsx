@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ContentResponse, isQuestionContent } from '@/types/backend-api';
+import { ContentResponse, isMatchingQuestionContent, isMultipleChoiceQuestionContent } from '@/types/backend-api';
 import { apiService } from '@/services/api';
 import TextContentBlock from './TextContentBlock';
-import QuestionContentBlock from './QuestionContentBlock';
+import MultipleChoiceQuestionContentBlock from './MultipleChoiceQuestionContentBlock';
+import MatchingQuestionContentBlock from './MatchingQuestionContentBlock';
+
 
 interface ContentBlockListProps {
   moduleId: number;
@@ -57,14 +59,14 @@ export default function ContentBlockList({
   const handleComplete = async (contentId: number) => {
     try {
       const updatedContent = await apiService.markContentComplete(contentId);
-      
+
       // Update the content in our local state
-      setContent(prevContent => 
-        prevContent.map(item => 
+      setContent(prevContent =>
+        prevContent.map(item =>
           item.id === contentId ? updatedContent : item
         )
       );
-      
+
       // Notify parent component of the update
       if (onContentUpdate) {
         onContentUpdate();
@@ -78,14 +80,14 @@ export default function ContentBlockList({
   const handleSubmitAnswer = async (contentId: number, answer: string) => {
     try {
       const updatedContent = await apiService.submitAnswer(contentId, answer);
-      
+
       // Update the content in our local state
-      setContent(prevContent => 
-        prevContent.map(item => 
+      setContent(prevContent =>
+        prevContent.map(item =>
           item.id === contentId ? updatedContent : item
         )
       );
-      
+
       // Notify parent component of the update
       if (onContentUpdate) {
         onContentUpdate();
@@ -98,15 +100,15 @@ export default function ContentBlockList({
 
   const calculateProgress = () => {
     if (content.length === 0) return 0;
-    
+
     const completedCount = content.filter(item => {
-      if (isQuestionContent(item)) {
+      if (isMultipleChoiceQuestionContent(item)) {
         return item.userAnswer !== undefined && item.userAnswer !== null;
       } else {
         return item.isComplete === true;
       }
     }).length;
-    
+
     return Math.round((completedCount / content.length) * 100);
   };
 
@@ -186,16 +188,24 @@ export default function ContentBlockList({
       {/* Content Blocks */}
       <div>
         {content.map((item, index) => {
-          if (isQuestionContent(item)) {
+          if (isMultipleChoiceQuestionContent(item)) {
             return (
-              <QuestionContentBlock
+              <MultipleChoiceQuestionContentBlock
                 key={item.id}
                 content={item}
                 onSubmitAnswer={handleSubmitAnswer}
                 isInteractive={isInteractive}
               />
             );
-          } else {
+          } else if (isMatchingQuestionContent(item)) {
+            return <MatchingQuestionContentBlock
+              key={item.id}
+              content={item}
+              onSubmitAnswer={handleSubmitAnswer}
+              isInteractive={isInteractive}
+            />
+          }
+          else {
             return (
               <TextContentBlock
                 key={item.id}

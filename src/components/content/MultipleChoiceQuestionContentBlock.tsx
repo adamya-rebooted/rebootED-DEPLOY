@@ -1,15 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { QuestionContent } from '@/types/backend-api';
+import { MultipleChoiceQuestion } from '@/types/backend-api';
 
-interface QuestionContentBlockProps {
-  content: QuestionContent;
+interface MultipleChoiceQuestionContentBlockProps {
+  content: MultipleChoiceQuestion;
   onSubmitAnswer: (contentId: number, answer: string) => Promise<void>;
   isInteractive?: boolean;
 }
 
-export default function QuestionContentBlock({ content, onSubmitAnswer, isInteractive = true }: QuestionContentBlockProps) {
+export default function MultipleChoiceQuestionContentBlock({ content, onSubmitAnswer, isInteractive = true }: MultipleChoiceQuestionContentBlockProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<string>(content.userAnswer || '');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

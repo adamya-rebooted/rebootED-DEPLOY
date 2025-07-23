@@ -54,7 +54,7 @@ export class BackendApiClient {
   private async getAuthToken(): Promise<string | null> {
     try {
       let { data: { session } } = await this.supabase.auth.getSession();
-      
+
       // If no session, try to refresh it
       if (!session) {
         const { data, error } = await this.supabase.auth.refreshSession();
@@ -82,11 +82,24 @@ export class BackendApiClient {
     // Get authentication token
     const authToken = await this.getAuthToken();
 
-    const headers: Record<string, string> = {
+    let headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      // ...options.headers,
     };
-
+    if (options.headers instanceof Headers) {
+      options.headers.forEach((value, key) => {
+        headers[key] = value;
+      });
+    } else if (Array.isArray(options.headers)) {
+      options.headers.forEach(([key, value]) => {
+        headers[key] = value;
+      });
+    } else if (typeof options.headers === 'object' && options.headers !== null) {
+      headers = {
+        ...headers,
+        ...(options.headers as Record<string, string>),
+      };
+    }
     // Add Authorization header if token exists and the endpoint is not for creating a user
     if (authToken && endpoint !== '/users/add') {
       headers['Authorization'] = `Bearer ${authToken}`;
@@ -300,7 +313,16 @@ export class BackendApiClient {
       });
       // Since we only get back the ID, fetch the full content data
       return this.getContentById(contentId);
-    } else {
+    } else if (type === ContentType.MatchingQuestion) {
+      const contentId = await this.post<number>(`/modules/${moduleId}/addMatchingQuestion`, {
+        type,
+        ...payload,
+        moduleId
+      });
+      // Since we only get back the ID, fetch the full content data
+      return this.getContentById(contentId);
+    }
+    else {
       throw new Error(`Unsupported content type: ${type}`);
     }
   }

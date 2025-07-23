@@ -38,6 +38,8 @@ export default function EnhancedContentCreator({
 
   // Question-specific fields
   const [options, setOptions] = useState<string[]>(['', '', '', '']);
+  const [matches, setMatches] = useState<[string, string][]>([['', ''], ['', '']]);
+
   const [correctAnswer, setCorrectAnswer] = useState('');
 
   // UI state
@@ -49,6 +51,8 @@ export default function EnhancedContentCreator({
     switch (type) {
       case ContentType.Text: return <FileText className="h-5 w-5" />;
       case ContentType.MultipleChoiceQuestion: return <HelpCircle className="h-5 w-5" />;
+      case ContentType.MatchingQuestion: return <HelpCircle className="h-5 w-5" />;
+
     }
   };
 
@@ -56,6 +60,8 @@ export default function EnhancedContentCreator({
     switch (type) {
       case ContentType.Text: return 'Rich text content with formatting, images, and links';
       case ContentType.MultipleChoiceQuestion: return 'Multiple choice questions with automatic grading';
+      case ContentType.MultipleChoiceQuestion: return 'A Question where you have to map between answers on two different sides';
+
     }
   };
 
@@ -79,6 +85,44 @@ export default function EnhancedContentCreator({
     }
   };
 
+
+  /**
+   * Update one side (0 = left, 1 = right) of a given match pair.
+   */
+  const handleMatchChange = (
+    index: number,
+    side: 0 | 1,
+    value: string
+  ) => {
+    setMatches(prev =>
+      prev.map((pair, i) =>
+        i === index
+          ? (side === 0
+            ? [value, pair[1]]
+            : [pair[0], value]
+          ) as [string, string]
+          : pair
+      )
+    );
+  };
+
+  /**
+   * Append a new (empty) pair to the matches array.
+   */
+  const addMatch = () => {
+    setMatches(prev => [...prev, ['', '']]);
+  };
+
+  /**
+   * Remove the match pair at the given index (requires at least 2 pairs).
+   */
+  const removeMatch = (index: number) => {
+    setMatches(prev =>
+      prev.length > 2 ? prev.filter((_, i) => i !== index) : prev
+    );
+  };
+
+
   const validateContent = (): string | null => {
     if (!title.trim()) return 'Title is required';
     // Body is optional, so we don't validate it as required
@@ -89,7 +133,12 @@ export default function EnhancedContentCreator({
       if (!correctAnswer.trim()) return 'Correct answer is required for questions';
       if (!options.includes(correctAnswer)) return 'Correct answer must be one of the provided options';
     }
-
+    if (contentType === ContentType.MatchingQuestion) {
+      if (matches.length < 2) return 'Matching questions must have at least 2 pairs';
+      if (matches.some(pair => !pair[0].trim() || !pair[1].trim())) {
+        return 'All match pairs must have both left and right items filled';
+      }
+    };
     return null;
   };
 
@@ -112,6 +161,14 @@ export default function EnhancedContentCreator({
         ...(contentType === ContentType.MultipleChoiceQuestion && {
           options: options.filter(opt => opt.trim()),
           correctAnswer: correctAnswer.trim()
+        }),
+        ...(contentType === ContentType.MatchingQuestion && {
+          matches: matches
+            .filter(([left, right]) => left.trim() && right.trim())
+            .map(([left, right]) => ({
+              first: left.trim(),
+              second: right.trim()
+            }))
         })
       };
 
@@ -154,7 +211,7 @@ export default function EnhancedContentCreator({
     <div className="space-y-4">
       <h3 className="text-lg font-semibold mb-4">Choose Content Type</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {([ContentType.Text, ContentType.MultipleChoiceQuestion] as ContentType[]).map((type) => (
+        {([ContentType.Text, ContentType.MultipleChoiceQuestion, ContentType.MatchingQuestion] as ContentType[]).map((type) => (
           <Card
             key={type}
             className={`cursor-pointer transition-all hover:shadow-md ${contentType === type ? 'ring-2 ring-blue-500 bg-blue-50' : ''
@@ -213,7 +270,7 @@ export default function EnhancedContentCreator({
 
             <div>
               <Label htmlFor="body">
-                {contentType === ContentType.MultipleChoiceQuestion ? 'Question Text' : 'Content'}
+                {contentType === ContentType.MultipleChoiceQuestion || contentType === ContentType.MatchingQuestion ? 'Question Text' : 'Content'}
               </Label>
               <div className="mt-1" data-color-mode="light">
                 <MDEditor
@@ -266,6 +323,55 @@ export default function EnhancedContentCreator({
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+            )}
+
+
+            {contentType === ContentType.MatchingQuestion && (
+              <div className="space-y-2">
+                <div className="font-medium">Match Pairs:</div>
+
+                {matches.map((pair, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    {/* Left side: A., B., C… */}
+                    <span>{String.fromCharCode(65 + i)}.</span>
+                    <input
+                      placeholder={`Left ${String.fromCharCode(65 + i)}`}
+                      value={pair[0]}
+                      onChange={e => handleMatchChange(i, 0, e.target.value)}
+                      className="flex-1 border p-1 rounded"
+                    />
+
+                    <span className="px-1 font-bold">→</span>
+
+                    {/* Right side: 1., 2., 3… */}
+                    <span>{i + 1}.</span>
+                    <input
+                      placeholder={`Right ${i + 1}`}
+                      value={pair[1]}
+                      onChange={e => handleMatchChange(i, 1, e.target.value)}
+                      className="flex-1 border p-1 rounded"
+                    />
+
+                    {matches.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={() => removeMatch(i)}
+                        className="btn-danger text-sm"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={addMatch}
+                  className="btn-primary text-sm"
+                >
+                  Add Pair
+                </button>
               </div>
             )}
 

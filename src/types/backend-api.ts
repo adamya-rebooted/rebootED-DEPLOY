@@ -33,6 +33,7 @@ export interface NewContentRequest {
   // Question-specific fields (only required when type is 'Question')
   options?: string[];
   correctAnswer?: string;
+  matches?: { first: string; second: string }[];
 }
 
 export interface UpdateContentRequest {
@@ -43,6 +44,8 @@ export interface UpdateContentRequest {
   // Question-specific fields (only required when type is 'Question')
   options?: string[];
   correctAnswer?: string;
+  matches?: { first: string; second: string }[];
+
 }
 
 export interface UserValidationRequest {
@@ -91,28 +94,40 @@ export interface Content {
   id: number;
   title: string;
   body: string | null;
-  type: 'Text' | 'MultipleChoiceQuestion';
+  type: 'Text' | 'MultipleChoiceQuestion' | 'MatchingQuestion';
   moduleId: number;
   position: number;
   isComplete?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  matches?: { first: string; second: string }[];
+}
+
+export interface Text extends Content {
+  type: 'Text';
 }
 
 // Question-specific content interface (extends Content for QuestionContentDTO)
-export interface QuestionContent extends Content {
+export interface MultipleChoiceQuestion extends Content {
   type: 'MultipleChoiceQuestion';
   options: string[];
   correctAnswer: string;
   userAnswer?: string;
 }
+export interface MatchingQuestion extends Content {
+  type: 'MatchingQuestion';
+  matches: { first: string; second: string }[];
+}
 
 // Union type for API responses that might return either Content or QuestionContent
-export type ContentResponse = Content | QuestionContent;
+export type ContentResponse = Text | MultipleChoiceQuestion | MatchingQuestion;
 
-// Type guard to check if content is a question
-export function isQuestionContent(content: Content): content is QuestionContent {
+// Type guard to check if content is a multiplechoicequestion
+export function isMultipleChoiceQuestionContent(content: Content): content is MultipleChoiceQuestion {
   return content.type === ContentType.MultipleChoiceQuestion && 'options' in content;
+}
+export function isMatchingQuestionContent(content: Content): content is MatchingQuestion {
+  return content.type === ContentType.MatchingQuestion && 'matches' in content;
 }
 
 export interface UserProfile {
@@ -282,7 +297,8 @@ export type BackendResponseTypes =
   | Course
   | Module
   | Content
-  | QuestionContent
+  | MultipleChoiceQuestion
+  | MatchingQuestion
   | UserProfile
   | UserCourse
   | CourseUser;

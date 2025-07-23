@@ -4,21 +4,23 @@ import { useState } from 'react';
 import { NewContentRequest, ContentResponse } from '@/types/backend-api';
 import { apiService } from '@/services/api';
 import { ContentType } from '@/utils/api/backend-client';
-
+import { Content } from 'next/font/google';
 interface ContentCreatorProps {
   moduleId: number;
   onContentCreated: (newContent: ContentResponse) => void;
   onCancel: () => void;
 }
 
+
 export default function ContentCreator({ moduleId, onContentCreated, onCancel }: ContentCreatorProps) {
-  const [contentType, setContentType] = useState<ContentType.Text | ContentType.MultipleChoiceQuestion>(ContentType.Text);
+  const [contentType, setContentType] = useState<ContentType>(ContentType.Text);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [options, setOptions] = useState<string[]>(['', '', '', '']);
   const [correctAnswer, setCorrectAnswer] = useState('');
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [matches, setMatches] = useState<[string, string][]>([['', ''], ['', '']]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +48,12 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
         return;
       }
     }
-
+    else if (contentType === ContentType.MatchingQuestion) {
+      if (matches.length < 2) {
+        setError('Matching questions must have at least 2 options');
+        return;
+      }
+    }
     try {
       setCreating(true);
       setError(null);
@@ -60,6 +67,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
           `${String.fromCharCode(65 + index)}. ${option}`
         ).join('\n');
 
+
         const bodyParts = [];
         if (contentBody) {
           bodyParts.push(contentBody);
@@ -70,7 +78,25 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
 
         contentBody = bodyParts.join('\n');
       }
+      else if (contentType === ContentType.MatchingQuestion) {
+        // drop any empty pairs
+        const validMatches = matches.filter(([l, r]) => l.trim() && r.trim());
 
+        // build two parallel lists
+        const leftText = validMatches
+          .map(([l, _], i) => `${String.fromCharCode(65 + i)}. ${l}`)
+          .join('\n');
+        const rightText = validMatches
+          .map(([_, r], i) => `${i + 1}. ${r}`)
+          .join('\n');
+
+        const parts = [];
+        if (contentBody) parts.push(contentBody);
+        parts.push('\nMatch the following:');
+        parts.push('\nLeft side:\n' + leftText);
+        parts.push('\nRight side:\n' + rightText);
+        contentBody = parts.join('\n');
+      }
       const contentData: NewContentRequest = {
         title: title.trim(),
         body: contentBody,
@@ -79,6 +105,11 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
         ...(contentType === ContentType.MultipleChoiceQuestion && {
           options: options.filter(opt => opt.trim()),
           correctAnswer: correctAnswer.trim()
+        }),
+        ...(contentType === ContentType.MatchingQuestion && {
+          matches: matches
+            .filter(([l, r]) => l.trim() && r.trim())
+            .map(([l, r]) => ({ first: l.trim(), second: r.trim() })),
         })
       };
 
@@ -227,6 +258,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
               backgroundColor: '#ffffff',
               color: '#171717'
             }}
+
           />
         </div>
 
@@ -325,6 +357,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
               </select>
             </div>
           </div>
+
         )}
 
         {/* Error Display */}
@@ -378,4 +411,4 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
       </form>
     </div>
   );
-} 
+}
