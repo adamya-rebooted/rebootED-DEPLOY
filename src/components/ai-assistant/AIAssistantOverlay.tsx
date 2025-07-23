@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { X } from 'lucide-react';
 import { courseGenerationService } from '@/services/courseGeneration';
 import { apiService } from '@/services/api';
+import { ContentType } from '@/utils/api/backend-client';
 
 interface CreatedCourse {
   id: number;
@@ -23,7 +24,7 @@ interface CreatedModule {
 }
 
 export const AIAssistantOverlay: React.FC = () => {
-  const { isVisible, hideAssistant } = useAIAssistant();
+  const { isVisible, hideAssistant, selectedModuleId } = useAIAssistant();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -46,6 +47,12 @@ export const AIAssistantOverlay: React.FC = () => {
   const [isGeneratingModule, setIsGeneratingModule] = useState(false);
   const [moduleError, setModuleError] = useState<string | null>(null);
   const [createdModule, setCreatedModule] = useState<CreatedModule | null>(null);
+
+  // Prompt-based text content creation state
+  const [textContentPrompt, setTextContentPrompt] = useState('');
+  const [isGeneratingTextContent, setIsGeneratingTextContent] = useState(false);
+  const [textContentError, setTextContentError] = useState<string | null>(null);
+  const [createdTextContent, setCreatedTextContent] = useState<any | null>(null);
 
   const handleCreateCourse = async () => {
     if (!coursePrompt.trim()) {
@@ -154,18 +161,70 @@ export const AIAssistantOverlay: React.FC = () => {
     }
   };
 
+  const handleCreateTextContent = async () => {
+    if (!textContentPrompt.trim()) {
+      setTextContentError('Please enter a text content prompt');
+      return;
+    }
+
+    if (!selectedModuleId) {
+      setTextContentError('No module selected');
+      return;
+    }
+
+    setIsGeneratingTextContent(true);
+    setTextContentError(null);
+    setCreatedTextContent(null);
+
+    try {
+      console.log('🚀 Generating text content from prompt...');
+
+      // Step 1: Call FastAPI to generate text content
+      const generatedContent = await courseGenerationService.promptToTextContent({
+        input_prompt: textContentPrompt.trim()
+      });
+
+      console.log('✅ Generated text content:', generatedContent);
+
+      // Step 2: Create the text content using Spring Boot API
+      const textContentData = await apiService.createContent({
+        type: ContentType.Text,
+        title: generatedContent.text_title,
+        body: generatedContent.text_body,
+        moduleId: selectedModuleId
+      });
+
+      console.log('✅ Text content created successfully:', textContentData);
+      setCreatedTextContent(textContentData);
+
+      // Clear the form
+      setTextContentPrompt('');
+
+      // Dispatch custom event to notify other components to refresh
+      const contentCreatedEvent = new CustomEvent('contentCreated', {
+        detail: {
+          content: textContentData,
+          moduleId: selectedModuleId,
+          source: 'ai-assistant'
+        }
+      });
+      window.dispatchEvent(contentCreatedEvent);
+      console.log('📡 Dispatched contentCreated event');
+
+    } catch (error) {
+      console.error('❌ Text content creation failed:', error);
+      setTextContentError(error instanceof Error ? error.message : 'Failed to create text content');
+    } finally {
+      setIsGeneratingTextContent(false);
+    }
+  };
+
   if (!isVisible) return null;
 
   return (
     <div className="fixed inset-0 z-50 pointer-events-none">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/20 pointer-events-auto"
-        onClick={hideAssistant}
-      />
-      
       {/* Floating Panel */}
-      <div className="absolute top-20 right-6 w-96 max-h-[calc(100vh-6rem)] bg-background border rounded-lg shadow-xl pointer-events-auto overflow-hidden">
+      <div data-ai-assistant className="absolute top-20 right-6 w-96 max-h-[calc(100vh-6rem)] bg-background border rounded-lg shadow-xl pointer-events-auto overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b bg-muted/50">
           <h2 className="font-semibold">AI Assistant</h2>
@@ -220,7 +279,7 @@ export const AIAssistantOverlay: React.FC = () => {
             </div>
           )}
 
-          {/* Conditionally render module creation section only on modify course page */}
+          {/* Conditionally render module creation section on modify course page */}
           {isOnModifyCoursePage && courseIdNumber && (
             <div className="space-y-4">
               <h3 className="font-medium text-lg">Create Module from Prompt</h3>
@@ -257,6 +316,49 @@ export const AIAssistantOverlay: React.FC = () => {
                   </h4>
                   <p className="text-sm text-green-700 mt-1">
                     &ldquo;{createdModule.title}&rdquo; has been added to course ID: {courseId}
+                  </p>
+                </div>
+              )}
+            </div>
+                      )}
+
+          {/* Conditionally render content creation section when a module is selected */}
+          {isOnModifyCoursePage && courseIdNumber && selectedModuleId && (
+            <div className="space-y-4 border-t border-gray-200 pt-6">
+              <h3 className="font-medium text-lg">Create Text Content from Prompt</h3>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Text Content Idea</label>
+                <Textarea
+                  value={textContentPrompt}
+                  onChange={(e) => setTextContentPrompt(e.target.value)}
+                  placeholder="Describe the text content you want to create... (e.g., 'Create a text lesson explaining CSS selectors with examples')"
+                  rows={3}
+                />
+              </div>
+
+              {textContentError && (
+                <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                  ❌ {textContentError}
+                </div>
+              )}
+
+              <Button 
+                onClick={handleCreateTextContent}
+                disabled={isGeneratingTextContent}
+                className="w-full"
+              >
+                {isGeneratingTextContent ? 'Creating Text Content...' : 'Create Text Content from Prompt'}
+              </Button>
+
+              {/* Success Message */}
+              {createdTextContent && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <h4 className="font-medium text-green-800">
+                    ✅ Text Content Created Successfully!
+                  </h4>
+                  <p className="text-sm text-green-700 mt-1">
+                    &ldquo;{createdTextContent.title}&rdquo; has been added to module ID: {selectedModuleId}
                   </p>
                 </div>
               )}

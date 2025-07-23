@@ -32,11 +32,13 @@ import { createClient } from '@/utils/supabase/client';
 import { Course, Module, ContentResponse, NewModuleRequest } from "@/types/backend-api";
 import ContentBlockList from "@/components/content/ContentBlockList";
 import EnhancedContentCreator from "@/components/content/EnhancedContentCreator";
+import { useAIAssistant } from "@/components/ai-assistant";
 
 const ModifyCoursePage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const courseId = searchParams.get('id');
+  const { isVisible: isAIVisible, selectedModuleId, selectModule, clearSelection } = useAIAssistant();
 
   // State management
   const [course, setCourse] = useState<Course | null>(null);
@@ -87,6 +89,49 @@ const ModifyCoursePage: React.FC = () => {
       window.removeEventListener('moduleCreated', handleModuleCreated as EventListener);
     };
   }, []);
+
+  // Listen for contentCreated events from AI assistant
+  useEffect(() => {
+    const handleContentCreated = (event: CustomEvent) => {
+      const { content, moduleId } = event.detail;
+      
+      // Try to use the direct add content callback for the module
+      const addContentFn = addContentCallbacks.get(moduleId);
+      if (addContentFn) {
+        addContentFn(content);
+      } else {
+        // Fallback to reloading all data
+        loadData();
+      }
+    };
+
+    window.addEventListener('contentCreated', handleContentCreated as EventListener);
+    
+    return () => {
+      window.removeEventListener('contentCreated', handleContentCreated as EventListener);
+    };
+  }, [addContentCallbacks]);
+
+  // Handle clicking outside modules to deselect when AI assistant is open
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!isAIVisible || !selectedModuleId) return;
+      
+      const target = event.target as Element;
+      const moduleCard = target.closest('[data-module-card]');
+      const aiAssistant = target.closest('[data-ai-assistant]');
+      
+      if (!moduleCard && !aiAssistant) {
+        clearSelection();
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isAIVisible, selectedModuleId, clearSelection]);
 
   const loadData = async () => {
     try {
@@ -512,11 +557,28 @@ const ModifyCoursePage: React.FC = () => {
                   </CardContent>
                 </Card>
               )}
+
+              {/* AI Assistant Module Selection Indicator */}
+              {isAIVisible && modules.length > 0 && (
+                <div className="text-sm text-blue-600 mb-4 p-2 bg-blue-50 rounded">
+                  💡 Click on a module below to create content with AI{selectedModuleId ? ' • Click outside to deselect' : ''}
+                </div>
+              )}
+
               {/* Modules List */}
               {modules.length > 0 ? (
                 <div className="space-y-4">
                   {modules.map((module, index) => (
-                    <Card key={module.id} className="border-l-4 border-l-[var(--primary)] bg-[var(--background)]">
+                    <Card 
+                      key={module.id} 
+                      data-module-card
+                      className={`border-l-4 border-l-[var(--primary)] bg-[var(--background)] transition-all duration-200 ${
+                        isAIVisible ? 'cursor-pointer hover:shadow-md' : ''
+                      } ${
+                        selectedModuleId === module.id ? 'ring-2 ring-blue-400 shadow-lg shadow-blue-400/25' : ''
+                      }`}
+                      onClick={() => isAIVisible && selectModule(module.id)}
+                    >
                       <CardContent className="pt-6">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
