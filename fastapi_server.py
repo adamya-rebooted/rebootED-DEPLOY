@@ -7,7 +7,7 @@ import time
 from dotenv import load_dotenv
 
 # Import only the prompt-to-course agent
-from agent import PromptToCourseModule
+from agent import PromptToCourseModule, PromptToTextContentModule, PromptToModuleModule
 
 load_dotenv()
 
@@ -34,8 +34,26 @@ class PromptToCourseResponse(BaseModel):
     course_title: str
     course_description: str
 
-# Initialize the prompt-to-course agent
+# Text content request/response models
+class PromptToTextContentRequest(BaseModel):
+    input_prompt: str
+
+class PromptToTextContentResponse(BaseModel):
+    text_title: str
+    text_body: str
+
+# Module request/response models
+class PromptToModuleRequest(BaseModel):
+    input_prompt: str
+
+class PromptToModuleResponse(BaseModel):
+    module_title: str
+    module_description: str
+
+# Initialize the agents
 prompt_to_course_agent = PromptToCourseModule()
+prompt_to_text_content_agent = PromptToTextContentModule()
+prompt_to_module_agent = PromptToModuleModule()
 
 # Add middleware for request logging
 @app.middleware("http")
@@ -77,6 +95,54 @@ async def prompt_to_course(request: PromptToCourseRequest):
     except Exception as e:
         logger.error(f"❌ Prompt-to-course failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Prompt-to-course failed: {str(e)}")
+
+@app.post("/prompt-to-text-content", response_model=PromptToTextContentResponse)
+async def prompt_to_text_content(request: PromptToTextContentRequest):
+    """
+    Generate a text content title and body from a user's prompt.
+    """
+    try:
+        logger.info(f"🎯 Prompt-to-text-content request received for prompt: {request.input_prompt[:50]}...")
+        
+        # Call the prompt-to-text-content agent
+        result = prompt_to_text_content_agent(input_prompt=request.input_prompt)
+        
+        # Transform result to response model
+        response = PromptToTextContentResponse(
+            text_title=result.text_title,
+            text_body=result.text_body
+        )
+        
+        logger.info(f"✅ Prompt-to-text-content completed successfully: {response.text_title}")
+        return response
+        
+    except Exception as e:
+        logger.error(f"❌ Prompt-to-text-content failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Prompt-to-text-content failed: {str(e)}")
+
+@app.post("/prompt-to-module", response_model=PromptToModuleResponse)
+async def prompt_to_module(request: PromptToModuleRequest):
+    """
+    Generate a module title and description from a user's module idea prompt.
+    """
+    try:
+        logger.info(f"🎯 Prompt-to-module request received for prompt: {request.input_prompt[:50]}...")
+        
+        # Call the prompt-to-module agent
+        result = prompt_to_module_agent(input_prompt=request.input_prompt)
+        
+        # Transform result to response model
+        response = PromptToModuleResponse(
+            module_title=result.module_title,
+            module_description=result.module_description
+        )
+        
+        logger.info(f"✅ Prompt-to-module completed successfully: {response.module_title}")
+        return response
+        
+    except Exception as e:
+        logger.error(f"❌ Prompt-to-module failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Prompt-to-module failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

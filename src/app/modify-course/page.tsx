@@ -73,6 +73,21 @@ const ModifyCoursePage: React.FC = () => {
     loadData();
   }, [courseId]);
 
+  // Listen for moduleCreated events from AI assistant
+  useEffect(() => {
+    const handleModuleCreated = (event: CustomEvent) => {
+      const { module } = event.detail;
+      // Add the new module to the list
+      setModules(prev => [...prev, module]);
+    };
+
+    window.addEventListener('moduleCreated', handleModuleCreated as EventListener);
+    
+    return () => {
+      window.removeEventListener('moduleCreated', handleModuleCreated as EventListener);
+    };
+  }, []);
+
   const loadData = async () => {
     try {
       setIsLoading(true);

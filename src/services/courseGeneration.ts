@@ -8,6 +8,24 @@ export interface PromptToCourseResponse {
   course_description: string;
 }
 
+export interface PromptToTextContentRequest {
+  input_prompt: string;
+}
+
+export interface PromptToTextContentResponse {
+  text_title: string;
+  text_body: string;
+}
+
+export interface PromptToModuleRequest {
+  input_prompt: string;
+}
+
+export interface PromptToModuleResponse {
+  module_title: string;
+  module_description: string;
+}
+
 class CourseGenerationService {
   private baseUrl = 'http://localhost:8001';
 
@@ -23,6 +41,40 @@ class CourseGenerationService {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
       throw new Error(error.detail || 'Failed to generate course from prompt');
+    }
+
+    return response.json();
+  }
+
+  async promptToTextContent(request: PromptToTextContentRequest): Promise<PromptToTextContentResponse> {
+    const response = await fetch(`${this.baseUrl}/prompt-to-text-content`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(error.detail || 'Failed to generate text content from prompt');
+    }
+
+    return response.json();
+  }
+
+  async promptToModule(request: PromptToModuleRequest): Promise<PromptToModuleResponse> {
+    const response = await fetch(`${this.baseUrl}/prompt-to-module`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(error.detail || 'Failed to generate module from prompt');
     }
 
     return response.json();

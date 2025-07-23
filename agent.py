@@ -60,13 +60,47 @@ class PromptToCourse(dspy.Signature):
     """Generates a course title and description from a user's course idea prompt."""
     input_prompt = dspy.InputField(desc="A user-written prompt describing the course they want to create.")
     course_title = dspy.OutputField(desc="A concise, engaging title for the course.")
-    course_description = dspy.OutputField(desc="A compelling and informative paragraph describing what the course covers.")
+    course_description = dspy.OutputField(desc="A compelling and informative sentence describing what the course covers.")
 
 # Prompt to Course Agent Module
 class PromptToCourseModule(dspy.Module):
     def __init__(self):
         super().__init__()
         self.generator = dspy.Predict(PromptToCourse)  # uses default model unless you configure a custom one
+
+    def forward(self, input_prompt: str):
+        return self.generator(input_prompt=input_prompt)
+
+# Prompt to Module Agent Signature
+class PromptToModule(dspy.Signature):
+    """Generates a course title and description from a user's course idea prompt."""
+    input_prompt = dspy.InputField(desc="A user-written prompt describing the module they want to create.")
+    ###TODO: add course description as an input field for context
+    #course_description = dspy.InputField(desc="A description of the course we are creating the module inside")
+    module_title = dspy.OutputField(desc="A concise, engaging title for the module.")
+    module_description = dspy.OutputField(desc="A concise, compelling and informative sentence describing what the module covers.")
+
+# Prompt to Module Agent Module
+class PromptToModuleModule(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.generator = dspy.Predict(PromptToModule)
+
+    def forward(self, input_prompt: str):
+        return self.generator(input_prompt=input_prompt)
+
+# Prompt to Text Content Agent Signature
+class PromptToTextContent(dspy.Signature):
+    """Takes in a prompt and generates a 'text content' title and body."""
+    input_prompt = dspy.InputField(desc="A prompt describing the text content, purpose, and context")
+    text_title = dspy.OutputField(desc="A concise, engaging title for the text content.")
+    text_body = dspy.OutputField(desc="A compelling and informative paragraph designed to fulfill the purpose.")
+
+# Prompt to Text Content Agent Module
+class PromptToTextContentModule(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.generator = dspy.Predict(PromptToTextContent)
 
     def forward(self, input_prompt: str):
         return self.generator(input_prompt=input_prompt)
