@@ -6,8 +6,8 @@ import logging
 import time
 from dotenv import load_dotenv
 
-# Import only the prompt-to-course agent
-from agent import PromptToCourseModule, PromptToTextContentModule, PromptToModuleModule
+# Import agents
+from agent import PromptToCourseModule, PromptToTextContentModule, PromptToModuleModule, PromptToMultipleChoiceQuestionContentModule, MultipleChoiceQuestion
 
 load_dotenv()
 
@@ -50,10 +50,21 @@ class PromptToModuleResponse(BaseModel):
     module_title: str
     module_description: str
 
+# Multiple choice question request/response models
+class PromptToMultipleChoiceQuestionRequest(BaseModel):
+    input_prompt: str
+
+class PromptToMultipleChoiceQuestionResponse(BaseModel):
+    question_title: str
+    question_body: str | None
+    question_options: list[str]
+    correct_answer: str
+
 # Initialize the agents
 prompt_to_course_agent = PromptToCourseModule()
 prompt_to_text_content_agent = PromptToTextContentModule()
 prompt_to_module_agent = PromptToModuleModule()
+prompt_to_multiple_choice_question_agent = PromptToMultipleChoiceQuestionContentModule()
 
 # Add middleware for request logging
 @app.middleware("http")
@@ -143,6 +154,32 @@ async def prompt_to_module(request: PromptToModuleRequest):
     except Exception as e:
         logger.error(f"❌ Prompt-to-module failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Prompt-to-module failed: {str(e)}")
+
+@app.post("/prompt-to-multiple-choice-question", response_model=PromptToMultipleChoiceQuestionResponse)
+async def prompt_to_multiple_choice_question(request: PromptToMultipleChoiceQuestionRequest):
+    """
+    Generate a multiple choice question from a user's prompt.
+    """
+    try:
+        logger.info(f"🎯 Prompt-to-multiple-choice-question request received for prompt: {request.input_prompt[:50]}...")
+        
+        # Call the prompt-to-multiple-choice-question agent
+        result = prompt_to_multiple_choice_question_agent(input_prompt=request.input_prompt)
+        
+        # Transform result to response model
+        response = PromptToMultipleChoiceQuestionResponse(
+            question_title=result.question_title,
+            question_body=result.question_body,
+            question_options=result.question_options,
+            correct_answer=result.correct_answer
+        )
+        
+        logger.info(f"✅ Prompt-to-multiple-choice-question completed successfully: {response.question_title}")
+        return response
+        
+    except Exception as e:
+        logger.error(f"❌ Prompt-to-multiple-choice-question failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Prompt-to-multiple-choice-question failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

@@ -104,3 +104,28 @@ class PromptToTextContentModule(dspy.Module):
 
     def forward(self, input_prompt: str):
         return self.generator(input_prompt=input_prompt)
+
+# Pydantic model for multiple choice question structure
+class MultipleChoiceQuestion(BaseModel):
+    """Structured output for a multiple choice question."""
+    question_title: str = Field(description="A concise, engaging title for the question")
+    question_body: Optional[str] = Field(description="The main question text or body (can be null if title is sufficient)")
+    question_options: List[str] = Field(description="A list of multiple choice options as strings", min_items=2, max_items=6)
+    correct_answer: str = Field(description="The correct answer from the options provided")
+
+# Prompt to Multiple Choice Question Content Agent Signature
+class PromptToMultipleChoiceQuestionContent(dspy.Signature):
+    """Takes in a prompt and generates a multiple choice question with structured output."""
+    input_prompt: str = dspy.InputField(desc="A prompt describing the question content, topic, and context")
+    question: MultipleChoiceQuestion = dspy.OutputField(desc="A structured multiple choice question object")
+
+
+# Prompt to Multiple Choice Question Content Agent Module
+class PromptToMultipleChoiceQuestionContentModule(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.generator = dspy.Predict(PromptToMultipleChoiceQuestionContent)
+
+    def forward(self, input_prompt: str):
+        result = self.generator(input_prompt=input_prompt)
+        return result.question

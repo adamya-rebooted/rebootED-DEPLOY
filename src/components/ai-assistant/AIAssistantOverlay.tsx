@@ -54,6 +54,12 @@ export const AIAssistantOverlay: React.FC = () => {
   const [textContentError, setTextContentError] = useState<string | null>(null);
   const [createdTextContent, setCreatedTextContent] = useState<any | null>(null);
 
+  // Prompt-based multiple choice question creation state
+  const [mcqPrompt, setMcqPrompt] = useState('');
+  const [isGeneratingMCQ, setIsGeneratingMCQ] = useState(false);
+  const [mcqError, setMcqError] = useState<string | null>(null);
+  const [createdMCQ, setCreatedMCQ] = useState<any | null>(null);
+
   const handleCreateCourse = async () => {
     if (!coursePrompt.trim()) {
       setError('Please enter a course prompt');
@@ -219,6 +225,66 @@ export const AIAssistantOverlay: React.FC = () => {
     }
   };
 
+  const handleCreateMultipleChoiceQuestion = async () => {
+    if (!mcqPrompt.trim()) {
+      setMcqError('Please enter a multiple choice question prompt');
+      return;
+    }
+
+    if (!selectedModuleId) {
+      setMcqError('No module selected');
+      return;
+    }
+
+    setIsGeneratingMCQ(true);
+    setMcqError(null);
+    setCreatedMCQ(null);
+
+    try {
+      console.log('🚀 Generating multiple choice question from prompt...');
+
+      // Step 1: Call FastAPI to generate multiple choice question
+      const generatedContent = await courseGenerationService.promptToMultipleChoiceQuestion({
+        input_prompt: mcqPrompt.trim()
+      });
+
+      console.log('✅ Generated multiple choice question:', generatedContent);
+
+      // Step 2: Create the multiple choice question using Spring Boot API
+      const mcqData = await apiService.createContent({
+        type: ContentType.MultipleChoiceQuestion,
+        title: generatedContent.question_title,
+        body: generatedContent.question_body,
+        options: generatedContent.question_options,
+        correctAnswer: generatedContent.correct_answer,
+        moduleId: selectedModuleId
+      });
+
+      console.log('✅ Multiple choice question created successfully:', mcqData);
+      setCreatedMCQ(mcqData);
+
+      // Clear the form
+      setMcqPrompt('');
+
+      // Dispatch custom event to notify other components to refresh
+      const contentCreatedEvent = new CustomEvent('contentCreated', {
+        detail: {
+          content: mcqData,
+          moduleId: selectedModuleId,
+          source: 'ai-assistant'
+        }
+      });
+      window.dispatchEvent(contentCreatedEvent);
+      console.log('📡 Dispatched contentCreated event');
+
+    } catch (error) {
+      console.error('❌ Multiple choice question creation failed:', error);
+      setMcqError(error instanceof Error ? error.message : 'Failed to create multiple choice question');
+    } finally {
+      setIsGeneratingMCQ(false);
+    }
+  };
+
   if (!isVisible) return null;
 
   return (
@@ -359,6 +425,49 @@ export const AIAssistantOverlay: React.FC = () => {
                   </h4>
                   <p className="text-sm text-green-700 mt-1">
                     &ldquo;{createdTextContent.title}&rdquo; has been added to module ID: {selectedModuleId}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Conditionally render multiple choice question creation section when a module is selected */}
+          {isOnModifyCoursePage && courseIdNumber && selectedModuleId && (
+            <div className="space-y-4 border-t border-gray-200 pt-6">
+              <h3 className="font-medium text-lg">Create Multiple Choice Question from Prompt</h3>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Multiple Choice Question Idea</label>
+                <Textarea
+                  value={mcqPrompt}
+                  onChange={(e) => setMcqPrompt(e.target.value)}
+                  placeholder="Describe the multiple choice question you want to create... (e.g., 'Create a question about Python data types with 4 options')"
+                  rows={3}
+                />
+              </div>
+
+              {mcqError && (
+                <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                  ❌ {mcqError}
+                </div>
+              )}
+
+              <Button 
+                onClick={handleCreateMultipleChoiceQuestion}
+                disabled={isGeneratingMCQ}
+                className="w-full"
+              >
+                {isGeneratingMCQ ? 'Creating Multiple Choice Question...' : 'Create Multiple Choice Question from Prompt'}
+              </Button>
+
+              {/* Success Message */}
+              {createdMCQ && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <h4 className="font-medium text-green-800">
+                    ✅ Multiple Choice Question Created Successfully!
+                  </h4>
+                  <p className="text-sm text-green-700 mt-1">
+                    &ldquo;{createdMCQ.title}&rdquo; has been added to module ID: {selectedModuleId}
                   </p>
                 </div>
               )}
