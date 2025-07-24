@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"next dev --turbopack\" \"npm run dev:backend\"",
+    "dev": "concurrently \"next dev --turbopack\" \"npm run dev:backend\" \"npm run dev:python\"",
     "dev:frontend": "next dev --turbopack",
     "dev:backend": "node scripts/run-backend.js",
     "dev:backend:windows": "cd backend && .\\mvnw.cmd spring-boot:run",
     "dev:backend:unix": "cd backend && ./mvnw spring-boot:run",
+    "dev:python": "node scripts/run-python-backend.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
