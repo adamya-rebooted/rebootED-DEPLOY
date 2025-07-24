@@ -23,15 +23,15 @@ const Navbar: React.FC = () => {
 
   const navigation = isTeacher
     ? [
-        // { name: "Dashboard", href: "/teacher/dashboard", icon: BarChart3 },
-        { name: "Courses", href: "/teacher/courses", icon: BookOpen },
-        { name: "Students", href: "/teacher/students", icon: Users },
+        { name: "Dashboard", href: "/management-dashboard", icon: BarChart3 },
+        { name: "Courses", href: "/management-dashboard", icon: BookOpen },
+        // { name: "Students", href: "/teacher/students", icon: Users },
         // { name: "Settings", href: "/teacher/settings", icon: Settings },
       ]
     : [
-        { name: "Dashboard", href: "/student/dashboard", icon: BookOpen },
+        { name: "Dashboard", href: "/management-dashboard", icon: BookOpen },
         // { name: "My Progress", href: "/student/progress", icon: BarChart3 },
-        { name: "Profile", href: "/student/profile", icon: User },
+        // { name: "Profile", href: "/student/profile", icon: User },
       ];
 
   return (
