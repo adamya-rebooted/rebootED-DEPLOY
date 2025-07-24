@@ -33,8 +33,9 @@ const TeacherDashboard: React.FC = () => {
 
   // Function to fetch and refresh courses
   const refreshCourses = async () => {
+    if (!user || !user.id) return;
     try {
-      const courses = await apiService.getCourses();
+      const courses = await apiService.getCourses(user.id);
       const sortedCourses = courses.sort((a, b) =>
         new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
       ).slice(0, 5);

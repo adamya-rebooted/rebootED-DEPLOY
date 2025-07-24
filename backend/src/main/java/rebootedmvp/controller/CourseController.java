@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import rebootedmvp.dto.ModuleDTO;
 import rebootedmvp.dto.NewModuleDTO;
+import rebootedmvp.exception.UnauthorizedAccessException;
+import rebootedmvp.exception.UserNotAuthenticatedException;
 import rebootedmvp.service.CourseService;
 
 @RestController
@@ -28,17 +30,24 @@ public class CourseController {
 
     @GetMapping
     public ResponseEntity<List<ModuleDTO>> getAllModules(@PathVariable Long courseId) {
-        return ResponseEntity.ok(courseService.getById(courseId));
+        try {
+            return ResponseEntity.ok(courseService.getById(courseId));
+        } catch (UnauthorizedAccessException | UserNotAuthenticatedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/module/{moduleId}")
     public ResponseEntity<ModuleDTO> getModuleById(@PathVariable Long courseId, @PathVariable Long moduleId) {
         try {
             return ResponseEntity.ok(courseService.getById(courseId, moduleId));
+        } catch (UnauthorizedAccessException | UserNotAuthenticatedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
-
     }
 
     @PostMapping("/add")
@@ -46,15 +55,26 @@ public class CourseController {
         try {
             Long moduleId = courseService.addNew(courseId, newModuleDTO);
             return ResponseEntity.ok(moduleId);
+        } catch (UnauthorizedAccessException | UserNotAuthenticatedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PutMapping("/update/{moduleId}")
-    public void updateModule(@PathVariable Long courseId, @PathVariable Long moduleId,
+    public ResponseEntity<Void> updateModule(@PathVariable Long courseId, @PathVariable Long moduleId,
             @RequestBody NewModuleDTO updateModuleDTO) {
-        courseService.update(courseId, moduleId, updateModuleDTO);
+        try {
+            courseService.update(courseId, moduleId, updateModuleDTO);
+            return ResponseEntity.ok().build();
+        } catch (UnauthorizedAccessException | UserNotAuthenticatedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{moduleId}")
@@ -71,20 +91,42 @@ public class CourseController {
     public ResponseEntity<Void> enrollUserAsTeacher(
             @PathVariable Long courseId,
             @PathVariable Long userId) {
-
-        courseService.addTeacher(courseId, userId);
-        return ResponseEntity.ok().build();
+        try {
+            courseService.addTeacher(courseId, userId);
+            return ResponseEntity.ok().build();
+        } catch (UnauthorizedAccessException | UserNotAuthenticatedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PostMapping("/addStudent/{userId}")
     public ResponseEntity<Void> enrollUserAsStudent(
             @PathVariable Long courseId,
             @PathVariable Long userId) {
-
-        courseService.addStudent(courseId, userId);
-        return ResponseEntity.ok().build();
+        try {
+            courseService.addStudent(courseId, userId);
+            return ResponseEntity.ok().build();
+        } catch (UnauthorizedAccessException | UserNotAuthenticatedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<String> handleUnauthorizedAccess(UnauthorizedAccessException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Access denied: " + e.getMessage());
+    }
+    
+    @ExceptionHandler(UserNotAuthenticatedException.class)
+    public ResponseEntity<String> handleNotAuthenticated(UserNotAuthenticatedException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Authentication required: " + e.getMessage());
+    }
+    
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -19,9 +19,11 @@ import rebootedmvp.ModuleMapper;
 import rebootedmvp.domain.impl.ContentEntityImpl;
 import rebootedmvp.domain.impl.ModuleEntityImpl;
 import rebootedmvp.domain.impl.UserProfileImpl;
+import rebootedmvp.dto.CourseDTO;
 import rebootedmvp.dto.ModuleDTO;
 import rebootedmvp.dto.NewCourseDTO;
 import rebootedmvp.dto.NewModuleDTO;
+import rebootedmvp.exception.UnauthorizedAccessException;
 import rebootedmvp.repository.ContentRepository;
 import rebootedmvp.repository.CourseRepository;
 import rebootedmvp.repository.ModuleRepository;
@@ -44,29 +46,68 @@ public class CourseService {
 
     @Autowired
     private ContentRepository contentRepository;
+    
+    @Autowired
+    private AuthorizationService authorizationService;
+    
+    @Autowired
+    private AuthenticationContextService authContextService;
 
     /**
-     * Returns a list of all modules in all courses
+     * Returns a list of all modules from courses the current user has access to.
+     * This replaces the previous findAll() method which was a security risk.
      */
     @Transactional(readOnly = true)
-    public List<ModuleDTO> findAll() {
-        logger.debug("CourseService.findAll() called - returning all modules");
-        return mapToDTO(moduleRepository.findAll()
+    public List<ModuleDTO> findAllUserAccessible() {
+        logger.debug("CourseService.findAllUserAccessible() called - returning user's accessible modules");
+        
+        // Get courses the current user has access to
+        String userId = authContextService.getCurrentUserId();
+        List<Course> userCourses = courseRepository.findCoursesByUserId(userId)
                 .stream()
-                .map(ModuleMapper::toDomain)
-                .toList());
+                .map(CourseMapper::toDomain)
+                .toList();
+        
+        // Get all modules from those courses
+        List<Module> userModules = userCourses.stream()
+                .flatMap(course -> moduleRepository.findByCourseIdOrderByCreatedAtAsc(course.getId())
+                        .stream()
+                        .map(ModuleMapper::toDomain))
+                .toList();
+        
+        return mapToDTO(userModules);
+    }
+    
+    /**
+     * Returns a list of courses the current user has access to (either as teacher or student).
+     */
+    @Transactional(readOnly = true)
+    public List<CourseDTO> getUserCourses() {
+        logger.debug("CourseService.getUserCourses() called - returning user's accessible courses");
+        
+        String userId = authContextService.getCurrentUserId();
+        return courseRepository.findCoursesByUserId(userId)
+                .stream()
+                .map(CourseMapper::toDomain)
+                .map(CourseDTO::new)
+                .toList();
     }
 
     /**
-     * Returns a list of all modules within the course with given ID
+     * Returns a list of all modules within the course with given ID.
+     * Requires the current user to have access to the course.
      */
     @Transactional(readOnly = true)
     public List<ModuleDTO> getById(Long courseId) {
         logger.debug("CourseService.getById({}) called - getting modules for course", courseId);
 
+        // Check course exists and user has access
         if (!courseRepository.existsById(courseId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found with id: " + courseId);
         }
+        
+        // Verify user has access to this course
+        authorizationService.requireCourseAccess(courseId);
 
         return mapToDTO(moduleRepository.findByCourseIdOrderByCreatedAtAsc(courseId)
                 .stream()
@@ -75,7 +116,8 @@ public class CourseService {
     }
 
     /**
-     * Returns the specific module within the course
+     * Returns the specific module within the course.
+     * Requires the current user to have access to the course.
      */
     @Transactional(readOnly = true)
     public ModuleDTO getById(Long courseId, Long moduleId) {
@@ -84,6 +126,9 @@ public class CourseService {
         if (!courseRepository.existsById(courseId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found with id: " + courseId);
         }
+        
+        // Verify user has access to this course
+        authorizationService.requireCourseAccess(courseId);
 
         Optional<Module> moduleOpt = moduleRepository.findById(moduleId).map(ModuleMapper::toDomain);
         if (moduleOpt.isEmpty()) {
@@ -100,7 +145,8 @@ public class CourseService {
     }
 
     /**
-     * Adds a new module to the specified course
+     * Adds a new module to the specified course.
+     * Requires the current user to be a teacher of the course.
      */
     public Long addNew(Long courseId, NewModuleDTO newModuleDTO) {
         logger.debug("CourseService.addNew({}, {}) called", courseId, newModuleDTO.getTitle());
@@ -113,6 +159,9 @@ public class CourseService {
         if (courseOpt.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found with id: " + courseId);
         }
+        
+        // Verify user has teacher access to this course
+        authorizationService.requireTeacherAccess(courseId);
 
         Course course = courseOpt.get();
 
@@ -127,7 +176,8 @@ public class CourseService {
     }
 
     /**
-     * Updates a module within a course
+     * Updates a module within a course.
+     * Requires the current user to be a teacher of the course.
      */
     public void update(Long courseId, Long moduleId, NewModuleDTO updateDTO) {
         logger.debug("CourseService.update({}, {}, {}) called", courseId, moduleId, updateDTO.getTitle());
@@ -135,6 +185,9 @@ public class CourseService {
         if (!courseRepository.existsById(courseId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found with id: " + courseId);
         }
+        
+        // Verify user has teacher access to this course
+        authorizationService.requireTeacherAccess(courseId);
 
         Optional<Module> moduleOpt = moduleRepository.findById(moduleId).map(ModuleMapper::toDomain);
         if (moduleOpt.isEmpty()) {
@@ -159,12 +212,21 @@ public class CourseService {
     }
 
     /**
-     * Deletes a module from a course using manual cascade deletion
+     * Deletes a module from a course using manual cascade deletion.
+     * Requires the current user to be a teacher of the course.
      */
     public boolean delete(Long courseId, Long moduleId) {
         logger.debug("CourseService.delete({}, {}) called", courseId, moduleId);
 
         if (!courseRepository.existsById(courseId)) {
+            return false;
+        }
+        
+        try {
+            // Verify user has teacher access to this course
+            authorizationService.requireTeacherAccess(courseId);
+        } catch (UnauthorizedAccessException e) {
+            logger.warn("User denied access to delete module {} from course {}: {}", moduleId, courseId, e.getMessage());
             return false;
         }
 
@@ -194,8 +256,15 @@ public class CourseService {
         return true;
     }
 
+    /**
+     * Adds a student to a course.
+     * Requires the current user to be a teacher of the course.
+     */
     @Transactional
     public void addStudent(Long courseId, Long userId) {
+        // Verify user has teacher access to this course
+        authorizationService.requireTeacherAccess(courseId);
+        
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
@@ -206,8 +275,15 @@ public class CourseService {
         courseRepository.save(CourseMapper.toEntity(course)); // this is needed to persist the join table change
     }
 
+    /**
+     * Adds a teacher to a course.
+     * Requires the current user to be a teacher of the course.
+     */
     @Transactional
     public void addTeacher(Long courseId, Long userId) {
+        // Verify user has teacher access to this course
+        authorizationService.requireTeacherAccess(courseId);
+        
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 

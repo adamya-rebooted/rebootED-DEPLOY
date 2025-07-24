@@ -22,6 +22,9 @@ import rebootedmvp.dto.NewRosterDTO;
 import rebootedmvp.repository.ContentRepository;
 import rebootedmvp.repository.CourseRepository;
 import rebootedmvp.repository.ModuleRepository;
+import rebootedmvp.User;
+import rebootedmvp.exception.UserNotAuthenticatedException;
+import rebootedmvp.service.AuthenticationContextService;
 
 @Service
 @Transactional
@@ -37,6 +40,9 @@ public class RosterService {
 
     @Autowired
     private ContentRepository contentRepository;
+
+    @Autowired
+    private AuthenticationContextService authenticationContextService;
 
     /**
      * Creates a new roster (for API compatibility - returns a constant ID)
@@ -92,6 +98,7 @@ public class RosterService {
 
     /**
      * Adds a new course (roster ID is ignored since we manage courses directly)
+     * Automatically enrolls the course creator as a teacher
      */
     public Long addNew(Long rosterId, NewCourseDTO newCourseDTO) {
         logger.debug("RosterService.addNew({}, {}) called", rosterId, newCourseDTO.getTitle());
@@ -104,8 +111,19 @@ public class RosterService {
                 newCourseDTO.getTitle().trim(),
                 newCourseDTO.getBody());
 
+        // Get the current authenticated user and add them as a teacher
+        try {
+            User currentUser = authenticationContextService.getCurrentUser();
+            course.addTeacher(currentUser);
+            logger.debug("Added course creator {} as teacher to course {}", 
+                    currentUser.getSupabaseUserId(), newCourseDTO.getTitle());
+        } catch (UserNotAuthenticatedException e) {
+            logger.warn("Could not add creator as teacher - user not authenticated: {}", e.getMessage());
+            // Continue with course creation but without auto-enrollment
+        }
+
         CourseEntityImpl savedCourse = courseRepository.save(course);
-        logger.info("Created course with ID: {}", savedCourse.getId());
+        logger.info("Created course with ID: {} and auto-enrolled creator as teacher", savedCourse.getId());
         return savedCourse.getId();
     }
 

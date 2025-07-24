@@ -25,8 +25,15 @@ export class BackendApiService {
     return backendApiClient.createCourse(courseData);
   }
 
-  async getCourses(): Promise<Course[]> {
-    return backendApiClient.getCourses();
+  async getCourses(userId?: string): Promise<Course[]> {
+    if (!userId) throw new Error('User ID is required to fetch user-specific courses');
+    // getUserCourses returns UserCourse[], so map to Course[] if needed
+    const userCourses = await backendApiClient.getUserCourses(userId);
+    // If UserCourse has a 'course' property, map accordingly; otherwise, return as is
+    if (userCourses.length && (userCourses[0] as any).course) {
+      return userCourses.map((uc: any) => uc.course);
+    }
+    return userCourses as Course[];
   }
 
   async getCourseById(id: number): Promise<Course> {

@@ -43,7 +43,7 @@ public interface CourseRepository extends JpaRepository<CourseEntityImpl, Long> 
         @Query("SELECT DISTINCT c FROM CourseEntityImpl c " +
                         "LEFT JOIN c.teachers t " +
                         "LEFT JOIN c.students s " +
-                        "WHERE t.id = :userId OR s.id = :userId")
+                        "WHERE t.supabaseUserId = :userId OR s.supabaseUserId = :userId")
         List<CourseEntityImpl> findCoursesByUserId(@Param("userId") String userId);
 
         /**
