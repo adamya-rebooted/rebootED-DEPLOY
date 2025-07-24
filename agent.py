@@ -6,7 +6,7 @@ from typing import Optional, List, Literal, Union
 from datetime import datetime
 
 # Load env vars from .env
-load_dotenv()
+load_dotenv('.env.local')
 # #### TEMP OLD PYDANTIC MODELS
 # # Module Models
 # class Module(BaseModel):
@@ -51,8 +51,8 @@ load_dotenv()
 #     modules: List[ModuleContentBundle]
 # ####TEMP OLD PYDANTIC MODELS
 # Configure DSPy with the language model
-lm = dspy.LM('anthropic/claude-3-haiku-20240307', api_key=os.getenv('ANTHROPIC_API_KEY'))
-#lm = dspy.LM('gemini/gemini-1.5-flash', api_key=os.getenv('GEMINI_API_KEY'))
+#lm = dspy.LM('anthropic/claude-3-haiku-20240307', api_key=os.getenv('ANTHROPIC_API_KEY'))
+lm = dspy.LM('gemini/gemini-1.5-flash', api_key=os.getenv('GEMINI_API_KEY'))
 dspy.configure(lm=lm)
 
 # Prompt to Course Agent Signature
