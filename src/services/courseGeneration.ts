@@ -37,6 +37,19 @@ export interface PromptToMultipleChoiceQuestionResponse {
   correct_answer: string;
 }
 
+export interface PromptToCourseModulesRequest {
+  input_prompt: string;
+}
+
+export interface CourseModuleResponse {
+  module_name: string;
+  skills: string[];
+}
+
+export interface PromptToCourseModulesResponse {
+  modules: CourseModuleResponse[];
+}
+
 class CourseGenerationService {
   private baseUrl = 'http://localhost:8001';
 
@@ -103,6 +116,23 @@ class CourseGenerationService {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
       throw new Error(error.detail || 'Failed to generate multiple choice question from prompt');
+    }
+
+    return response.json();
+  }
+
+  async promptToCourseModules(request: PromptToCourseModulesRequest): Promise<PromptToCourseModulesResponse> {
+    const response = await fetch(`${this.baseUrl}/prompt-to-course-modules`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(error.detail || 'Failed to generate course modules from prompt');
     }
 
     return response.json();

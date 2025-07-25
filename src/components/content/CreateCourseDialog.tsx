@@ -26,7 +26,7 @@ import { apiService } from "@/services/api";
 interface CreateCourseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCourseCreated?: (course: CourseFormData) => void;
+  onCourseCreated?: (course: any) => void;
 }
 
 export interface CourseFormData {
@@ -98,8 +98,8 @@ const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({
         body: formData.description // Map description to body
       });
 
-      // Call the callback with the course data
-      onCourseCreated?.(formData);
+      // Call the callback with the actual course data returned from API
+      onCourseCreated?.(courseData);
 
       // Reset form
       setFormData({

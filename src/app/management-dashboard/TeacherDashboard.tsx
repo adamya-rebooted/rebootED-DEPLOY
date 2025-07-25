@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/content/Navbar";
-import CreateCourseDialog, {
-  CourseFormData,
-} from "@/components/content/CreateCourseDialog";
+import CreateCourseDialog from "@/components/content/CreateCourseDialog";
 import DeleteCourseDialog from "@/components/content/DeleteCourseDialog";
 import {
   Card,
@@ -90,7 +88,7 @@ const TeacherDashboard: React.FC = () => {
     };
   }, []);
 
-  const handleCourseCreated = (courseData: CourseFormData) => {
+  const handleCourseCreated = (courseData: any) => {
     // Refresh courses from backend after creation
     refreshCourses();
 
@@ -98,6 +96,9 @@ const TeacherDashboard: React.FC = () => {
       description: `"${courseData.title}" has been created and is ready for content.`,
       duration: 5000,
     });
+
+    // Redirect to modify-course page
+    router.push(`/modify-course?id=${courseData.id}`);
   };
 
   const handleDeleteClick = (course: Course) => {

@@ -79,8 +79,12 @@ const ModifyCoursePage: React.FC = () => {
   useEffect(() => {
     const handleModuleCreated = (event: CustomEvent) => {
       const { module } = event.detail;
-      // Add the new module to the list
-      setModules(prev => [...prev, module]);
+      if (module && module.id) {
+        // Add the new module to the list
+        setModules(prev => [...prev, module]);
+        // Auto-expand the newly created module
+        setExpandedModules(prev => new Set([...prev, module.id]));
+      }
     };
 
     window.addEventListener('moduleCreated', handleModuleCreated as EventListener);
@@ -232,6 +236,9 @@ const ModifyCoursePage: React.FC = () => {
 
       // Add the new module to the list
       setModules(prev => [...prev, newModule]);
+
+      // Auto-expand the newly created module
+      setExpandedModules(prev => new Set([...prev, newModule.id]));
 
       // Reset form
       setNewModuleTitle('');
