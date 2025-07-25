@@ -89,6 +89,7 @@ const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({
     }
 
     setIsSubmitting(true);
+    setErrors({}); // Clear any existing errors
 
     try {
       // Call actual API
@@ -117,6 +118,7 @@ const CreateCourseDialog: React.FC<CreateCourseDialogProps> = ({
       const errorMessage = error instanceof Error ? error.message : 'Failed to create course. Please try again.';
       setErrors({ submit: errorMessage });
     } finally {
+      // Always reset loading state
       setIsSubmitting(false);
     }
   };

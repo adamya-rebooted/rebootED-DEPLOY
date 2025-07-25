@@ -32,16 +32,18 @@ const DeleteCourseDialog: React.FC<DeleteCourseDialogProps> = ({
     if (!course) return;
 
     setIsDeleting(true);
-    setError(null);
+    setError(null); // Clear any existing errors
 
     try {
       await onConfirmDelete(course.id);
+      // Only close the dialog if deletion was successful
       onOpenChange(false);
     } catch (err) {
       console.error('Error deleting course:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete course. Please try again.';
       setError(errorMessage);
     } finally {
+      // Always reset loading state, even if deletion failed
       setIsDeleting(false);
     }
   };

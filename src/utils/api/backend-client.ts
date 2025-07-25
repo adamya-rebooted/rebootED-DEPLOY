@@ -53,10 +53,12 @@ export class BackendApiClient {
 
   private async getAuthToken(): Promise<string | null> {
     try {
-      let { data: { session } } = await this.supabase.auth.getSession();
-
-      // If no session, try to refresh it
-      if (!session) {
+      // Always try to get a fresh session first
+      let { data: { session }, error: sessionError } = await this.supabase.auth.getSession();
+      
+      // If we have a session error or no session, try to refresh
+      if (sessionError || !session) {
+        console.log('No valid session found, attempting refresh...');
         const { data, error } = await this.supabase.auth.refreshSession();
         if (error) {
           console.warn('Failed to refresh session:', error);
@@ -65,7 +67,13 @@ export class BackendApiClient {
         session = data.session;
       }
 
-      return session?.access_token || null;
+      // Double check we have a valid token
+      if (!session?.access_token) {
+        console.warn('No access token available after session check');
+        return null;
+      }
+
+      return session.access_token;
     } catch (error) {
       console.warn('Failed to get auth token:', error);
       return null;
@@ -130,6 +138,12 @@ export class BackendApiClient {
           errorMessage = errorJson.message || errorJson.error || `HTTP ${response.status}`;
         } catch {
           errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
+        }
+
+        // Handle auth errors specifically
+        if (response.status === 401 || response.status === 403) {
+          console.warn('Authentication error, token may be expired');
+          errorMessage = `Authentication failed. Please try logging out and back in.`;
         }
 
         const apiError: ApiError = {

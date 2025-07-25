@@ -36,11 +36,14 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className }) => {
     setIsLoading(true);
     try {
       await signOut();
+      // Only redirect if sign out was successful
       router.push("/login");
     } catch (error) {
       console.error("Unexpected error during sign out:", error);
-      alert("An unexpected error occurred while signing out");
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred while signing out";
+      alert(`Sign out failed: ${errorMessage}. Please try again.`);
     } finally {
+      // Always reset loading state
       setIsLoading(false);
     }
   };
