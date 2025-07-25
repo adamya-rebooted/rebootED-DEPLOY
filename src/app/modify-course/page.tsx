@@ -24,7 +24,8 @@ import {
   X,
   Trash2,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Info
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
@@ -401,32 +402,29 @@ const ModifyCoursePage: React.FC = () => {
               </div>
             </div>
             <div className="flex gap-2">
+              {!isEditingCourse && (
+                <Button onClick={handleEditCourse} variant="outline" className="border-[var(--border)] text-[var(--primary)]">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Course
+                </Button>
+              )}
               <Button onClick={handlePreviewCourse} variant="outline" className="border-[var(--border)] text-[var(--primary)]">
                 <BookOpen className="h-4 w-4 mr-2" />
                 Preview Course
               </Button>
             </div>
           </div>
-          {/* Course Information Section */}
-          <Card className="bg-[var(--card)] text-[var(--card-foreground)] border-[var(--border)]">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg text-[var(--primary)]">Course Information</CardTitle>
-                  <CardDescription className="text-[var(--muted-foreground)]">
-                    Manage course title and description
-                  </CardDescription>
-                </div>
-                {!isEditingCourse && (
-                  <Button onClick={handleEditCourse} variant="outline" size="sm" className="border-[var(--border)] text-[var(--primary)]">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Course
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {isEditingCourse ? (
+
+          {/* Course Editing Form */}
+          {isEditingCourse && (
+            <Card className="bg-[var(--card)] text-[var(--card-foreground)] border-[var(--border)]">
+              <CardHeader>
+                <CardTitle className="text-lg text-[var(--primary)]">Edit Course Information</CardTitle>
+                <CardDescription className="text-[var(--muted-foreground)]">
+                  Update course title and description
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="course-title">Course Title *</Label>
@@ -469,23 +467,10 @@ const ModifyCoursePage: React.FC = () => {
                     </Button>
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  <div>
-                    <h3 className="font-medium text-[var(--primary)]">{course?.title}</h3>
-                  </div>
-                  {course?.body && (
-                    <div>
-                      <p className="text-[var(--muted-foreground)]">{course.body}</p>
-                    </div>
-                  )}
-                  {!course?.body && (
-                    <p className="text-[var(--muted-foreground)] italic">No description provided</p>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Modules Section */}
           <Card className="bg-[var(--card)] text-[var(--card-foreground)] border-[var(--border)]">
             <CardHeader>
@@ -494,9 +479,18 @@ const ModifyCoursePage: React.FC = () => {
                   <CardTitle className="flex items-center gap-2 text-[var(--primary)]">
                     <BookOpen className="h-5 w-5" />
                     Course Modules ({modules.length})
+                    <div className="relative group">
+                      <Info
+                        className="h-4 w-4 text-[var(--muted-foreground)] cursor-help hover:text-[var(--primary)] transition-colors"
+                      />
+                      <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-[var(--popover)] text-[var(--popover-foreground)] text-sm rounded-md shadow-lg border border-[var(--border)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 w-80">
+                        Modules are like chapters in a textbook or weeks of content - they help organize your course into manageable sections
+                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[var(--border)]"></div>
+                      </div>
+                    </div>
                   </CardTitle>
                   <CardDescription className="text-[var(--muted-foreground)]">
-                    Create and organize modules for your course content
+                    Create and organize modules for your course content. Think of Modules like chapters to teach.
                   </CardDescription>
                 </div>
                 <Button onClick={() => setShowModuleCreator(true)} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
