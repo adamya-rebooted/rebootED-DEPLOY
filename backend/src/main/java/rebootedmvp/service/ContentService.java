@@ -14,18 +14,17 @@ import rebootedmvp.Content;
 import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
+import rebootedmvp.domain.impl.MatchingQuestionContentImpl;
 import rebootedmvp.domain.impl.MultipleChoiceQuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.domain.impl.VideoContentImpl;
-import rebootedmvp.domain.impl.MatchingQuestionContentImpl;
-
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.MatchingQuestionContentDTO;
-import rebootedmvp.dto.NewContentDTO;
-import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
-import rebootedmvp.dto.NewMatchingQuestionContentDTO;
-import rebootedmvp.dto.NewVideoContentDTO;
 import rebootedmvp.dto.MultipleChoiceQuestionContentDTO;
+import rebootedmvp.dto.NewContentDTO;
+import rebootedmvp.dto.NewMatchingQuestionContentDTO;
+import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
+import rebootedmvp.dto.NewVideoContentDTO;
 import rebootedmvp.dto.TextContentDTO;
 import rebootedmvp.dto.VideoContentDTO;
 import rebootedmvp.repository.ContentRepository;
@@ -125,7 +124,7 @@ public class ContentService {
                 case Video -> content = new VideoContentImpl(
                         newContentDTO.getTitle().trim(),
                         newContentDTO.getBody(),
-                        ((NewVideoContentDTO) newContentDTO).getVideoURL(),
+                        ((NewVideoContentDTO) newContentDTO).getVideoUrl(),
                         module.getId());
                 case MatchingQuestion -> {
                     content = new MatchingQuestionContentImpl(
@@ -175,8 +174,8 @@ public class ContentService {
                                     ((NewMultipleChoiceQuestionContentDTO) updateContentDTO).getCorrectAnswer());
                 }
             case Video:
-                if (((NewVideoContentDTO) updateContentDTO).getVideoURL() != null) {
-                    ((VideoContentImpl) content).setVideoURL(((NewVideoContentDTO) updateContentDTO).getVideoURL());
+                if (((NewVideoContentDTO) updateContentDTO).getVideoUrl() != null) {
+                    ((VideoContentImpl) content).setVideoUrl(((NewVideoContentDTO) updateContentDTO).getVideoUrl());
                 }
             case Text:
                 // No additional fields to update for TextContent
@@ -266,7 +265,7 @@ public class ContentService {
                     content.getBody(),
                     content.isComplete(),
                     content.getModuleId(),
-                    ((VideoContentImpl) content).getVideoURL());
+                    ((VideoContentImpl) content).getVideoUrl());
 
             case MatchingQuestion -> new MatchingQuestionContentDTO(
                     content.getId(),

@@ -34,17 +34,19 @@ export interface NewContentRequest {
   options?: string[];
   correctAnswer?: string;
   matches?: { first: string; second: string }[];
+  videoUrl?: string; // For Video content
 }
 
 export interface UpdateContentRequest {
   title?: string;
   body?: string | null;
-  type?: ContentType;
+  type: ContentType;
   moduleId?: number;
   // Question-specific fields (only required when type is 'Question')
   options?: string[];
   correctAnswer?: string;
   matches?: { first: string; second: string }[];
+  videoUrl?: string; // For Video content
 
 }
 
@@ -94,13 +96,16 @@ export interface Content {
   id: number;
   title: string;
   body: string | null;
-  type: 'Text' | 'MultipleChoiceQuestion' | 'MatchingQuestion';
+  type: 'Text' | 'MultipleChoiceQuestion' | 'MatchingQuestion' | 'Video';
   moduleId: number;
   position: number;
   isComplete?: boolean;
   createdAt?: string;
   updatedAt?: string;
   matches?: { first: string; second: string }[];
+  videoUrl?: string; // For Video content
+
+
 }
 
 export interface Text extends Content {
@@ -118,10 +123,13 @@ export interface MatchingQuestion extends Content {
   type: 'MatchingQuestion';
   matches: { first: string; second: string }[];
 }
+export interface Video extends Content {
+  type: 'Video';
+  videoUrl: string;
+}
 
 // Union type for API responses that might return either Content or QuestionContent
-export type ContentResponse = Text | MultipleChoiceQuestion | MatchingQuestion;
-
+export type ContentResponse = Text | MultipleChoiceQuestion | MatchingQuestion | Video;
 // Type guard to check if content is a multiplechoicequestion
 export function isMultipleChoiceQuestionContent(content: Content): content is MultipleChoiceQuestion {
   return content.type === ContentType.MultipleChoiceQuestion && 'options' in content;
@@ -129,7 +137,12 @@ export function isMultipleChoiceQuestionContent(content: Content): content is Mu
 export function isMatchingQuestionContent(content: Content): content is MatchingQuestion {
   return content.type === ContentType.MatchingQuestion && 'matches' in content;
 }
-
+export function isTextContent(content: Content): content is MatchingQuestion {
+  return content.type === ContentType.Text;
+}
+export function isVideoContent(content: Content): content is Video {
+  return content.type === ContentType.Video;
+}
 export interface UserProfile {
   id: string;
   username: string;

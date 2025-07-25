@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ContentResponse, isMatchingQuestionContent, isMultipleChoiceQuestionContent } from '@/types/backend-api';
+import { ContentResponse, isMatchingQuestionContent, isMultipleChoiceQuestionContent, isVideoContent } from '@/types/backend-api';
 import { apiService } from '@/services/api';
 import TextContentBlock from './TextContentBlock';
 import MultipleChoiceQuestionContentBlock from './MultipleChoiceQuestionContentBlock';
 import MatchingQuestionContentBlock from './MatchingQuestionContentBlock';
+import VideoContentBlock from './VideoContentBlock';
+
 
 
 interface ContentBlockListProps {
@@ -61,8 +63,8 @@ export default function ContentBlockList({
       const updatedContent = await apiService.markContentComplete(contentId);
 
       // Update the content in our local state
-      setContent(prevContent =>
-        prevContent.map(item =>
+      setContent((prevContent: ContentResponse[]) =>
+        prevContent.map((item: ContentResponse) =>
           item.id === contentId ? updatedContent : item
         )
       );
@@ -204,6 +206,17 @@ export default function ContentBlockList({
               onSubmitAnswer={handleSubmitAnswer}
               isInteractive={isInteractive}
             />
+          }
+          else if (isVideoContent(item)) {
+            return (
+              <VideoContentBlock
+                key={item.id}
+                content={item}
+                onComplete={handleComplete}
+                isInteractive={isInteractive}
+              />
+            );
+
           }
           else {
             return (

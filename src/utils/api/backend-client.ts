@@ -336,6 +336,15 @@ export class BackendApiClient {
       // Since we only get back the ID, fetch the full content data
       return this.getContentById(contentId);
     }
+    else if (type === ContentType.Video) {
+      const contentId = await this.post<number>(`/modules/${moduleId}/addVideo`, {
+        type,
+        ...payload,
+        moduleId
+      });
+      // Since we only get back the ID, fetch the full content data
+      return this.getContentById(contentId);
+    }
     else {
       throw new Error(`Unsupported content type: ${type}`);
     }

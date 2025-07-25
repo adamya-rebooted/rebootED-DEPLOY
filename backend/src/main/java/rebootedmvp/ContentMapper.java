@@ -3,10 +3,10 @@ package rebootedmvp;
 import org.springframework.stereotype.Component;
 
 import rebootedmvp.domain.impl.ContentEntityImpl;
+import rebootedmvp.domain.impl.MatchingQuestionContentImpl;
 import rebootedmvp.domain.impl.MultipleChoiceQuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.domain.impl.VideoContentImpl;
-import rebootedmvp.domain.impl.*;
 
 @Component
 public class ContentMapper {
@@ -47,7 +47,7 @@ public class ContentMapper {
         VideoContentImpl video = new VideoContentImpl(
                 content.getTitle(),
                 content.getBody(), // body as questionText
-                ((VideoContentImpl) content).getVideoURL(),
+                ((VideoContentImpl) content).getVideoUrl(),
                 content.getModuleId());
         video.setId(content.getId());
         return video;

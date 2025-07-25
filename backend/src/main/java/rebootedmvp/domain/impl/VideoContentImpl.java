@@ -11,7 +11,7 @@ public class VideoContentImpl extends ContentEntityImpl {
     // private String questionText;
 
     @Column(name = "video_url", nullable = false)
-    private String videoURL;
+    private String videoUrl;
 
     public VideoContentImpl() {
         this.contentType = ContentType.Video;
@@ -23,7 +23,7 @@ public class VideoContentImpl extends ContentEntityImpl {
         this.body = body;
         this.moduleId = moduleId;
         this.contentType = ContentType.Video;
-        this.videoURL = videoURL;
+        this.videoUrl = videoURL;
     }
 
     @Override
@@ -56,12 +56,12 @@ public class VideoContentImpl extends ContentEntityImpl {
         this.body = body;
     }
 
-    public String getVideoURL() {
-        return videoURL;
+    public String getVideoUrl() {
+        return videoUrl;
     }
 
-    public void setVideoURL(String URL) {
-        this.videoURL = URL;
+    public void setVideoUrl(String URL) {
+        this.videoUrl = URL;
     }
 
     @Override

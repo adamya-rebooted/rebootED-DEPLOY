@@ -21,6 +21,9 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [matches, setMatches] = useState<[string, string][]>([['', ''], ['', '']]);
+  const [videoUrl, setVideoUrl] = useState<string>('');
+  const [videoUrlError, setVideoUrlError] = useState<string | null>(null);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,11 +57,18 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
         return;
       }
     }
+    else if (contentType === ContentType.Video) {
+      if (!videoUrl.trim()) {
+        setError('Video URL is required');
+        return;
+      }
+    }
     try {
       setCreating(true);
       setError(null);
 
       let contentBody = body.trim() || null;
+      // var embedUrl = '';
 
       // For Question type, format the body to include options and correct answer
       if (contentType === ContentType.MultipleChoiceQuestion) {
@@ -78,25 +88,15 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
 
         contentBody = bodyParts.join('\n');
       }
-      else if (contentType === ContentType.MatchingQuestion) {
-        // drop any empty pairs
-        const validMatches = matches.filter(([l, r]) => l.trim() && r.trim());
-
-        // build two parallel lists
-        const leftText = validMatches
-          .map(([l, _], i) => `${String.fromCharCode(65 + i)}. ${l}`)
-          .join('\n');
-        const rightText = validMatches
-          .map(([_, r], i) => `${i + 1}. ${r}`)
-          .join('\n');
-
-        const parts = [];
-        if (contentBody) parts.push(contentBody);
-        parts.push('\nMatch the following:');
-        parts.push('\nLeft side:\n' + leftText);
-        parts.push('\nRight side:\n' + rightText);
-        contentBody = parts.join('\n');
+      else if (contentType === ContentType.Video) {
+        if (!videoUrl.trim()) {
+          setError('Please enter a valid video URL.');
+          return;
+        }
+        contentBody = body.trim() || null;
       }
+
+
       const contentData: NewContentRequest = {
         title: title.trim(),
         body: contentBody,
@@ -110,7 +110,11 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
           matches: matches
             .filter(([l, r]) => l.trim() && r.trim())
             .map(([l, r]) => ({ first: l.trim(), second: r.trim() })),
-        })
+        }),
+        ...(contentType === ContentType.Video && {
+          videoUrl: videoUrl
+        }),
+
       };
 
       const createdContent = await apiService.createContent(contentData);
@@ -119,6 +123,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
       setTitle('');
       setBody('');
       setOptions(['', '', '', '']);
+      setMatches([['', ''], ['', '']]);
       setCorrectAnswer('');
       setContentType(ContentType.Text);
 
@@ -213,6 +218,45 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
               />
               <span style={{ color: '#171717' }}>Question</span>
             </label>
+            {/* Video URL Input */}
+            <div style={{ marginBottom: '20px' }}>
+              <label htmlFor="videoUrl" style={{ display: 'block', fontWeight: 'bold' }}>
+                YouTube Video URL:
+              </label>
+              <input
+                type="text"
+                id="viderl"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                placeholder="Enter YouTube video URL"
+                style={{
+                  width: '100%',
+                  padding: '8px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  backgroundColor: '#ffffff',
+                  color: '#171717'
+                }}
+              />
+              {error && <p style={{ color: 'red', marginTop: '5px' }}>{videoUrlError}</p>}
+            </div>
+
+            {/* Video Preview */}
+            {videoUrl && (
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontWeight: 'bold' }}>Video Preview:</label>
+                <iframe
+                  width="100%"
+                  height="315"
+                  src={videoUrl}
+                  title="YouTube video preview"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  style={{ borderRadius: '8px' }}
+                />
+              </div>
+            )}
           </div>
         </div>
 

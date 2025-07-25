@@ -4,7 +4,7 @@ import rebootedmvp.Content.ContentType;
 
 public class NewVideoContentDTO extends NewContentDTO {
 
-    private String videoURL;
+    private String videoUrl;
 
     public NewVideoContentDTO() {
     }
@@ -13,11 +13,11 @@ public class NewVideoContentDTO extends NewContentDTO {
         super(ContentType.Video, title, body, moduleId);
     }
 
-    public String getVideoURL() {
-        return videoURL;
+    public String getVideoUrl() {
+        return videoUrl;
     }
 
-    public void setVideoURL(String videoURL) {
-        this.videoURL = videoURL;
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }

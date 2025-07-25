@@ -39,6 +39,8 @@ export default function EnhancedContentCreator({
   // Question-specific fields
   const [options, setOptions] = useState<string[]>(['', '', '', '']);
   const [matches, setMatches] = useState<[string, string][]>([['', ''], ['', '']]);
+  const [videoUrl, setVideoUrl] = useState<string>('');
+
 
   const [correctAnswer, setCorrectAnswer] = useState('');
 
@@ -52,7 +54,7 @@ export default function EnhancedContentCreator({
       case ContentType.Text: return <FileText className="h-5 w-5" />;
       case ContentType.MultipleChoiceQuestion: return <HelpCircle className="h-5 w-5" />;
       case ContentType.MatchingQuestion: return <HelpCircle className="h-5 w-5" />;
-
+      case ContentType.Video: return <FileText className="h-5 w-5" />;
     }
   };
 
@@ -60,8 +62,8 @@ export default function EnhancedContentCreator({
     switch (type) {
       case ContentType.Text: return 'Rich text content with formatting, images, and links';
       case ContentType.MultipleChoiceQuestion: return 'Multiple choice questions with automatic grading';
-      case ContentType.MultipleChoiceQuestion: return 'A Question where you have to map between answers on two different sides';
-
+      case ContentType.MatchingQuestion: return 'A Question where you have to map between answers on two different sides';
+      case ContentType.Video: return 'Video content ';
     }
   };
 
@@ -169,6 +171,9 @@ export default function EnhancedContentCreator({
               first: left.trim(),
               second: right.trim()
             }))
+        }),
+        ...(contentType === ContentType.Video && {
+          videoUrl: videoUrl.trim()
         })
       };
 
@@ -211,7 +216,7 @@ export default function EnhancedContentCreator({
     <div className="space-y-4">
       <h3 className="text-lg font-semibold mb-4">Choose Content Type</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {([ContentType.Text, ContentType.MultipleChoiceQuestion, ContentType.MatchingQuestion] as ContentType[]).map((type) => (
+        {([ContentType.Text, ContentType.MultipleChoiceQuestion, ContentType.MatchingQuestion, ContentType.Video] as ContentType[]).map((type) => (
           <Card
             key={type}
             className={`cursor-pointer transition-all hover:shadow-md ${contentType === type ? 'ring-2 ring-blue-500 bg-blue-50' : ''
@@ -374,6 +379,32 @@ export default function EnhancedContentCreator({
                 </button>
               </div>
             )}
+            {/* Video fields */}
+            {contentType === ContentType.Video && (
+              <div className="space-y-2">
+                <Label htmlFor="videoUrl">Video URL</Label>
+                <Input
+                  id="videoUrl"
+                  value={videoUrl}
+                  onChange={e => setVideoUrl(e.target.value)}
+                  placeholder="https://www.youtube.com/embed/VIDEO_ID"
+                  className="w-full"
+                />
+                {/* live preview */}
+                {videoUrl.trim() && (
+                  <div className="mt-2 aspect-video rounded overflow-hidden border">
+                    <iframe
+                      src={videoUrl}
+                      title="Video Preview"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
 
             <div className="flex justify-between">
               <Button variant="outline" onClick={() => setCurrentStep('type')}>

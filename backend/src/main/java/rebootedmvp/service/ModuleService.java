@@ -21,11 +21,11 @@ import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.domain.impl.VideoContentImpl;
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.MatchingQuestionContentDTO;
+import rebootedmvp.dto.MultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewContentDTO;
 import rebootedmvp.dto.NewMatchingQuestionContentDTO;
 import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewVideoContentDTO;
-import rebootedmvp.dto.MultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.TextContentDTO;
 import rebootedmvp.dto.VideoContentDTO;
 import rebootedmvp.repository.ContentRepository;
@@ -132,7 +132,7 @@ public class ModuleService {
                 case Video -> content = new VideoContentImpl(
                         newContentDTO.getTitle().trim(),
                         newContentDTO.getBody(),
-                        ((NewVideoContentDTO) newContentDTO).getVideoURL(),
+                        ((NewVideoContentDTO) newContentDTO).getVideoUrl(),
                         moduleId);
                 case MatchingQuestion -> content = new MatchingQuestionContentImpl(
                         newContentDTO.getTitle().trim(),
@@ -207,8 +207,8 @@ public class ModuleService {
                 if (updateDTO.getBody() != null) {
                     videoContent.setBody(updateDTO.getBody());
                 }
-                if (((NewVideoContentDTO) updateDTO).getVideoURL() != null) {
-                    videoContent.setVideoURL(((NewVideoContentDTO) updateDTO).getVideoURL());
+                if (((NewVideoContentDTO) updateDTO).getVideoUrl() != null) {
+                    videoContent.setVideoUrl(((NewVideoContentDTO) updateDTO).getVideoUrl());
                 }
             }
             case MatchingQuestion -> {
@@ -283,7 +283,7 @@ public class ModuleService {
                     content.getBody(),
                     content.isComplete(),
                     content.getModuleId(),
-                    ((VideoContentImpl) content).getVideoURL());
+                    ((VideoContentImpl) content).getVideoUrl());
 
             case MatchingQuestion -> new MatchingQuestionContentDTO(
                     content.getId(),
