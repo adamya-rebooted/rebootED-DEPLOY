@@ -7,7 +7,7 @@ import time
 from dotenv import load_dotenv
 
 # Import agents
-from agent import PromptToCourseModule, PromptToTextContentModule, PromptToModuleModule, PromptToMultipleChoiceQuestionContentModule, MultipleChoiceQuestion
+from agent import PromptToCourseModule, PromptToTextContentModule, PromptToModuleModule, PromptToMultipleChoiceQuestionContentModule, MultipleChoiceQuestion, KnowledgeSkillsListModule, ModuleGrouper, Module, ModuleGroupingResult
 
 load_dotenv()
 
@@ -60,11 +60,24 @@ class PromptToMultipleChoiceQuestionResponse(BaseModel):
     question_options: list[str]
     correct_answer: str
 
+# Course modules request/response models
+class PromptToCourseModulesRequest(BaseModel):
+    input_prompt: str
+
+class ModuleResponse(BaseModel):
+    module_name: str
+    skills: list[str]
+
+class PromptToCourseModulesResponse(BaseModel):
+    modules: list[ModuleResponse]
+
 # Initialize the agents
 prompt_to_course_agent = PromptToCourseModule()
 prompt_to_text_content_agent = PromptToTextContentModule()
 prompt_to_module_agent = PromptToModuleModule()
 prompt_to_multiple_choice_question_agent = PromptToMultipleChoiceQuestionContentModule()
+knowledge_skills_list_agent = KnowledgeSkillsListModule()
+module_grouper_agent = ModuleGrouper()
 
 # Add middleware for request logging
 @app.middleware("http")
@@ -180,6 +193,42 @@ async def prompt_to_multiple_choice_question(request: PromptToMultipleChoiceQues
     except Exception as e:
         logger.error(f"❌ Prompt-to-multiple-choice-question failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Prompt-to-multiple-choice-question failed: {str(e)}")
+
+@app.post("/prompt-to-course-modules", response_model=PromptToCourseModulesResponse)
+async def prompt_to_course_modules(request: PromptToCourseModulesRequest):
+    """
+    Generate course modules by first analyzing knowledge/skills needed, then grouping them into modules.
+    """
+    try:
+        logger.info(f"🎯 Prompt-to-course-modules request received for prompt: {request.input_prompt[:50]}...")
+        
+        # Step 1: Analyze knowledge and skills needed
+        logger.info("📋 Step 1: Analyzing knowledge and skills needed...")
+        knowledge_skills_result = knowledge_skills_list_agent(course_prompt=request.input_prompt)
+        skills_list = knowledge_skills_result.analysis.knowledge_skills_list
+        logger.info(f"✅ Found {len(skills_list)} knowledge/skills items")
+        
+        # Step 2: Group skills into modules
+        logger.info("📦 Step 2: Grouping skills into modules...")
+        modules_result = module_grouper_agent(knowledge_skills_list=skills_list)
+        
+        # Transform result to response model
+        response_modules = [
+            ModuleResponse(
+                module_name=module.module_name,
+                skills=module.skills
+            )
+            for module in modules_result.grouping.modules
+        ]
+        
+        response = PromptToCourseModulesResponse(modules=response_modules)
+        
+        logger.info(f"✅ Prompt-to-course-modules completed successfully: Generated {len(response.modules)} modules")
+        return response
+        
+    except Exception as e:
+        logger.error(f"❌ Prompt-to-course-modules failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Prompt-to-course-modules failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

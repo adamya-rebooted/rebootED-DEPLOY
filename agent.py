@@ -7,49 +7,59 @@ from datetime import datetime
 
 # Load env vars from .env
 load_dotenv('.env.local')
-# #### TEMP OLD PYDANTIC MODELS
-# # Module Models
-# class Module(BaseModel):
-#     """Module structure for course organization"""
-#     module_name: str
-#     skills: List[str]
+# #### TEMP OLD CODE
+#STEP 1: analyze knowledge gap
+# Define the structured output model
+class KnowledgeSkillsList(BaseModel):
+    """Structured output for knowledge and skills list"""
+    knowledge_skills_list: List[str]
+# Define the signature
+class KnowledgeSkillsListSignature(dspy.Signature):
+    """Identify the all the knowledge and skills needed to efficiently teach this topic to someone with no prior knowledge."""
+    course_prompt = dspy.InputField(desc="Prompt describing the course to create")
+    analysis: KnowledgeSkillsList = dspy.OutputField(desc="Structured analysis of knowledge and skills needed to bridge the gap. Return a list where each item is a specific knowledge area or skill that the student needs to learn.")
 
-# class ModuleGroupingResult(BaseModel):
-#     """Result of grouping skills into modules"""
-#     modules: List[Module]
+# Define the module
+class KnowledgeSkillsListModule(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.predictor = dspy.ChainOfThought(KnowledgeSkillsListSignature)
 
-# # Content Models
-# class _BaseContentOut(BaseModel):
-#     """Base content model with database metadata"""
-#     id: Optional[int] = Field(default=1)
-#     title: str
-#     is_complete: Optional[bool] = Field(default=True, alias="isComplete")
-#     module_id: Optional[int] = Field(default=1, alias="moduleId")
-#     created_at: Optional[datetime] = Field(default_factory=datetime.now, alias="createdAt")
-#     updated_at: Optional[datetime] = Field(default_factory=datetime.now, alias="updatedAt")
+    def forward(self, course_prompt):
+        return self.predictor(
+            course_prompt=course_prompt
+        )
 
-# class TextContentOut(_BaseContentOut):
-#     """Structured output for a 'Text' content block."""
-#     type: Literal["Text"] = "Text"
-#     body: str
+#STEP 2: group knowledge gap items into modules
+# Define the module output structure
+class Module(BaseModel):
+    module_name: str
+    skills: List[str]
 
-# class QuestionContentOut(_BaseContentOut):
-#     """Structured output for a 'Question' content block."""
-#     type: Literal["Question"] = "Question"
-#     question_text: str = Field(alias="questionText")
-#     options: List[str]
-#     correct_answer: str = Field(alias="correctAnswer")
-#     user_answer: Optional[str] = Field(default=None, alias="userAnswer")
+class ModuleGroupingResult(BaseModel):
+    modules: List[Module]
 
-# class ModuleContentBundle(BaseModel):
-#     """One module plus every content block generated for its skills."""
-#     module_name: str
-#     content_blocks: List[Union[TextContentOut, QuestionContentOut]]
+# Define the signature
+class ModuleGroupingSignature(dspy.Signature):
+    """Group the list of knowledge and skills into coherent modules for the course."""
+    knowledge_skills_list = dspy.InputField(desc="List of knowledge and skills needed to bridge the gap")
+    grouping: ModuleGroupingResult = dspy.OutputField(desc="Structured grouping of knowledge and skills into modules")
 
-# class CourseContentResult(BaseModel):
-#     """Full course payload: list of ModuleContentBundle objects."""
-#     modules: List[ModuleContentBundle]
-# ####TEMP OLD PYDANTIC MODELS
+# Define the module
+class ModuleGrouper(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.predictor = dspy.ChainOfThought(ModuleGroupingSignature)
+
+    def forward(self, knowledge_skills_list):
+        return self.predictor(knowledge_skills_list=knowledge_skills_list)
+# ####TEMP OLD CODE
+
+
+
+
+
+
 # Configure DSPy with the language model
 #lm = dspy.LM('anthropic/claude-3-haiku-20240307', api_key=os.getenv('ANTHROPIC_API_KEY'))
 lm = dspy.LM('gemini/gemini-1.5-flash', api_key=os.getenv('GEMINI_API_KEY'))
@@ -105,7 +115,7 @@ class PromptToTextContentModule(dspy.Module):
     def forward(self, input_prompt: str):
         return self.generator(input_prompt=input_prompt)
 
-# Pydantic model for multiple choice question structure
+# Prompt to Multiple Choice Question Content Pydantic model
 class MultipleChoiceQuestion(BaseModel):
     """Structured output for a multiple choice question."""
     question_title: str = Field(description="A concise, engaging title for the question")
