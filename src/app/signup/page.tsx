@@ -45,13 +45,13 @@ export default function SignupPage() {
       }
 
       // Create user in backend with selected role
-      const userType = selectedRole === 'teacher' ? 'LDUser' : 'EmployeeUser'
+      // const userType = selectedRole === 'teacher' ? 'LDUser' : 'EmployeeUser'
 
       switch (selectedRole) {
         case 'teacher':
           await backendApiClient.post('/users/addTeacher', {
             username: username.trim(),
-            userType: userType,
+            userType: "Teacher",
             email: user.email,
             supabaseUserId: user.id
           })
@@ -59,7 +59,7 @@ export default function SignupPage() {
         case 'student':
           await backendApiClient.post('/users/addStudent', {
             username: username.trim(),
-            userType: userType,
+            userType: "Student",
             email: user.email,
             supabaseUserId: user.id
           })
