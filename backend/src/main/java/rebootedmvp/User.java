@@ -68,8 +68,9 @@ public abstract class User {
      * employee
      */
     public static enum UserType {
-        LDUser,
-        EmployeeUser
+        Teacher,
+        Student,
+        Admin
     }
 
     /**

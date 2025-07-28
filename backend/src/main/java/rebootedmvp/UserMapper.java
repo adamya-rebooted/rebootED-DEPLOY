@@ -14,9 +14,9 @@ public class UserMapper {
 
     public static UserProfileImpl toEntity(User domain) {
         return switch (domain.getUserType()) {
-            case EmployeeUser -> new StudentImpl(domain.getUsername(), domain.getSupabaseUserId(),
+            case Student -> new StudentImpl(domain.getUsername(), domain.getSupabaseUserId(),
                     domain.getEmail(), domain.getFullName());
-            case LDUser -> new TeacherImpl(domain.getSupabaseUserId(), domain.getUsername(), domain.getEmail(),
+            case Teacher -> new TeacherImpl(domain.getSupabaseUserId(), domain.getUsername(), domain.getEmail(),
                     domain.getFullName());
             default -> throw new IllegalArgumentException("Unsupported user type: " + domain.getUserType());
         };

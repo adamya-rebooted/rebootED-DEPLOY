@@ -24,15 +24,15 @@ public class StudentImpl extends UserProfileImpl {
     private List<Course> courses = new ArrayList<>();
 
     public StudentImpl() {
-        this.userType = UserType.EmployeeUser;
+        this.userType = UserType.Student;
     }
 
     public StudentImpl(String supabaseUserId, NewStudentDTO newUserDTO) {
-        super(newUserDTO.getUsername(), supabaseUserId, User.UserType.EmployeeUser, newUserDTO.getEmail());
+        super(newUserDTO.getUsername(), supabaseUserId, User.UserType.Student, newUserDTO.getEmail());
     }
 
     public StudentImpl(String username, String supabaseUserId, String email, String fullName) {
-        super(username, supabaseUserId, User.UserType.EmployeeUser, email, fullName);
+        super(username, supabaseUserId, User.UserType.Student, email, fullName);
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

@@ -226,7 +226,7 @@ public class CourseMembershipService {
                     .map(CourseMapper::toDomain);
 
             List<UserCourseDTO> courseDTOs = courses.map(elem -> new UserCourseDTO(elem.getId(), elem.getTitle(),
-                    elem.getBody(), elem.isStudent(user) ? User.UserType.EmployeeUser : User.UserType.LDUser)).toList();
+                    elem.getBody(), elem.isStudent(user) ? User.UserType.Student : User.UserType.Teacher)).toList();
 
             logger.info("===== CourseMembershipService.getUserCourses() SUCCESS =====");
             logger.info("Returning {} courses for user '{}'", courseDTOs.size(), userId);
@@ -307,9 +307,9 @@ public class CourseMembershipService {
 
     private UserProfileDTO convertToDTO(User user) {
         switch (user.getUserType()) {
-            case LDUser:
+            case Teacher:
                 return new TeacherDTO(((TeacherImpl) user));
-            case EmployeeUser:
+            case Student:
                 return new StudentDTO(((StudentImpl) user));
             default:
                 throw new IllegalArgumentException("Unknown user type: " + user.getUserType());

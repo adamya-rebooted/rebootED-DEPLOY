@@ -227,9 +227,9 @@ public class UserProfileService {
         logger.debug("Converting UserProfileImpl to DTO: {}", profile);
         try {
             switch (profile.getUserType()) {
-                case LDUser:
+                case Teacher:
                     return new TeacherDTO(((TeacherImpl) profile));
-                case EmployeeUser:
+                case Student:
                     return new StudentDTO(((StudentImpl) profile));
                 default:
                     throw new IllegalArgumentException("Unknown user type: " + profile.getUserType());

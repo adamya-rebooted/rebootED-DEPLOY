@@ -12,11 +12,11 @@ public class TeacherDTO extends UserProfileDTO {
 
     // Constructor with all fields
     public TeacherDTO(String supabaseUserId, String username, String email, String fullName) {
-        super(supabaseUserId, username, User.UserType.LDUser, email, fullName);
+        super(supabaseUserId, username, User.UserType.Teacher, email, fullName);
     }
 
     public TeacherDTO(TeacherImpl teacher) {
-        super(teacher.getSupabaseUserId(), teacher.getUsername(), User.UserType.LDUser, teacher.getEmail(),
+        super(teacher.getSupabaseUserId(), teacher.getUsername(), User.UserType.Teacher, teacher.getEmail(),
                 teacher.getFullName());
     }
 
