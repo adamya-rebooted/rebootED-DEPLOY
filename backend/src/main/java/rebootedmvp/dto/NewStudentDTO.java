@@ -9,8 +9,8 @@ public class NewStudentDTO extends NewUserDTO {
     }
 
     // Constructor with all fields
-    public NewStudentDTO(String username, String email) {
-        super(username, User.UserType.EmployeeUser, email, null);
+    public NewStudentDTO(String username, String email, String supabaseUserId) {
+        super(username, User.UserType.EmployeeUser, email, supabaseUserId);
     }
 
 }

@@ -120,13 +120,13 @@ public class CourseController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body("Access denied: " + e.getMessage());
     }
-    
+
     @ExceptionHandler(UserNotAuthenticatedException.class)
     public ResponseEntity<String> handleNotAuthenticated(UserNotAuthenticatedException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body("Authentication required: " + e.getMessage());
     }
-    
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -12,8 +12,14 @@ import jakarta.transaction.Transactional;
 import rebootedmvp.Course;
 import rebootedmvp.User;
 import rebootedmvp.UserMapper;
+import rebootedmvp.domain.impl.StudentImpl;
+import rebootedmvp.domain.impl.TeacherImpl;
 import rebootedmvp.domain.impl.UserProfileImpl;
+import rebootedmvp.dto.NewStudentDTO;
+import rebootedmvp.dto.NewTeacherDTO;
 import rebootedmvp.dto.NewUserDTO;
+import rebootedmvp.dto.StudentDTO;
+import rebootedmvp.dto.TeacherDTO;
 import rebootedmvp.dto.UserProfileDTO;
 import rebootedmvp.repository.UserProfileRepository;
 
@@ -169,12 +175,22 @@ public class UserProfileService {
         return convertToDTO(saved);
     }
 
-    public Long addUser(String supabaseUserId, NewUserDTO newUserDTO) {
+    public Long addTeacher(String supabaseUserId, NewTeacherDTO newUserDTO) {
         logger.debug("UserProfileService.addTeacher({}) called", newUserDTO);
         if (newUserDTO.getUsername() == null || newUserDTO.getUserType() == null) {
             throw new IllegalArgumentException("The user's name must be supplied in the DTO");
         }
-        User savedUser = userProfileRepository.save(new UserProfileImpl(supabaseUserId, newUserDTO));
+        User savedUser = userProfileRepository.save(new TeacherImpl(supabaseUserId, newUserDTO));
+
+        return savedUser.getId(); // Return Supabase UUID as the ID
+    }
+
+    public Long addStudent(String supabaseUserId, NewStudentDTO newUserDTO) {
+        logger.debug("UserProfileService.addStudent({}) called", newUserDTO);
+        if (newUserDTO.getUsername() == null || newUserDTO.getUserType() == null) {
+            throw new IllegalArgumentException("The user's name must be supplied in the DTO");
+        }
+        User savedUser = userProfileRepository.save(new StudentImpl(supabaseUserId, newUserDTO));
 
         return savedUser.getId(); // Return Supabase UUID as the ID
     }
@@ -210,12 +226,14 @@ public class UserProfileService {
     private UserProfileDTO convertToDTO(User profile) {
         logger.debug("Converting UserProfileImpl to DTO: {}", profile);
         try {
-            UserProfileDTO dto = new UserProfileDTO(
-                    profile.getSupabaseUserId(), // Use Supabase UUID as the ID for API compatibility
-                    profile.getUsername(),
-                    profile.getUserType());
-            logger.debug("Converted to DTO: {}", dto);
-            return dto;
+            switch (profile.getUserType()) {
+                case LDUser:
+                    return new TeacherDTO(((TeacherImpl) profile));
+                case EmployeeUser:
+                    return new StudentDTO(((StudentImpl) profile));
+                default:
+                    throw new IllegalArgumentException("Unknown user type: " + profile.getUserType());
+            }
         } catch (Exception e) {
             logger.error("Error converting UserProfileImpl to DTO: {}", e.getMessage(), e);
             logger.error("Profile data: {}", profile);

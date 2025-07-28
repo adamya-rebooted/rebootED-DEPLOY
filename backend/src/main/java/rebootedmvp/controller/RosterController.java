@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +17,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import rebootedmvp.domain.impl.RosterEntityImpl;
+import rebootedmvp.domain.impl.TeacherImpl;
 import rebootedmvp.dto.CourseDTO;
 import rebootedmvp.dto.NewCourseDTO;
 import rebootedmvp.dto.NewRosterDTO;
+import rebootedmvp.repository.UserProfileRepository;
+import rebootedmvp.service.AuthorizationService;
+import rebootedmvp.service.CourseService;
 import rebootedmvp.service.RosterService;
+import rebootedmvp.service.UserProfileService;
 
 @RestController
 @RequestMapping("/api/roster")
@@ -27,6 +33,18 @@ public class RosterController {
 
     @Autowired
     private RosterService rosterService;
+
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired
+    private UserProfileService userProfileService;
+
+    @Autowired
+    private UserProfileRepository userProfileRepository;
+
+    @Autowired
+    private AuthorizationService authorizationService;
 
     @PostMapping
     public ResponseEntity<Long> createRoster() {
@@ -52,9 +70,15 @@ public class RosterController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Long> createCourse(@RequestBody NewCourseDTO newCourseDTO) {
+    public ResponseEntity<Long> createCourse(@RequestBody NewCourseDTO newCourseDTO, SecurityContextHolder user) {
         try {
             Long courseId = rosterService.addNew(Long.valueOf(0), newCourseDTO);
+            String supabaseUserId = authorizationService.getCurrentSupabaseUserId(); // <-- step 2
+            Long userId = userProfileRepository.findBySupabaseUserId(supabaseUserId)
+                    .orElseThrow(() -> new RuntimeException("User not found"))
+                    .getId();
+            courseService.addTeacher(courseId, userId);
+
             return ResponseEntity.ok(courseId);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();

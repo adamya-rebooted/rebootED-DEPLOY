@@ -2,15 +2,23 @@ package rebootedmvp.dto;
 
 import rebootedmvp.User;
 
-public class UserProfileDTO {
+public abstract class UserProfileDTO {
     private String supabaseUserId;
     private String username;
+    private String email;
     private User.UserType userType;
+    private String fullName;
 
-    public UserProfileDTO(String id, String username, User.UserType userType) {
+    public UserProfileDTO() {
+        // Default constructor needed for frameworks like Jackson
+    }
+
+    public UserProfileDTO(String id, String username, User.UserType userType, String email, String fullName) {
+        this.fullName = fullName;
         this.supabaseUserId = id;
         this.username = username;
         this.userType = userType;
+        this.email = email;
     }
 
     public String getId() {
@@ -35,5 +43,21 @@ public class UserProfileDTO {
 
     public void setUserType(User.UserType userType) {
         this.userType = userType;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }

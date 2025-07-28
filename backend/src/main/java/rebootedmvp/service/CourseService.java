@@ -46,10 +46,10 @@ public class CourseService {
 
     @Autowired
     private ContentRepository contentRepository;
-    
+
     @Autowired
     private AuthorizationService authorizationService;
-    
+
     @Autowired
     private AuthenticationContextService authContextService;
 
@@ -60,31 +60,32 @@ public class CourseService {
     @Transactional(readOnly = true)
     public List<ModuleDTO> findAllUserAccessible() {
         logger.debug("CourseService.findAllUserAccessible() called - returning user's accessible modules");
-        
+
         // Get courses the current user has access to
         String userId = authContextService.getCurrentUserId();
         List<Course> userCourses = courseRepository.findCoursesByUserId(userId)
                 .stream()
                 .map(CourseMapper::toDomain)
                 .toList();
-        
+
         // Get all modules from those courses
         List<Module> userModules = userCourses.stream()
                 .flatMap(course -> moduleRepository.findByCourseIdOrderByCreatedAtAsc(course.getId())
                         .stream()
                         .map(ModuleMapper::toDomain))
                 .toList();
-        
+
         return mapToDTO(userModules);
     }
-    
+
     /**
-     * Returns a list of courses the current user has access to (either as teacher or student).
+     * Returns a list of courses the current user has access to (either as teacher
+     * or student).
      */
     @Transactional(readOnly = true)
     public List<CourseDTO> getUserCourses() {
         logger.debug("CourseService.getUserCourses() called - returning user's accessible courses");
-        
+
         String userId = authContextService.getCurrentUserId();
         return courseRepository.findCoursesByUserId(userId)
                 .stream()
@@ -105,7 +106,7 @@ public class CourseService {
         if (!courseRepository.existsById(courseId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found with id: " + courseId);
         }
-        
+
         // Verify user has access to this course
         authorizationService.requireCourseAccess(courseId);
 
@@ -126,7 +127,7 @@ public class CourseService {
         if (!courseRepository.existsById(courseId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found with id: " + courseId);
         }
-        
+
         // Verify user has access to this course
         authorizationService.requireCourseAccess(courseId);
 
@@ -159,7 +160,7 @@ public class CourseService {
         if (courseOpt.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found with id: " + courseId);
         }
-        
+
         // Verify user has teacher access to this course
         authorizationService.requireTeacherAccess(courseId);
 
@@ -185,7 +186,7 @@ public class CourseService {
         if (!courseRepository.existsById(courseId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found with id: " + courseId);
         }
-        
+
         // Verify user has teacher access to this course
         authorizationService.requireTeacherAccess(courseId);
 
@@ -221,12 +222,13 @@ public class CourseService {
         if (!courseRepository.existsById(courseId)) {
             return false;
         }
-        
+
         try {
             // Verify user has teacher access to this course
             authorizationService.requireTeacherAccess(courseId);
         } catch (UnauthorizedAccessException e) {
-            logger.warn("User denied access to delete module {} from course {}: {}", moduleId, courseId, e.getMessage());
+            logger.warn("User denied access to delete module {} from course {}: {}", moduleId, courseId,
+                    e.getMessage());
             return false;
         }
 
@@ -248,11 +250,11 @@ public class CourseService {
             logger.debug("Deleted content with ID: {}", content.getId());
         }
         contentRepository.flush();
-        
+
         // Now delete the module safely
         moduleRepository.deleteById(moduleId);
-        logger.info("Deleted module with ID: {} from course: {} (with {} content items)", 
-                    moduleId, courseId, contentList.size());
+        logger.info("Deleted module with ID: {} from course: {} (with {} content items)",
+                moduleId, courseId, contentList.size());
         return true;
     }
 
@@ -264,7 +266,7 @@ public class CourseService {
     public void addStudent(Long courseId, Long userId) {
         // Verify user has teacher access to this course
         authorizationService.requireTeacherAccess(courseId);
-        
+
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
@@ -277,13 +279,12 @@ public class CourseService {
 
     /**
      * Adds a teacher to a course.
-     * Requires the current user to be a teacher of the course.
      */
     @Transactional
     public void addTeacher(Long courseId, Long userId) {
         // Verify user has teacher access to this course
         authorizationService.requireTeacherAccess(courseId);
-        
+
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 

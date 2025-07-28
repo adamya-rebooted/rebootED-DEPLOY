@@ -55,7 +55,7 @@ export class BackendApiClient {
     try {
       // Always try to get a fresh session first
       let { data: { session }, error: sessionError } = await this.supabase.auth.getSession();
-      
+
       // If we have a session error or no session, try to refresh
       if (sessionError || !session) {
         console.log('No valid session found, attempting refresh...');
@@ -276,8 +276,11 @@ export class BackendApiClient {
     return this.get<UserProfile>(`/users/username/${username}`);
   }
 
-  async createUser(userData: { username: string; userType: 'LDUser' | 'EmployeeUser'; email: string }): Promise<number> {
-    return this.post<number>('/users/add', userData);
+  async createTeacher(userData: { username: string; email: string }): Promise<number> {
+    return this.post<number>('/users/addTeacher', userData);
+  }
+  async createStudent(userData: { username: string; email: string }): Promise<number> {
+    return this.post<number>('/users/addStudent', userData);
   }
 
   // Course membership operations

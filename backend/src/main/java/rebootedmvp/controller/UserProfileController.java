@@ -9,10 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import rebootedmvp.dto.NewStudentDTO;
+import rebootedmvp.dto.NewTeacherDTO;
 import rebootedmvp.dto.NewUserDTO;
 import rebootedmvp.dto.UserProfileDTO;
 import rebootedmvp.service.JwtService;
@@ -39,16 +40,25 @@ public class UserProfileController {
         return ResponseEntity.ok(users);
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<Long> createUser(@RequestBody NewUserDTO newUserDTO) {
+    @PostMapping("/addTeacher")
+    public ResponseEntity<Long> createTeacherUser(@RequestBody NewTeacherDTO newUserDTO) {
         System.out.println("Incoming DTO = " + newUserDTO);
 
         // Use proper JWT validation now that we fixed the HS256 configuration
         String supabaseUserId = newUserDTO.getSupabaseUserId();
-        Long userId = userProfileService.addUser(supabaseUserId, newUserDTO);
+        Long userId = userProfileService.addTeacher(supabaseUserId, newUserDTO);
         return ResponseEntity.ok(userId);
     }
 
+    @PostMapping("/addStudent")
+    public ResponseEntity<Long> createStudentUser(@RequestBody NewStudentDTO newUserDTO) {
+        System.out.println("Incoming DTO = " + newUserDTO);
+
+        // Use proper JWT validation now that we fixed the HS256 configuration
+        String supabaseUserId = newUserDTO.getSupabaseUserId();
+        Long userId = userProfileService.addStudent(supabaseUserId, newUserDTO);
+        return ResponseEntity.ok(userId);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserProfileDTO> getUserById(@PathVariable String id) {

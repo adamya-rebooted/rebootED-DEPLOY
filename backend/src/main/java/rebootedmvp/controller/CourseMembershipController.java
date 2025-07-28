@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import rebootedmvp.dto.CourseUserDTO;
+import rebootedmvp.dto.StudentDTO;
+import rebootedmvp.dto.TeacherDTO;
 import rebootedmvp.dto.UserCourseDTO;
+import rebootedmvp.dto.UserProfileDTO;
 import rebootedmvp.service.CourseMembershipService;
 
 @RestController
@@ -24,9 +26,21 @@ public class CourseMembershipController {
     @Autowired
     private CourseMembershipService courseMembershipService;
 
-    @GetMapping("/course/{courseId}/users")
-    public ResponseEntity<List<CourseUserDTO>> getCourseUsers(@PathVariable Long courseId) {
-        List<CourseUserDTO> users = courseMembershipService.getCourseUsers(courseId);
+    @GetMapping("/course/{courseId}/getTeachers")
+    public ResponseEntity<List<TeacherDTO>> getCourseTeachers(@PathVariable Long courseId) {
+        List<TeacherDTO> users = courseMembershipService.getCourseTeachers(courseId);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/course/{courseId}/getStudents")
+    public ResponseEntity<List<StudentDTO>> getCourseStudents(@PathVariable Long courseId) {
+        List<StudentDTO> users = courseMembershipService.getCourseStudents(courseId);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/course/{courseId}/getUsers")
+    public ResponseEntity<List<UserProfileDTO>> getCourseUsers(@PathVariable Long courseId) {
+        List<UserProfileDTO> users = courseMembershipService.getCourseUsers(courseId);
         return ResponseEntity.ok(users);
     }
 

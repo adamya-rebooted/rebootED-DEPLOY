@@ -3,9 +3,13 @@ package rebootedmvp.domain.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import rebootedmvp.Course;
 import rebootedmvp.CourseDoesNotExistException;
 import rebootedmvp.InaccessibleCourseException;
@@ -14,7 +18,10 @@ import rebootedmvp.dto.NewUserDTO;
 
 @Entity
 // @DiscriminatorValue("USER")
-public class UserProfileImpl extends User {
+// @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+// @DiscriminatorColumn(name = "user_type") // optional but recommended
+// @Table(name = "user_profiles")
+public abstract class UserProfileImpl extends User {
 
     @PrePersist
     protected void onCreate() {
@@ -65,7 +72,6 @@ public class UserProfileImpl extends User {
     }
 
     // ⚠️ Required by JPA — but not usable by normal code
-    @Deprecated
     protected UserProfileImpl() {
         // JPA only
     }

@@ -79,11 +79,27 @@ public abstract class User {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     /**
      * Returns the type of the user
      */
     public UserType getUserType() {
         return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     /**
@@ -114,6 +130,12 @@ public abstract class User {
         return getCourse(courseName).getProgress(this);
     }
 
-    public abstract String getEmail();
+    public String getEmail() {
+        return email;
+    };
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
 }

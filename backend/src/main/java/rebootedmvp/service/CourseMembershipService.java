@@ -20,8 +20,11 @@ import rebootedmvp.Course;
 import rebootedmvp.CourseMapper;
 import rebootedmvp.UserMapper;
 import rebootedmvp.domain.impl.CourseEntityImpl;
+import rebootedmvp.domain.impl.StudentImpl;
+import rebootedmvp.domain.impl.TeacherImpl;
 import rebootedmvp.domain.impl.UserProfileImpl;
-import rebootedmvp.dto.CourseUserDTO;
+import rebootedmvp.dto.StudentDTO;
+import rebootedmvp.dto.TeacherDTO;
 import rebootedmvp.dto.UserCourseDTO;
 import rebootedmvp.dto.UserProfileDTO;
 import rebootedmvp.repository.CourseRepository;
@@ -129,7 +132,7 @@ public class CourseMembershipService {
     }
 
     @Transactional(readOnly = true)
-    public List<CourseUserDTO> getCourseUsers(Long courseId) {
+    public List<TeacherDTO> getCourseTeachers(Long courseId) {
         logger.debug("Getting users for course {}", courseId);
 
         Optional<Course> courseOpt = courseRepository.findById(courseId).map(CourseMapper::toDomain);
@@ -140,12 +143,57 @@ public class CourseMembershipService {
 
         Course course = courseOpt.get();
 
-        List<CourseUserDTO> result = Stream.concat(
+        List<TeacherDTO> result = course.getTeachers().stream()
+                .collect(Collectors.toSet()).stream()
+                .map(elem -> new TeacherDTO(((TeacherImpl) elem)))
+                .toList();
+
+        // Add teachers
+
+        logger.debug("Found {} users for course {}", result.size(), courseId);
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<StudentDTO> getCourseStudents(Long courseId) {
+        logger.debug("Getting users for course {}", courseId);
+
+        Optional<Course> courseOpt = courseRepository.findById(courseId).map(CourseMapper::toDomain);
+        if (courseOpt.isEmpty()) {
+            logger.warn("Course not found with ID: {}", courseId);
+            return List.of();
+        }
+
+        Course course = courseOpt.get();
+
+        List<StudentDTO> result = course.getStudents().stream()
+                .collect(Collectors.toSet()).stream()
+                .map(elem -> new StudentDTO(((StudentImpl) elem)))
+                .toList();
+
+        // Add teachers
+
+        logger.debug("Found {} users for course {}", result.size(), courseId);
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserProfileDTO> getCourseUsers(Long courseId) {
+        logger.debug("Getting users for course {}", courseId);
+
+        Optional<Course> courseOpt = courseRepository.findById(courseId).map(CourseMapper::toDomain);
+        if (courseOpt.isEmpty()) {
+            logger.warn("Course not found with ID: {}", courseId);
+            return List.of();
+        }
+
+        Course course = courseOpt.get();
+
+        List<UserProfileDTO> result = Stream.concat(
                 course.getStudents().stream(),
                 course.getTeachers().stream())
                 .collect(Collectors.toSet()).stream()
-                .map(elem -> new CourseUserDTO(courseId, elem.getSupabaseUserId(), elem.getUserType(),
-                        elem.getUsername()))
+                .map(elem -> convertToDTO(elem))
                 .toList();
 
         // Add teachers
@@ -255,5 +303,16 @@ public class CourseMembershipService {
             return 0;
         }
         return courseOpt.get().getStudents().size();
+    }
+
+    private UserProfileDTO convertToDTO(User user) {
+        switch (user.getUserType()) {
+            case LDUser:
+                return new TeacherDTO(((TeacherImpl) user));
+            case EmployeeUser:
+                return new StudentDTO(((StudentImpl) user));
+            default:
+                throw new IllegalArgumentException("Unknown user type: " + user.getUserType());
+        }
     }
 }

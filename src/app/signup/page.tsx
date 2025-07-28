@@ -22,14 +22,14 @@ export default function SignupPage() {
         router.push('/login?error=auth_required')
         return
       }
-      
+
       // Pre-fill username from email
       if (user.email) {
         const defaultUsername = user.email.split('@')[0]
         setUsername(defaultUsername)
       }
     }
-    
+
     checkAuth()
   }, [router, supabase.auth])
 
@@ -46,13 +46,30 @@ export default function SignupPage() {
 
       // Create user in backend with selected role
       const userType = selectedRole === 'teacher' ? 'LDUser' : 'EmployeeUser'
-      
-      await backendApiClient.post('/users/add', {
-        username: username.trim(),
-        userType,
-        email: user.email,
-        supabaseUserId: user.id
-      })
+
+      switch (selectedRole) {
+        case 'teacher':
+          await backendApiClient.post('/users/addTeacher', {
+            username: username.trim(),
+            userType: userType,
+            email: user.email,
+            supabaseUserId: user.id
+          })
+          break;
+        case 'student':
+          await backendApiClient.post('/users/addStudent', {
+            username: username.trim(),
+            userType: userType,
+            email: user.email,
+            supabaseUserId: user.id
+          })
+          break;
+        default:
+          throw new Error('Invalid role selected')
+
+      }
+
+
 
       // Update Supabase user metadata with the selected role
       await supabase.auth.updateUser({
@@ -61,7 +78,7 @@ export default function SignupPage() {
 
       // Redirect to dashboard
       router.push('/management-dashboard')
-      
+
     } catch (err) {
       console.error('Signup error:', err)
       setError(err instanceof Error ? err.message : 'Failed to create account')
@@ -104,7 +121,7 @@ export default function SignupPage() {
             Choose your role and username
           </p>
         </div>
-        
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div>
             <label style={{
@@ -133,7 +150,7 @@ export default function SignupPage() {
               }}
             />
           </div>
-          
+
           <div>
             <label style={{
               display: 'block',
@@ -187,7 +204,7 @@ export default function SignupPage() {
               </label>
             </div>
           </div>
-          
+
           {error && (
             <div style={{
               color: 'var(--destructive-foreground)',
@@ -200,7 +217,7 @@ export default function SignupPage() {
               {error}
             </div>
           )}
-          
+
           <button
             type="submit"
             disabled={isSubmitting}

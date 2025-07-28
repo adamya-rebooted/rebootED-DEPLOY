@@ -1,10 +1,11 @@
 package rebootedmvp;
+
 /**
- * Indicates that a user either does not have permission to access a course 
+ * Indicates that a user either does not have permission to access a course
  * or that course does not exist
  */
-public class InaccessibleCourseException extends RuntimeException{
-    
+public class InaccessibleCourseException extends RuntimeException {
+
     /**
      * Create a new InaccessibleCourseException indicating that the user
      * 'username' cannot access the course 'courseName'
@@ -14,5 +15,9 @@ public class InaccessibleCourseException extends RuntimeException{
      */
     public InaccessibleCourseException(String username, String courseName) {
         super("User " + username + " cannot access course " + courseName);
+    }
+
+    public InaccessibleCourseException(String errorMessage) {
+        super(errorMessage);
     }
 }
