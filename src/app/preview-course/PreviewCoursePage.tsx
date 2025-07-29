@@ -69,60 +69,16 @@ export default function PreviewCoursePage() {
   };
 
   return (
-    <div style={{
-      padding: '32px',
-      maxWidth: '1200px',
-      margin: '0 auto',
-      background: 'var(--background)',
-      minHeight: '100vh',
-      color: 'var(--text)'
-    }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '28px',
-      }}>
-        <h1 style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '2rem' }}>Course Preview</h1>
-        <div style={{ display: 'flex', gap: '14px' }}>
-          <button
-            onClick={handleBackToEdit}
-            style={{
-              padding: '12px 28px',
-              backgroundColor: 'var(--primary)',
-              color: 'var(--primary-foreground)',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: 600,
-              fontSize: '1rem',
-              boxShadow: '0 2px 8px 0 rgba(31, 58, 96, 0.10)',
-              cursor: 'pointer',
-              transition: 'background 0.2s, box-shadow 0.2s',
-            }}
-            onMouseOver={e => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--accent)';
-              (e.currentTarget as HTMLButtonElement).style.color = 'var(--accent-foreground)';
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px 0 rgba(31, 58, 96, 0.15)';
-            }}
-            onMouseOut={e => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--primary)';
-              (e.currentTarget as HTMLButtonElement).style.color = 'var(--primary-foreground)';
-              (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px 0 rgba(31, 58, 96, 0.10)';
-            }}
-          >
-            Back to Edit
-          </button>
-        </div>
-      </div>
-      
+    <div style={{ height: '100vh', background: 'var(--background)' }}>
       {course && (
         <CourseView
           course={course}
           modules={modules}
           isLoading={loading}
           error={error}
-          showBackButton={false}
-          showStudentView={false}
+          showBackButton={true}
+          onBackClick={handleBackToEdit}
+          showStudentView={true}
           onContentUpdate={handleContentUpdate}
         />
       )}

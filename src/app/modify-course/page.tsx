@@ -218,6 +218,7 @@ const ModifyCoursePage: React.FC = () => {
 
   // Module management handlers
   const handleCreateModule = async () => {
+    console.log("Creating Module");
     if (!newModuleTitle.trim()) {
       setModuleCreationError('Module title is required');
       return;
@@ -234,6 +235,7 @@ const ModifyCoursePage: React.FC = () => {
       };
 
       const newModule = await apiService.createModule(moduleData);
+      
 
       // Add the new module to the list
       setModules(prev => [...prev, newModule]);
