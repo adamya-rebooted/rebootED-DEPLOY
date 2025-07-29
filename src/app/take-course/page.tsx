@@ -1,39 +1,36 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Navbar from "@/components/content/Navbar";
-import { apiService } from "@/services/api";
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { apiService } from '@/services/api';
 import { createClient } from '@/utils/supabase/client';
-import { Course, Module } from "@/types/backend-api";
-import CourseView from "@/components/content/CourseView";
+import { Course, Module } from '@/types/backend-api';
+import CourseView from '@/components/content/CourseView';
 
-const TakeCoursePage: React.FC = () => {
+export default function TakeCoursePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const courseId = searchParams.get('id');
 
-  // State management
   const [course, setCourse] = useState<Course | null>(null);
   const [modules, setModules] = useState<Module[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  // Load course and modules data
   useEffect(() => {
     if (!courseId) {
-      setError('Course ID is required');
-      setIsLoading(false);
+      setError('No course ID provided');
+      setLoading(false);
       return;
     }
 
-    loadData();
+    loadCourseData();
   }, [courseId]);
 
-  const loadData = async () => {
+  const loadCourseData = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
       setError(null);
 
       // Get current user
@@ -46,51 +43,47 @@ const TakeCoursePage: React.FC = () => {
 
       setCurrentUser(user);
 
-      // Load course details and modules in parallel
-      const [courseData, modulesData] = await Promise.all([
-        apiService.getCourseById(parseInt(courseId!)),
-        apiService.getModulesByCourseId(parseInt(courseId!))
-      ]);
-
+      // Fetch course basic info
+      const courseData = await apiService.getCourseById(parseInt(courseId!));
       setCourse(courseData);
+
+      // Fetch modules for this course
+      const modulesData = await apiService.getModulesByCourseId(parseInt(courseId!));
       setModules(modulesData);
+
     } catch (err) {
-      console.error('Error loading data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load course data');
+      console.error('Error loading course data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load course');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  // Navigation handlers
   const handleBackToDashboard = () => {
-    router.push('/student-dashboard');
+    router.push('/management-dashboard');
   };
 
   const handleContentUpdate = () => {
     // Refresh data when content is updated to reflect progress changes
-    loadData();
+    loadCourseData();
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Navbar />
-      <div style={{ flex: 1, overflow: 'hidden' }}>
-        {course && (
-          <CourseView
-            course={course}
-            modules={modules}
-            isLoading={isLoading}
-            error={error}
-            showBackButton={true}
-            onBackClick={handleBackToDashboard}
-            showStudentView={true}
-            onContentUpdate={handleContentUpdate}
-          />
-        )}
-      </div>
+    <div style={{ height: '100vh', background: 'var(--background)' }}>
+      {course && (
+        <CourseView
+          course={course}
+          modules={modules}
+          isLoading={loading}
+          error={error}
+          showBackButton={true}
+          onBackClick={handleBackToDashboard}
+          showStudentView={true}
+          onContentUpdate={handleContentUpdate}
+          usePreviewBlocks={true}
+          isPreviewMode={false}
+        />
+      )}
     </div>
   );
-};
-
-export default TakeCoursePage;
+}

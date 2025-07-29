@@ -80,6 +80,8 @@ export default function PreviewCoursePage() {
           onBackClick={handleBackToEdit}
           showStudentView={true}
           onContentUpdate={handleContentUpdate}
+          usePreviewBlocks={true}
+          isPreviewMode={true}
         />
       )}
     </div>

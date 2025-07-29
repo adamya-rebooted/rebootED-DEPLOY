@@ -27,6 +27,11 @@ import TextContentBlock from './TextContentBlock';
 import MultipleChoiceQuestionContentBlock from './MultipleChoiceQuestionContentBlock';
 import MatchingQuestionContentBlock from './MatchingQuestionContentBlock';
 import VideoContentBlock from './VideoContentBlock';
+// Preview content blocks for professional LMS experience
+import PreviewTextContentBlock from './preview/PreviewTextContentBlock';
+import PreviewMultipleChoiceQuestionContentBlock from './preview/PreviewMultipleChoiceQuestionContentBlock';
+import PreviewMatchingQuestionContentBlock from './preview/PreviewMatchingQuestionContentBlock';
+import PreviewVideoContentBlock from './preview/PreviewVideoContentBlock';
 
 interface CourseViewProps {
   course: Course;
@@ -37,6 +42,8 @@ interface CourseViewProps {
   onBackClick?: () => void;
   showStudentView?: boolean;
   onContentUpdate?: () => void;
+  usePreviewBlocks?: boolean; // New prop to control which content blocks to use
+  isPreviewMode?: boolean; // New prop to control interactivity - when true, disables all interactions
 }
 
 const CourseView: React.FC<CourseViewProps> = ({
@@ -45,7 +52,9 @@ const CourseView: React.FC<CourseViewProps> = ({
   showBackButton = true,
   onBackClick,
   showStudentView = true,
-  onContentUpdate
+  onContentUpdate,
+  usePreviewBlocks = false,
+  isPreviewMode = false
 }) => {
   // State for sidebar and content
   const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set());
@@ -190,35 +199,59 @@ const CourseView: React.FC<CourseViewProps> = ({
     }
 
     if (isMultipleChoiceQuestionContent(selectedContent)) {
-      return (
+      return usePreviewBlocks ? (
+        <PreviewMultipleChoiceQuestionContentBlock
+          content={selectedContent}
+          onSubmitAnswer={handleSubmitAnswer}
+          isInteractive={!isPreviewMode}
+        />
+      ) : (
         <MultipleChoiceQuestionContentBlock
           content={selectedContent}
           onSubmitAnswer={handleSubmitAnswer}
-          isInteractive={true}
+          isInteractive={!isPreviewMode}
         />
       );
     } else if (isMatchingQuestionContent(selectedContent)) {
-      return (
+      return usePreviewBlocks ? (
+        <PreviewMatchingQuestionContentBlock
+          content={selectedContent}
+          onSubmitAnswer={handleSubmitAnswer}
+          isInteractive={!isPreviewMode}
+        />
+      ) : (
         <MatchingQuestionContentBlock
           content={selectedContent}
           onSubmitAnswer={handleSubmitAnswer}
-          isInteractive={true}
+          isInteractive={!isPreviewMode}
         />
       );
     } else if (isVideoContent(selectedContent)) {
-      return (
+      return usePreviewBlocks ? (
+        <PreviewVideoContentBlock
+          content={selectedContent}
+          onComplete={handleContentComplete}
+          isInteractive={!isPreviewMode}
+        />
+      ) : (
         <VideoContentBlock
           content={selectedContent}
           onComplete={handleContentComplete}
-          isInteractive={true}
+          isInteractive={!isPreviewMode}
         />
       );
     } else {
-      return (
+      return usePreviewBlocks ? (
+        <PreviewTextContentBlock
+          content={selectedContent}
+          onComplete={handleContentComplete}
+          isInteractive={!isPreviewMode}
+        />
+      ) : (
         <TextContentBlock
           content={selectedContent}
           onComplete={handleContentComplete}
-          isInteractive={true}
+          isInteractive={!isPreviewMode}
         />
       );
     }

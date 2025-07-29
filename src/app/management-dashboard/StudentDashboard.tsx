@@ -1,21 +1,15 @@
 'use client'
 
-import React from "react";
+import React, {useState, useEffect} from "react";
 import Navbar from "@/components/content/Navbar";
-import CourseCard, { Course } from "@/components/content/CourseCard";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import CourseCard from "@/components/content/CourseCard";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  BookOpen,
-  Clock,
-  Trophy,
-  TrendingUp,
-} from "lucide-react";
+import { BookOpen,Clock, Trophy, TrendingUp} from "lucide-react";
+import { useUser } from "@/contexts/UserContext";
+import { apiService } from '@/services/api';
+import { UserCourse } from "@/types/backend-api";
+import { useRouter } from "next/navigation";
 
 // Study-related background images for courses
 const studyImages = [
@@ -30,82 +24,125 @@ const studyImages = [
 ];
 
 // Function to get a consistent image for each course based on its ID
-const getCourseImage = (courseId: string) => {
-  const index = parseInt(courseId) % studyImages.length;
+const getCourseImage = (courseId: number) => {
+  const index = courseId % studyImages.length;
   return studyImages[index];
 };
 
 // Mock data for student courses
-const mockCourses: Course[] = [
-  {
-    id: "1",
-    title: "Digital Marketing Fundamentals",
-    description:
-      "Learn the basics of digital marketing including SEO, social media, and content strategy.",
-    duration: "4 weeks",
-    modules: 8,
-    progress: 75,
-    status: "in-progress",
-    dueDate: "2024-02-15",
-    category: "Marketing",
-  },
-  {
-    id: "2",
-    title: "Data Analytics for Business",
-    description:
-      "Master data analysis techniques and tools to make informed business decisions.",
-    duration: "6 weeks",
-    modules: 12,
-    progress: 100,
-    status: "completed",
-    category: "Analytics",
-  },
-  {
-    id: "3",
-    title: "Leadership Communication",
-    description:
-      "Develop effective communication skills for leadership roles and team management.",
-    duration: "3 weeks",
-    modules: 6,
-    progress: 0,
-    status: "not-started",
-    dueDate: "2024-03-01",
-    category: "Leadership",
-  },
-  {
-    id: "4",
-    title: "Project Management Essentials",
-    description:
-      "Learn project management methodologies and tools to deliver successful projects.",
-    duration: "5 weeks",
-    modules: 10,
-    progress: 30,
-    status: "in-progress",
-    dueDate: "2024-02-28",
-    category: "Management",
-  },
-];
+// const mockCourses: Course[] = [
+//   {
+//     id: "1",
+//     title: "Digital Marketing Fundamentals",
+//     description:
+//       "Learn the basics of digital marketing including SEO, social media, and content strategy.",
+//     duration: "4 weeks",
+//     modules: 8,
+//     progress: 75,
+//     status: "in-progress",
+//     dueDate: "2024-02-15",
+//     category: "Marketing",
+//   },
+//   {
+//     id: "2",
+//     title: "Data Analytics for Business",
+//     description:
+//       "Master data analysis techniques and tools to make informed business decisions.",
+//     duration: "6 weeks",
+//     modules: 12,
+//     progress: 100,
+//     status: "completed",
+//     category: "Analytics",
+//   },
+//   {
+//     id: "3",
+//     title: "Leadership Communication",
+//     description:
+//       "Develop effective communication skills for leadership roles and team management.",
+//     duration: "3 weeks",
+//     modules: 6,
+//     progress: 0,
+//     status: "not-started",
+//     dueDate: "2024-03-01",
+//     category: "Leadership",
+//   },
+//   {
+//     id: "4",
+//     title: "Project Management Essentials",
+//     description:
+//       "Learn project management methodologies and tools to deliver successful projects.",
+//     duration: "5 weeks",
+//     modules: 10,
+//     progress: 30,
+//     status: "in-progress",
+//     dueDate: "2024-02-28",
+//     category: "Management",
+//   },
+// ];
+
 
 const StudentDashboard: React.FC = () => {
-  const filteredCourses = mockCourses;
+  // const filteredCourses = mockCourses;
+  const [recentCourses, setRecentCourses] = React.useState<UserCourse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const {user} = useUser();
+  const router = useRouter();
 
-  const handleCourseAction = (course: Course) => {
+  const handleCourseAction = (course: UserCourse) => {
     console.log("Opening course:", course.title);
-    // Navigate to course details page
+    // Navigate to take-course page with course ID
+    router.push(`/take-course?id=${course.id}`);
   };
 
+  const refreshCourses = async () => {
+    if (!user || !user.id) return;
+    try {
+      const courses = await apiService.getUserCourses(user.id);
+      // console.log(apiService.getUserCourses(user.id);
+    console.log('getUserCourses returned:', courses);
+    console.log('Number of courses:', courses.length);
+    console.log('First course structure:', courses[0]);
+      const sortedCourses = courses.sort((a, b) =>
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+      ).slice(0, 5);
+      setRecentCourses(sortedCourses);
+    } catch (err) {
+      console.error('Error refreshing courses:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch courses');
+    }
+  };
+
+  useEffect(() => {
+      const fetchCourses = async () => {
+        if (!user) return; // Don't fetch if user is not available
+        try {
+          setIsLoading(true);
+          setError(null);
+          await refreshCourses();
+        } catch (err) {
+          console.error('Error fetching courses:', err);
+          setError(err instanceof Error ? err.message : 'Failed to fetch courses');
+        } finally {
+          setIsLoading(false);
+        }
+      };
+  
+      fetchCourses();
+    }, [user]); // Add user as a dependency
+
   // Calculate statistics
-  const totalCourses = mockCourses.length;
-  const completedCourses = mockCourses.filter(
-    (c) => c.status === "completed",
+  const totalCourses = recentCourses.length;
+  const completedCourses = recentCourses.filter(
+    (c) => (c.progress || 0) >= 100,
   ).length;
-  const inProgressCourses = mockCourses.filter(
-    (c) => c.status === "in-progress",
+  const inProgressCourses = recentCourses.filter(
+    (c) => (c.progress || 0) > 0 && (c.progress || 0) < 100,
   ).length;
-  const averageProgress = Math.round(
-    mockCourses.reduce((sum, course) => sum + (course.progress || 0), 0) /
+  const averageProgress = totalCourses > 0 ? Math.round(
+    recentCourses.reduce((sum, course) => sum + (course.progress || 0), 0) /
       totalCourses,
-  );
+  ) : 0;
 
   return (
     <>
@@ -201,9 +238,38 @@ const StudentDashboard: React.FC = () => {
               </svg>
             </div>
           </div>
-          {filteredCourses.length > 0 ? (
+          {isLoading ? (
+            <Card className="bg-[var(--card)] border-2 border-[var(--border)]">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--primary)] mb-4"></div>
+                <h3 className="text-lg font-medium mb-2 text-[var(--primary)]">Loading courses...</h3>
+                <p className="text-[var(--muted-foreground)] text-center">
+                  Please wait while we fetch your courses.
+                </p>
+              </CardContent>
+            </Card>
+          ) : error ? (
+            <Card className="bg-[var(--card)] border-2 border-red-200">
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <div className="h-12 w-12 text-red-500 mb-4">⚠️</div>
+                <h3 className="text-lg font-medium mb-2 text-red-600">Error loading courses</h3>
+                <p className="text-[var(--muted-foreground)] text-center mb-4">
+                  {error}
+                </p>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    refreshCourses();
+                  }}
+                  className="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-md hover:bg-[var(--primary)]/90 transition-colors"
+                >
+                  Try Again
+                </button>
+              </CardContent>
+            </Card>
+          ) : recentCourses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCourses.map((course) => (
+              {recentCourses.map((course) => (
                 <div
                   key={course.id}
                   className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group h-64"
@@ -223,16 +289,16 @@ const StudentDashboard: React.FC = () => {
                     <div className="absolute top-4 right-4 z-10">
                       <Badge
                         className={
-                          course.status === "completed"
+                          (course.progress || 0) >= 100
                             ? "bg-green-500/90 text-white border-0"
-                            : course.status === "in-progress"
+                            : (course.progress || 0) > 0
                             ? "bg-blue-500/90 text-white border-0"
                             : "bg-gray-500/90 text-white border-0"
                         }
                       >
-                        {course.status === "completed"
+                        {(course.progress || 0) >= 100
                           ? "Completed"
-                          : course.status === "in-progress"
+                          : (course.progress || 0) > 0
                           ? "In Progress"
                           : "Not Started"}
                       </Badge>
@@ -269,13 +335,11 @@ const StudentDashboard: React.FC = () => {
 
                       {/* Course Details */}
                       <div className="flex items-center gap-3 text-xs text-gray-600">
-                        <span>{course.duration}</span>
-                        <span>•</span>
-                        <span>{course.modules} modules</span>
-                        {course.dueDate && (
+                        <span>Role: {course.role}</span>
+                        {course.createdAt && (
                           <>
                             <span>•</span>
-                            <span>Due: {new Date(course.dueDate).toLocaleDateString()}</span>
+                            <span>Enrolled: {new Date(course.createdAt).toLocaleDateString()}</span>
                           </>
                         )}
                       </div>

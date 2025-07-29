@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { apiService } from "@/services/api";
 import { useUser } from "@/contexts/UserContext";
 import { Course } from "@/types/backend-api";
+import { useAIAssistant } from "@/components/ai-assistant";
 
 const TeacherDashboard: React.FC = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -28,12 +29,13 @@ const TeacherDashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { user } = useUser(); // Get user from context
+  const {showAssistant} = useAIAssistant();
 
   // Function to fetch and refresh courses
   const refreshCourses = async () => {
     if (!user || !user.id) return;
     try {
-      const courses = await apiService.getCourses(user.id);
+      const courses = await apiService.getUserCourses(user.id);
       const sortedCourses = courses.sort((a, b) =>
         new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
       ).slice(0, 5);
@@ -133,7 +135,11 @@ const TeacherDashboard: React.FC = () => {
             <h1 className="text-3xl font-bold text-[var(--primary)]">Course Management</h1>
             <p className="text-[var(--muted-foreground)]">Manage your courses and track student progress</p>
           </div>
-          <div className="flex justify-center md:justify-end w-full md:w-auto">
+          <div className="flex justify-center space-x-4 md:justify-end w-full md:w-auto">
+            <Button onClick={showAssistant} className="w-full md:w-auto bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Course with AI
+            </Button>
             <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full md:w-auto bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
               <Plus className="h-4 w-4 mr-2" />
               Create Course
