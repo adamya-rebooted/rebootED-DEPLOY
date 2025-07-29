@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServer } from '@/utils/supabase/server'
+import { backendApiClient } from '@/utils/api/backend-client'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
@@ -43,22 +44,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${origin}/login?error=user_not_found`)
       }
 
-      // Check if this is a first-time user by calling the backend
+      // Check if this is a first-time user by calling the backend using backendApiClient
       try {
-        const { data: { session } } = await supabase.auth.getSession()
-        const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${user.id}`, {
-          headers: {
-            'Authorization': `Bearer ${session?.access_token}`
-          }
-        })
-        
-        if (backendResponse.status === 404 || backendResponse.status === 401) {
-          // User doesn't exist in backend or JWT auth failed, redirect to signup
-          return NextResponse.redirect(`${origin}/signup`)
-        }
+        await backendApiClient.getUserById(user.id)
+        // If we get here, user exists in backend
       } catch (error) {
         console.error('Error checking user existence:', error)
-        // If we can't check, redirect to signup to be safe
+        // User doesn't exist in backend or JWT auth failed, redirect to signup
         return NextResponse.redirect(`${origin}/signup`)
       }
 

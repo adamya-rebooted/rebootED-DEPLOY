@@ -21,7 +21,7 @@ interface Module {
 
 interface LDUser {
   username: string;
-  userType: 'LDUser' | 'EmployeeUser';
+  userType: 'Teacher' | 'Student' | 'Admin';
 }
 
 export default function CreateCoursePage() {
@@ -125,14 +125,14 @@ export default function CreateCoursePage() {
 
   const addTeacher = () => {
     if (newTeacherUsername.trim()) {
-      setTeachers([...teachers, { username: newTeacherUsername.trim(), userType: 'LDUser' }]);
+      setTeachers([...teachers, { username: newTeacherUsername.trim(), userType: 'Teacher' }]);
       setNewTeacherUsername('');
     }
   };
 
   const addStudent = () => {
     if (newStudentUsername.trim()) {
-      setStudents([...students, { username: newStudentUsername.trim(), userType: 'EmployeeUser' }]);
+      setStudents([...students, { username: newStudentUsername.trim(), userType: 'Student' }]);
       setNewStudentUsername('');
     }
   };

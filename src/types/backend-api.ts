@@ -147,7 +147,7 @@ export interface UserProfile {
   id: string;
   username: string;
   fullName: string;
-  userType: 'LDUser' | 'EmployeeUser';
+  userType: 'Teacher' | 'Student' | 'Admin';
   email?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -168,7 +168,7 @@ export interface CourseUser {
   username: string;
   fullName: string;
   role: 'teacher' | 'student';
-  userType: 'LDUser' | 'EmployeeUser';
+  userType: 'Teacher' | 'Student' | 'Admin';
   joinedAt?: string;
 }
 
@@ -242,7 +242,7 @@ export interface MigrationConfig {
 
 export interface LDUser {
   username: string;
-  userType: 'LDUser' | 'EmployeeUser';
+  userType: 'Teacher' | 'Student' | 'Admin';
 }
 
 export interface ContentBlock {

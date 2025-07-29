@@ -1,9 +1,10 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { User, Session } from '@supabase/supabase-js';
+import { backendApiClient } from '@/utils/api/backend-client';
 
 // Real Supabase user type
 export interface RealUser {
@@ -28,11 +29,11 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<RealUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
 
   // Convert Supabase user to our RealUser format
-  const convertSupabaseUser = async (supabaseUser: User): Promise<RealUser> => {
+  const convertSupabaseUser = useCallback(async (supabaseUser: User): Promise<RealUser> => {
     // Skip backend call if user is on signup page (they're creating their backend profile)
     if (typeof window !== 'undefined' && window.location.pathname === '/signup') {
       return {
@@ -57,28 +58,21 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       console.log('Token starts with:', session?.access_token?.substring(0, 20) + '...');
       console.log('Backend URL:', `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${supabaseUser.id}`);
       console.log('=====================');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${supabaseUser.id}`, {
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`
-        }
-      })
       
-      if (response.ok) {
-        const backendUser = await response.json()
-        console.log('Backend user data:', backendUser)
-        const role = backendUser.userType === 'Teacher' ? 'teacher' : 
-                     backendUser.userType === 'Student' ? 'student' : 
-                     null
-        console.log('Mapped role:', role, 'from userType:', backendUser.userType)
-        
-        return {
-          id: supabaseUser.id,
-          email: supabaseUser.email || '',
-          role,
-          user_metadata: {
-            full_name: supabaseUser.user_metadata?.full_name,
-            preferred_username: supabaseUser.user_metadata?.preferred_username,
-          }
+      const backendUser = await backendApiClient.getUserById(supabaseUser.id)
+      console.log('Backend user data:', backendUser)
+      const role = backendUser.userType === 'Teacher' ? 'teacher' : 
+                   backendUser.userType === 'Student' ? 'student' : 
+                   null
+      console.log('Mapped role:', role, 'from userType:', backendUser.userType)
+      
+      return {
+        id: supabaseUser.id,
+        email: supabaseUser.email || '',
+        role,
+        user_metadata: {
+          full_name: supabaseUser.user_metadata?.full_name,
+          preferred_username: supabaseUser.user_metadata?.preferred_username,
         }
       }
     } catch (error) {
@@ -95,7 +89,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         preferred_username: supabaseUser.user_metadata?.preferred_username,
       }
     }
-  };
+  }, []);
 
   // Initialize auth state
   useEffect(() => {
@@ -138,7 +132,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     };
 
     initializeAuth();
-  }, [supabase.auth]);
+  }, [supabase.auth, convertSupabaseUser, router]);
 
   const signInWithGoogle = async () => {
     try {
