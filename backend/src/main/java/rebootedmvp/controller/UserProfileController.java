@@ -16,6 +16,7 @@ import rebootedmvp.dto.NewStudentDTO;
 import rebootedmvp.dto.NewTeacherDTO;
 import rebootedmvp.dto.NewUserDTO;
 import rebootedmvp.dto.UserProfileDTO;
+import rebootedmvp.service.AuthenticationContextService;
 import rebootedmvp.service.JwtService;
 import rebootedmvp.service.UserProfileService;
 
@@ -27,11 +28,14 @@ public class UserProfileController {
     private final JwtService jwtService;
     @Autowired
     private final UserProfileService userProfileService;
+    @Autowired
+    private final AuthenticationContextService authenticationContextService;
 
     // Constructor for dependency injection
-    public UserProfileController(JwtService jwtService, UserProfileService userProfileService) {
+    public UserProfileController(JwtService jwtService, UserProfileService userProfileService, AuthenticationContextService authenticationContextService) {
         this.jwtService = jwtService;
         this.userProfileService = userProfileService;
+        this.authenticationContextService = authenticationContextService;
     }
 
     @GetMapping
@@ -44,8 +48,8 @@ public class UserProfileController {
     public ResponseEntity<Long> createTeacherUser(@RequestBody NewTeacherDTO newUserDTO) {
         System.out.println("Incoming DTO = " + newUserDTO);
 
-        // Use proper JWT validation now that we fixed the HS256 configuration
-        String supabaseUserId = newUserDTO.getSupabaseUserId();
+        // Extract supabaseUserId from JWT token (without requiring user to exist in database)
+        String supabaseUserId = authenticationContextService.getCurrentSupabaseUserIdFromJwt();
         Long userId = userProfileService.addTeacher(supabaseUserId, newUserDTO);
         return ResponseEntity.ok(userId);
     }
@@ -54,8 +58,8 @@ public class UserProfileController {
     public ResponseEntity<Long> createStudentUser(@RequestBody NewStudentDTO newUserDTO) {
         System.out.println("Incoming DTO = " + newUserDTO);
 
-        // Use proper JWT validation now that we fixed the HS256 configuration
-        String supabaseUserId = newUserDTO.getSupabaseUserId();
+        // Extract supabaseUserId from JWT token (without requiring user to exist in database)
+        String supabaseUserId = authenticationContextService.getCurrentSupabaseUserIdFromJwt();
         Long userId = userProfileService.addStudent(supabaseUserId, newUserDTO);
         return ResponseEntity.ok(userId);
     }

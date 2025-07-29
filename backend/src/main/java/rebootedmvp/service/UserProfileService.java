@@ -177,7 +177,7 @@ public class UserProfileService {
 
     public Long addTeacher(String supabaseUserId, NewTeacherDTO newUserDTO) {
         logger.debug("UserProfileService.addTeacher({}) called", newUserDTO);
-        if (newUserDTO.getUsername() == null || newUserDTO.getUserType() == null) {
+        if (newUserDTO.getUsername() == null) {
             throw new IllegalArgumentException("The user's name must be supplied in the DTO");
         }
         User savedUser = userProfileRepository.save(new TeacherImpl(supabaseUserId, newUserDTO));
@@ -187,7 +187,7 @@ public class UserProfileService {
 
     public Long addStudent(String supabaseUserId, NewStudentDTO newUserDTO) {
         logger.debug("UserProfileService.addStudent({}) called", newUserDTO);
-        if (newUserDTO.getUsername() == null || newUserDTO.getUserType() == null) {
+        if (newUserDTO.getUsername() == null) {
             throw new IllegalArgumentException("The user's name must be supplied in the DTO");
         }
         User savedUser = userProfileRepository.save(new StudentImpl(supabaseUserId, newUserDTO));

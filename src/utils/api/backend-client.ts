@@ -108,8 +108,8 @@ export class BackendApiClient {
         ...(options.headers as Record<string, string>),
       };
     }
-    // Add Authorization header if token exists and the endpoint is not for creating a user
-    if (authToken && endpoint !== '/users/add') {
+    // Add Authorization header if token exists
+    if (authToken) {
       headers['Authorization'] = `Bearer ${authToken}`;
     }
 

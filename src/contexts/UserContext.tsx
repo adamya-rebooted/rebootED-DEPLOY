@@ -65,7 +65,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       
       if (response.ok) {
         const backendUser = await response.json()
-        const role = backendUser.userType === 'LDUser' ? 'teacher' : 'student'
+        console.log('Backend user data:', backendUser)
+        const role = backendUser.userType === 'Teacher' ? 'teacher' : 
+                     backendUser.userType === 'Student' ? 'student' : 
+                     null
+        console.log('Mapped role:', role, 'from userType:', backendUser.userType)
         
         return {
           id: supabaseUser.id,

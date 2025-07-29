@@ -86,6 +86,42 @@ public class AuthenticationContextService {
     }
     
     /**
+     * Gets the current authenticated user's Supabase ID directly from JWT token.
+     * This method doesn't require the user to exist in our database, making it
+     * suitable for use during user registration/signup.
+     * 
+     * @return The current user's Supabase ID from JWT
+     * @throws UserNotAuthenticatedException if no authenticated user is found
+     */
+    public String getCurrentSupabaseUserIdFromJwt() throws UserNotAuthenticatedException {
+        logger.debug("Extracting Supabase user ID from JWT token");
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null) {
+            logger.warn("No authentication found in security context");
+            throw new UserNotAuthenticatedException("No authenticated user found");
+        }
+        
+        if (!(authentication instanceof JwtAuthenticationToken)) {
+            logger.warn("Authentication is not a JWT token: {}", authentication.getClass().getSimpleName());
+            throw new UserNotAuthenticatedException("Invalid authentication type");
+        }
+        
+        JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+        Jwt jwt = jwtAuth.getToken();
+        
+        String supabaseUserId = jwt.getSubject();
+        if (supabaseUserId == null || supabaseUserId.trim().isEmpty()) {
+            logger.warn("JWT token has no subject/user ID");
+            throw new UserNotAuthenticatedException("Invalid JWT token - no user ID");
+        }
+        
+        logger.debug("Successfully extracted Supabase user ID from JWT: {}", supabaseUserId);
+        return supabaseUserId;
+    }
+    
+    /**
      * Gets the current authenticated user's internal database ID.
      * 
      * @return The current user's database ID

@@ -49,19 +49,15 @@ export default function SignupPage() {
 
       switch (selectedRole) {
         case 'teacher':
-          await backendApiClient.post('/users/addTeacher', {
+          await backendApiClient.createTeacher({
             username: username.trim(),
-            userType: "Teacher",
-            email: user.email,
-            supabaseUserId: user.id
+            email: user.email
           })
           break;
         case 'student':
-          await backendApiClient.post('/users/addStudent', {
+          await backendApiClient.createStudent({
             username: username.trim(),
-            userType: "Student",
-            email: user.email,
-            supabaseUserId: user.id
+            email: user.email
           })
           break;
         default:
