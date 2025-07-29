@@ -121,8 +121,18 @@ public class CourseMembershipService {
         Course course = courseOpt.get();
 
         // Remove user from both roles
-        boolean removedAsTeacher = course.removeTeacher(user);
-        boolean removedAsStudent = course.removeStudent(user);
+        boolean removedAsStudent = false;
+        boolean removedAsTeacher = false;
+        switch (user.getUserType()) {
+            case Teacher:
+                removedAsTeacher = course.removeTeacher(user);
+                ((TeacherImpl) user).removeCourse(course);
+            case Student:
+                removedAsStudent = course.removeStudent(user);
+                ((StudentImpl) user).removeCourse(course);
+            case Admin:
+                break;
+        }
 
         if (removedAsTeacher || removedAsStudent) {
             courseRepository.save(CourseMapper.toEntity(course));
@@ -131,6 +141,37 @@ public class CourseMembershipService {
         }
         return false;
 
+    }
+
+    public boolean removeAllUsersFromCourse(Long courseId) {
+        logger.debug("Removing all users from course {}", courseId);
+
+        Optional<Course> courseOpt = courseRepository.findById(courseId).map(CourseMapper::toDomain);
+        if (courseOpt.isEmpty()) {
+            logger.warn("Course not found with ID: {}", courseId);
+            return false;
+        }
+
+        Course course = courseOpt.get();
+
+        int teacherCount = course.getTeachers().size();
+        int studentCount = course.getStudents().size();
+
+        Set<User> teachers = course.getTeachers();
+
+        Set<User> students = course.getStudents();
+
+        for (User teacher : teachers) {
+            ((TeacherImpl) teacher).removeCourse(course);
+        }
+        for (User student : students) {
+            ((StudentImpl) student).removeCourse(course);
+        }
+
+        courseRepository.save(CourseMapper.toEntity(course));
+        logger.info("Removed {} teachers and {} students from course {}", teacherCount, studentCount, courseId);
+
+        return true;
     }
 
     @Transactional(readOnly = true)

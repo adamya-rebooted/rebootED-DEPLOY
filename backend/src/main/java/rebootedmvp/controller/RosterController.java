@@ -23,6 +23,7 @@ import rebootedmvp.dto.NewCourseDTO;
 import rebootedmvp.dto.NewRosterDTO;
 import rebootedmvp.repository.UserProfileRepository;
 import rebootedmvp.service.AuthorizationService;
+import rebootedmvp.service.CourseMembershipService;
 import rebootedmvp.service.CourseService;
 import rebootedmvp.service.RosterService;
 import rebootedmvp.service.UserProfileService;
@@ -38,7 +39,7 @@ public class RosterController {
     private CourseService courseService;
 
     @Autowired
-    private UserProfileService userProfileService;
+    private CourseMembershipService courseMembershipService;
 
     @Autowired
     private UserProfileRepository userProfileRepository;
@@ -94,7 +95,9 @@ public class RosterController {
     public ResponseEntity<Void> deleteCourse(@PathVariable Long id) {
         boolean deleted = rosterService.delete(Long.valueOf(0), id);
         if (deleted) {
+            courseMembershipService.removeAllUsersFromCourse(id);
             return ResponseEntity.noContent().build();
+
         } else {
             return ResponseEntity.notFound().build();
         }

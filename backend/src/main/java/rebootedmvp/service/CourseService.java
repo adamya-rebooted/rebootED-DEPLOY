@@ -18,6 +18,8 @@ import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
 import rebootedmvp.domain.impl.ContentEntityImpl;
 import rebootedmvp.domain.impl.ModuleEntityImpl;
+import rebootedmvp.domain.impl.StudentImpl;
+import rebootedmvp.domain.impl.TeacherImpl;
 import rebootedmvp.domain.impl.UserProfileImpl;
 import rebootedmvp.dto.CourseDTO;
 import rebootedmvp.dto.ModuleDTO;
@@ -270,10 +272,11 @@ public class CourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
-        UserProfileImpl user = userRepository.findById(userId)
+        StudentImpl user = (StudentImpl) userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         course.addStudent(user);
+        user.addCourse(course);
         courseRepository.save(CourseMapper.toEntity(course)); // this is needed to persist the join table change
     }
 
@@ -288,10 +291,12 @@ public class CourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
-        UserProfileImpl user = userRepository.findById(userId)
+        TeacherImpl user = (TeacherImpl) userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         course.addTeacher(user);
+        user.addCourse(course);
+
         courseRepository.save(CourseMapper.toEntity(course)); // this is needed to persist the join table change
     }
 

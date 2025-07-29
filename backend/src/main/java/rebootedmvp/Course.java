@@ -71,16 +71,16 @@ public abstract class Course implements InfoContainer<Module> {
     protected Set<User> students = new HashSet<>();
 
     /**
-     * Returns A set of all L&D users who have access to the course Note: the
+     * Returns A set of all Teacher users who have access to the course Note: the
      * sets returned by get_teachers() and get_students() must be disjoint and
-     * their union must be allUsers
+     * their union should be all non-admin Users
      */
     public abstract Set<User> getTeachers();
 
     /**
      * Returns A set of all student users who have access to the course Note:
      * the sets returned by get_teachers() and get_students() must be disjoint
-     * and their union must be allUsers
+     * and their union must be all non-admin Users
      */
     public abstract Set<User> getStudents();
 
