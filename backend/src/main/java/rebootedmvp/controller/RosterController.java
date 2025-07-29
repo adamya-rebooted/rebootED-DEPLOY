@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import rebootedmvp.User;
 import rebootedmvp.domain.impl.RosterEntityImpl;
-import rebootedmvp.domain.impl.TeacherImpl;
 import rebootedmvp.dto.CourseDTO;
 import rebootedmvp.dto.NewCourseDTO;
 import rebootedmvp.dto.NewRosterDTO;
@@ -26,7 +26,6 @@ import rebootedmvp.service.AuthorizationService;
 import rebootedmvp.service.CourseMembershipService;
 import rebootedmvp.service.CourseService;
 import rebootedmvp.service.RosterService;
-import rebootedmvp.service.UserProfileService;
 
 @RestController
 @RequestMapping("/api/roster")
@@ -75,10 +74,9 @@ public class RosterController {
         try {
             Long courseId = rosterService.addNew(Long.valueOf(0), newCourseDTO);
             String supabaseUserId = authorizationService.getCurrentSupabaseUserId(); // <-- step 2
-            Long userId = userProfileRepository.findBySupabaseUserId(supabaseUserId)
-                    .orElseThrow(() -> new RuntimeException("User not found"))
-                    .getId();
-            courseService.addTeacher(courseId, userId);
+
+            courseMembershipService.addUserToCourse(courseId, supabaseUserId, User.UserType.Teacher);
+            // courseService.addTeacher(courseId, userId);
 
             return ResponseEntity.ok(courseId);
         } catch (IllegalArgumentException e) {

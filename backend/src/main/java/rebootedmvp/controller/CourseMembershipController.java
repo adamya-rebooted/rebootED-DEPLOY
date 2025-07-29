@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import rebootedmvp.User;
 import rebootedmvp.dto.StudentDTO;
 import rebootedmvp.dto.TeacherDTO;
 import rebootedmvp.dto.UserCourseDTO;
@@ -50,24 +51,25 @@ public class CourseMembershipController {
         return ResponseEntity.ok(courses);
     }
 
-    @PostMapping("/course/{courseId}/users")
-    public ResponseEntity<String> addUserToCourse(
-            @PathVariable Long courseId,
-            @RequestBody Map<String, String> request) {
-        String userId = request.get("userId");
-        String role = request.get("role");
+    // @PostMapping("/course/{courseId}/users")
+    // public ResponseEntity<String> addUserToCourse(
+    // @PathVariable Long courseId,
+    // @RequestBody Map<String, String> request) {
+    // String userId = request.get("userId");
+    // User.UserType role = request.get("role");
 
-        if (userId == null || role == null) {
-            return ResponseEntity.badRequest().body("userId and role are required");
-        }
+    // if (userId == null || role == null) {
+    // return ResponseEntity.badRequest().body("userId and role are required");
+    // }
 
-        boolean success = courseMembershipService.addUserToCourse(courseId, userId, role);
-        if (success) {
-            return ResponseEntity.ok("User added to course successfully");
-        } else {
-            return ResponseEntity.badRequest().body("Failed to add user to course");
-        }
-    }
+    // boolean success = courseMembershipService.addUserToCourse(courseId, userId,
+    // role);
+    // if (success) {
+    // return ResponseEntity.ok("User added to course successfully");
+    // } else {
+    // return ResponseEntity.badRequest().body("Failed to add user to course");
+    // }
+    // }
 
     @PostMapping("/course/{courseId}/teachers")
     public ResponseEntity<String> addTeachersToCourse(
@@ -79,7 +81,7 @@ public class CourseMembershipController {
             return ResponseEntity.badRequest().body("usernames are required");
         }
 
-        boolean success = courseMembershipService.addUsersByCourse(courseId, usernames, "teacher");
+        boolean success = courseMembershipService.addUsersByCourse(courseId, usernames, User.UserType.Teacher);
         if (success) {
             return ResponseEntity.ok("Teachers added to course successfully");
         } else {
@@ -97,7 +99,7 @@ public class CourseMembershipController {
             return ResponseEntity.badRequest().body("usernames are required");
         }
 
-        boolean success = courseMembershipService.addUsersByCourse(courseId, usernames, "student");
+        boolean success = courseMembershipService.addUsersByCourse(courseId, usernames, User.UserType.Student);
         if (success) {
             return ResponseEntity.ok("Students added to course successfully");
         } else {

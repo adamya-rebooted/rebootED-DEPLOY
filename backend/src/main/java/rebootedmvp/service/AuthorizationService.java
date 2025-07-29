@@ -125,8 +125,8 @@ public class AuthorizationService {
             }
 
             // User has access if they are either a teacher or student
-            boolean isTeacher = courseRepository.isUserTeacherOfCourse(courseId, user.getId());
-            boolean isStudent = courseRepository.isUserStudentOfCourse(courseId, user.getId());
+            boolean isTeacher = courseRepository.isUserTeacherOfCourse(courseId, user.getSupabaseUserId());
+            boolean isStudent = courseRepository.isUserStudentOfCourse(courseId, user.getSupabaseUserId());
 
             logger.debug("User {} access to course {}: teacher={}, student={}",
                     user.getSupabaseUserId(), courseId, isTeacher, isStudent);
@@ -175,7 +175,7 @@ public class AuthorizationService {
                 return false;
             }
 
-            return courseRepository.isUserTeacherOfCourse(courseId, user.getId());
+            return courseRepository.isUserTeacherOfCourse(courseId, user.getSupabaseUserId());
 
         } catch (Exception e) {
             logger.error("Error checking teacher access for user {} on course {}: {}",
@@ -203,7 +203,7 @@ public class AuthorizationService {
                 return false;
             }
 
-            return courseRepository.isUserStudentOfCourse(courseId, user.getId());
+            return courseRepository.isUserStudentOfCourse(courseId, user.getSupabaseUserId());
 
         } catch (Exception e) {
             logger.error("Error checking student access for user {} on course {}: {}",

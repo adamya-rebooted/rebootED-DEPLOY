@@ -260,45 +260,48 @@ public class CourseService {
         return true;
     }
 
+    // /**
+    // * Adds a student to a course.
+    // * Requires the current user to be a teacher of the course.
+    // */
+    // @Transactional
+    // public void addStudent(Long courseId, Long userId) {
+    // // Verify user has teacher access to this course
+    // authorizationService.requireTeacherAccess(courseId);
+
+    // Course course = courseRepository.findById(courseId)
+    // .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+    // StudentImpl user = (StudentImpl) userRepository.findById(userId)
+    // .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+    // course.addStudent(user);
+    // user.addCourse(course);
+    // courseRepository.save(CourseMapper.toEntity(course)); // this is needed to
+    // persist the join table change
+    // }
+
     /**
-     * Adds a student to a course.
-     * Requires the current user to be a teacher of the course.
+     * // * Adds a teacher to a course.
+     * //
      */
-    @Transactional
-    public void addStudent(Long courseId, Long userId) {
-        // Verify user has teacher access to this course
-        authorizationService.requireTeacherAccess(courseId);
+    // @Transactional
+    // public void addTeacher(Long courseId, Long userId) {
+    // // Verify user has teacher access to this course
+    // authorizationService.requireTeacherAccess(courseId);
 
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+    // Course course = courseRepository.findById(courseId)
+    // .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
-        StudentImpl user = (StudentImpl) userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    // TeacherImpl user = (TeacherImpl) userRepository.findById(userId)
+    // .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        course.addStudent(user);
-        user.addCourse(course);
-        courseRepository.save(CourseMapper.toEntity(course)); // this is needed to persist the join table change
-    }
+    // course.addTeacher(user);
+    // user.addCourse(course);
 
-    /**
-     * Adds a teacher to a course.
-     */
-    @Transactional
-    public void addTeacher(Long courseId, Long userId) {
-        // Verify user has teacher access to this course
-        authorizationService.requireTeacherAccess(courseId);
-
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
-
-        TeacherImpl user = (TeacherImpl) userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        course.addTeacher(user);
-        user.addCourse(course);
-
-        courseRepository.save(CourseMapper.toEntity(course)); // this is needed to persist the join table change
-    }
+    // courseRepository.save(CourseMapper.toEntity(course)); // this is needed to
+    // persist the join table change
+    // }
 
     private static List<ModuleDTO> mapToDTO(List<Module> toMap) {
         return toMap.stream().map(

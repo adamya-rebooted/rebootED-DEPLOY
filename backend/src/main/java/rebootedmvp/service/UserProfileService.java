@@ -8,19 +8,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
-import rebootedmvp.Course;
 import rebootedmvp.User;
 import rebootedmvp.UserMapper;
 import rebootedmvp.domain.impl.AdminImpl;
 import rebootedmvp.domain.impl.StudentImpl;
 import rebootedmvp.domain.impl.TeacherImpl;
-import rebootedmvp.domain.impl.UserProfileImpl;
 import rebootedmvp.dto.AdminDTO;
 import rebootedmvp.dto.NewAdminDTO;
 import rebootedmvp.dto.NewStudentDTO;
 import rebootedmvp.dto.NewTeacherDTO;
-import rebootedmvp.dto.NewUserDTO;
 import rebootedmvp.dto.StudentDTO;
 import rebootedmvp.dto.TeacherDTO;
 import rebootedmvp.dto.UserProfileDTO;
@@ -48,8 +44,8 @@ public class UserProfileService {
         }
     }
 
-    public UserProfileDTO findById(String id) {
-        logger.info("===== UserProfileService.findById('{}') START =====", id);
+    public UserProfileDTO findById(String supabaseUserId) {
+        logger.info("===== UserProfileService.findById('{}') START =====", supabaseUserId);
 
         try {
             // Handle both UUID string and numeric ID lookups
@@ -57,58 +53,38 @@ public class UserProfileService {
 
             Optional<User> profile;
             try {
-                profile = userProfileRepository.findBySupabaseUserId(id).map(UserMapper::toDomain);
-                logger.debug("findBySupabaseUserId('{}') result: {}", id, profile.isPresent() ? "FOUND" : "NOT_FOUND");
+                profile = userProfileRepository.findBySupabaseUserId(supabaseUserId).map(UserMapper::toDomain);
+                logger.debug("findBySupabaseUserId('{}') result: {}", supabaseUserId,
+                        profile.isPresent() ? "FOUND" : "NOT_FOUND");
                 if (profile.isPresent()) {
                     logger.debug("Found user by Supabase ID: {}", profile.get());
                 }
             } catch (Exception e) {
-                logger.error("Error calling userProfileRepository.findBySupabaseUserId('{}'): {}", id, e.getMessage(),
+                logger.error("Error calling userProfileRepository.findBySupabaseUserId('{}'): {}", supabaseUserId,
+                        e.getMessage(),
                         e);
                 throw e;
             }
 
             if (profile.isPresent()) {
                 UserProfileDTO result = convertToDTO(profile.get());
-                logger.info("UserProfileService.findById('{}') SUCCESS via Supabase ID: {}", id, result);
+                logger.info("UserProfileService.findById('{}') SUCCESS via Supabase ID: {}", supabaseUserId, result);
                 return result;
             }
-
-            // Fallback to numeric ID lookup if needed
-            logger.debug("Step 2: Supabase ID not found, trying numeric ID lookup...");
             try {
-                Long numericId = Long.parseLong(id);
-                logger.debug("Parsed numeric ID: {}", numericId);
-
-                Optional<User> profileById = userProfileRepository.findById(numericId).map(UserMapper::toDomain);
-                logger.debug("findById({}) result: {}", numericId, profileById.isPresent() ? "FOUND" : "NOT_FOUND");
-
-                UserProfileDTO result = profileById.map(this::convertToDTO).orElse(null);
-                logger.info("UserProfileService.findById('{}') {} via numeric ID", id,
+                Optional<User> finalProfile = userProfileRepository.findBySupabaseUserId(supabaseUserId)
+                        .map(UserMapper::toDomain);
+                UserProfileDTO result = finalProfile.map(this::convertToDTO).orElse(null);
+                logger.info("UserProfileService.findById('{}') {} via final Supabase lookup", supabaseUserId,
                         result != null ? "SUCCESS" : "NOT_FOUND");
                 return result;
-
-            } catch (NumberFormatException e) {
-                logger.debug("ID '{}' is not a number, trying final Supabase user ID lookup", id);
-                // If not a number, try Supabase user ID lookup
-                try {
-                    Optional<User> finalProfile = userProfileRepository.findBySupabaseUserId(id)
-                            .map(UserMapper::toDomain);
-                    UserProfileDTO result = finalProfile.map(this::convertToDTO).orElse(null);
-                    logger.info("UserProfileService.findById('{}') {} via final Supabase lookup", id,
-                            result != null ? "SUCCESS" : "NOT_FOUND");
-                    return result;
-                } catch (Exception dbE) {
-                    logger.error("Error in final Supabase lookup for ID '{}': {}", id, dbE.getMessage(), dbE);
-                    throw dbE;
-                }
-            } catch (Exception e) {
-                logger.error("Error in numeric ID lookup for '{}': {}", id, e.getMessage(), e);
-                throw e;
+            } catch (Exception dbE) {
+                logger.error("Error in final Supabase lookup for ID '{}': {}", supabaseUserId, dbE.getMessage(), dbE);
+                throw dbE;
             }
 
         } catch (Exception e) {
-            logger.error("===== UserProfileService.findById('{}') ERROR =====", id);
+            logger.error("===== UserProfileService.findById('{}') ERROR =====", supabaseUserId);
             logger.error("Exception type: {}", e.getClass().getSimpleName());
             logger.error("Exception message: {}", e.getMessage());
             logger.error("Full stack trace:", e);
@@ -178,48 +154,43 @@ public class UserProfileService {
         return convertToDTO(saved);
     }
 
-    public Long addTeacher(String supabaseUserId, NewTeacherDTO newUserDTO) {
+    public void addTeacher(String supabaseUserId, NewTeacherDTO newUserDTO) {
         logger.debug("UserProfileService.addTeacher({}) called", newUserDTO);
+
         if (newUserDTO.getUsername() == null) {
             throw new IllegalArgumentException("The user's name must be supplied in the DTO");
         }
-        User savedUser = userProfileRepository.save(new TeacherImpl(supabaseUserId, newUserDTO));
-
-        return savedUser.getId(); // Return Supabase UUID as the ID
+        userProfileRepository.save(new TeacherImpl(supabaseUserId, newUserDTO));
     }
 
-    public Long addStudent(String supabaseUserId, NewStudentDTO newUserDTO) {
+    public void addStudent(String supabaseUserId, NewStudentDTO newUserDTO) {
         logger.debug("UserProfileService.addStudent({}) called", newUserDTO);
         if (newUserDTO.getUsername() == null) {
             throw new IllegalArgumentException("The user's name must be supplied in the DTO");
         }
-        User savedUser = userProfileRepository.save(new StudentImpl(supabaseUserId, newUserDTO));
-
-        return savedUser.getId(); // Return Supabase UUID as the ID
+        userProfileRepository.save(new StudentImpl(supabaseUserId, newUserDTO));
     }
 
-    public Long addAdmin(String supabaseUserId, NewAdminDTO newUserDTO) {
+    public void addAdmin(String supabaseUserId, NewAdminDTO newUserDTO) {
         logger.debug("UserProfileService.addStudent({}) called", newUserDTO);
         if (newUserDTO.getUsername() == null) {
             throw new IllegalArgumentException("The user's name must be supplied in the DTO");
         }
-        User savedUser = userProfileRepository.save(new AdminImpl(supabaseUserId, newUserDTO));
-
-        return savedUser.getId(); // Return Supabase UUID as the ID
+        userProfileRepository.save(new AdminImpl(supabaseUserId, newUserDTO));
     }
 
     /**
      * Delete a user by ID
      */
-    public void deleteById(String id) {
+    public void deleteById(String supabaseUserId) {
         try {
-            Long numericId = Long.valueOf(id);
-            userProfileRepository.deleteById(numericId);
+            userProfileRepository.deleteById(supabaseUserId);
         } catch (NumberFormatException e) {
             // If not a numeric ID, try to find by Supabase user ID and delete
-            Optional<User> profile = userProfileRepository.findBySupabaseUserId(id).map(UserMapper::toDomain);
+            Optional<User> profile = userProfileRepository.findBySupabaseUserId(supabaseUserId)
+                    .map(UserMapper::toDomain);
             profile.ifPresent(
-                    userProfile -> userProfileRepository.deleteById(Long.valueOf(userProfile.getSupabaseUserId())));
+                    userProfile -> userProfileRepository.deleteById(userProfile.getSupabaseUserId()));
         }
     }
 
@@ -240,16 +211,18 @@ public class UserProfileService {
         logger.debug("Converting UserProfileImpl to DTO: {}", profile);
         try {
             switch (profile.getUserType()) {
-                case Teacher:
+                case Teacher -> {
                     return new TeacherDTO(((TeacherImpl) profile));
-                case Student:
+                }
+                case Student -> {
                     return new StudentDTO(((StudentImpl) profile));
-                case Admin:
+                }
+                case Admin -> {
                     return new AdminDTO(((AdminImpl) profile));
-                default:
-                    throw new IllegalArgumentException("Unknown user type: " + profile.getUserType());
+                }
+                default -> throw new IllegalArgumentException("Unknown user type: " + profile.getUserType());
             }
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             logger.error("Error converting UserProfileImpl to DTO: {}", e.getMessage(), e);
             logger.error("Profile data: {}", profile);
             throw e;
