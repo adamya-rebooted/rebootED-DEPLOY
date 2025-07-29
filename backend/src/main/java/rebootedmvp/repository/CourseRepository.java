@@ -28,14 +28,14 @@ public interface CourseRepository extends JpaRepository<CourseEntityImpl, Long> 
          */
         @Query("SELECT c FROM CourseEntityImpl c JOIN c.teachers t WHERE t.id = :userId")
         @EntityGraph(attributePaths = { "teachers" })
-        List<CourseEntityImpl> findCoursesByTeacherId(@Param("userId") Long userId);
+        List<CourseEntityImpl> findCoursesByTeacherId(@Param("userId") String userId);
 
         /**
          * Find courses where the user is a student
          */
         @Query("SELECT c FROM CourseEntityImpl c JOIN c.students s WHERE s.id = :userId")
         @EntityGraph(attributePaths = { "students" })
-        List<CourseEntityImpl> findCoursesByStudentId(@Param("userId") Long userId);
+        List<CourseEntityImpl> findCoursesByStudentId(@Param("userId") String userId);
 
         /**
          * Find courses where the user is either a teacher or student
@@ -50,13 +50,13 @@ public interface CourseRepository extends JpaRepository<CourseEntityImpl, Long> 
          * Check if a user is a teacher of a specific course
          */
         @Query("SELECT COUNT(c) > 0 FROM CourseEntityImpl c JOIN c.teachers t WHERE c.id = :courseId AND t.id = :userId")
-        boolean isUserTeacherOfCourse(@Param("courseId") Long courseId, @Param("userId") Long userId);
+        boolean isUserTeacherOfCourse(@Param("courseId") Long courseId, @Param("userId") String userId);
 
         /**
          * Check if a user is a student of a specific course
          */
         @Query("SELECT COUNT(c) > 0 FROM CourseEntityImpl c JOIN c.students s WHERE c.id = :courseId AND s.id = :userId")
-        boolean isUserStudentOfCourse(@Param("courseId") Long courseId, @Param("userId") Long userId);
+        boolean isUserStudentOfCourse(@Param("courseId") Long courseId, @Param("userId") String userId);
 
         /**
          * Find courses created within a date range

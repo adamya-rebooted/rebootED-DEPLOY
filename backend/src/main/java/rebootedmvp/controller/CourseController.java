@@ -19,6 +19,8 @@ import rebootedmvp.dto.ModuleDTO;
 import rebootedmvp.dto.NewModuleDTO;
 import rebootedmvp.exception.UnauthorizedAccessException;
 import rebootedmvp.exception.UserNotAuthenticatedException;
+import rebootedmvp.repository.UserProfileRepository;
+import rebootedmvp.service.CourseMembershipService;
 import rebootedmvp.service.CourseService;
 
 @RestController
@@ -27,6 +29,12 @@ public class CourseController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private CourseMembershipService courseMembershipService;
+
+    @Autowired
+    private UserProfileRepository userProfileRepository;
 
     @GetMapping
     public ResponseEntity<List<ModuleDTO>> getAllModules(@PathVariable Long courseId) {
@@ -87,33 +95,35 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/addTeacher/{userId}")
-    public ResponseEntity<Void> enrollUserAsTeacher(
-            @PathVariable Long courseId,
-            @PathVariable Long userId) {
-        try {
-            courseService.addTeacher(courseId, userId);
-            return ResponseEntity.ok().build();
-        } catch (UnauthorizedAccessException | UserNotAuthenticatedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+    // @PostMapping("/addTeacher/{userId}")
+    // public ResponseEntity<Void> enrollUserAsTeacher(
+    // @PathVariable Long courseId,
+    // @PathVariable String userId) {
+    // try {
+    // // courseService.addTeacher(courseId, userId);
+    // courseMembershipService.addUserToCourse(courseId, userId,
+    // User.UserType.Teacher);
+    // return ResponseEntity.ok().build();
+    // } catch (UnauthorizedAccessException | UserNotAuthenticatedException e) {
+    // return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    // } catch (Exception e) {
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    // }
+    // }
 
-    @PostMapping("/addStudent/{userId}")
-    public ResponseEntity<Void> enrollUserAsStudent(
-            @PathVariable Long courseId,
-            @PathVariable Long userId) {
-        try {
-            courseService.addStudent(courseId, userId);
-            return ResponseEntity.ok().build();
-        } catch (UnauthorizedAccessException | UserNotAuthenticatedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+    // @PostMapping("/addStudent/{userId}")
+    // public ResponseEntity<Void> enrollUserAsStudent(
+    // @PathVariable Long courseId,
+    // @PathVariable String userId) {
+    // try {
+    // courseService.addStudent(courseId, userId);
+    // return ResponseEntity.ok().build();
+    // } catch (UnauthorizedAccessException | UserNotAuthenticatedException e) {
+    // return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    // } catch (Exception e) {
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    // }
+    // }
 
     @ExceptionHandler(UnauthorizedAccessException.class)
     public ResponseEntity<String> handleUnauthorizedAccess(UnauthorizedAccessException e) {

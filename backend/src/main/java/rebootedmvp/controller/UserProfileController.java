@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import rebootedmvp.dto.NewAdminDTO;
 import rebootedmvp.dto.NewStudentDTO;
 import rebootedmvp.dto.NewTeacherDTO;
-import rebootedmvp.dto.NewUserDTO;
 import rebootedmvp.dto.UserProfileDTO;
 import rebootedmvp.service.AuthenticationContextService;
 import rebootedmvp.service.JwtService;
@@ -47,36 +46,36 @@ public class UserProfileController {
     }
 
     @PostMapping("/addTeacher")
-    public ResponseEntity<Long> createTeacherUser(@RequestBody NewTeacherDTO newUserDTO) {
+    public ResponseEntity<Void> createTeacherUser(@RequestBody NewTeacherDTO newUserDTO) {
         System.out.println("Incoming DTO = " + newUserDTO);
 
         // Extract supabaseUserId from JWT token (without requiring user to exist in
         // database)
         String supabaseUserId = authenticationContextService.getCurrentSupabaseUserIdFromJwt();
-        Long userId = userProfileService.addTeacher(supabaseUserId, newUserDTO);
-        return ResponseEntity.ok(userId);
+        userProfileService.addTeacher(supabaseUserId, newUserDTO);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/addStudent")
-    public ResponseEntity<Long> createStudentUser(@RequestBody NewStudentDTO newUserDTO) {
+    public ResponseEntity<Void> createStudentUser(@RequestBody NewStudentDTO newUserDTO) {
         System.out.println("Incoming DTO = " + newUserDTO);
 
         // Extract supabaseUserId from JWT token (without requiring user to exist in
         // database)
         String supabaseUserId = authenticationContextService.getCurrentSupabaseUserIdFromJwt();
-        Long userId = userProfileService.addStudent(supabaseUserId, newUserDTO);
-        return ResponseEntity.ok(userId);
+        userProfileService.addStudent(supabaseUserId, newUserDTO);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/addAdmin")
-    public ResponseEntity<Long> createAdminUser(@RequestBody NewAdminDTO newUserDTO) {
+    public ResponseEntity<Void> createAdminUser(@RequestBody NewAdminDTO newUserDTO) {
         System.out.println("Incoming DTO = " + newUserDTO);
 
         // Extract supabaseUserId from JWT token (without requiring user to exist in
         // database)
         String supabaseUserId = authenticationContextService.getCurrentSupabaseUserIdFromJwt();
-        Long userId = userProfileService.addAdmin(supabaseUserId, newUserDTO);
-        return ResponseEntity.ok(userId);
+        userProfileService.addAdmin(supabaseUserId, newUserDTO);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")

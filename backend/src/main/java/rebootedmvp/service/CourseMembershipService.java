@@ -1,7 +1,6 @@
 package rebootedmvp.service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,15 +14,14 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import rebootedmvp.User;
 import rebootedmvp.Course;
 import rebootedmvp.CourseMapper;
+import rebootedmvp.User;
+import rebootedmvp.User.UserType;
 import rebootedmvp.UserMapper;
 import rebootedmvp.domain.impl.AdminImpl;
-import rebootedmvp.domain.impl.CourseEntityImpl;
 import rebootedmvp.domain.impl.StudentImpl;
 import rebootedmvp.domain.impl.TeacherImpl;
-import rebootedmvp.domain.impl.UserProfileImpl;
 import rebootedmvp.dto.AdminDTO;
 import rebootedmvp.dto.StudentDTO;
 import rebootedmvp.dto.TeacherDTO;
@@ -51,7 +49,7 @@ public class CourseMembershipService {
     @Lazy
     private CourseService courseService;
 
-    public boolean addUserToCourse(Long courseId, String userId, String role) {
+    public boolean addUserToCourse(Long courseId, String userId, User.UserType role) {
         logger.debug("Adding user {} to course {} with role {}", userId, courseId, role);
 
         // Find the user
@@ -78,14 +76,14 @@ public class CourseMembershipService {
         Course course = courseOpt.get();
 
         // Add user to appropriate role
-        if ("teacher".equals(role)) {
+        if (User.UserType.Teacher == role) {
 
             course.addTeacher(user);
             courseRepository.save(CourseMapper.toEntity(course));
             logger.info("Successfully added user {} to course {} as {}", userId, courseId, role);
             return true;
 
-        } else if ("student".equals(role)) {
+        } else if (role == User.UserType.Student) {
             course.addStudent(user);
             courseRepository.save(CourseMapper.toEntity(course));
             logger.info("Successfully added user {} to course {} as {}", userId, courseId, role);
@@ -290,7 +288,7 @@ public class CourseMembershipService {
         }
     }
 
-    public boolean addUsersByCourse(Long courseId, List<String> usernames, String role) {
+    public boolean addUsersByCourse(Long courseId, List<String> usernames, User.UserType role) {
         logger.debug("Adding {} users to course {} with role {}", usernames.size(), courseId, role);
 
         // Find all users first
@@ -322,9 +320,9 @@ public class CourseMembershipService {
 
         // Add users to appropriate role
         for (User user : users) {
-            if ("teacher".equals(role)) {
+            if (role == UserType.Teacher) {
                 course.addTeacher(user);
-            } else if ("student".equals(role)) {
+            } else if (role == UserType.Student) {
                 course.addStudent(user);
             }
 

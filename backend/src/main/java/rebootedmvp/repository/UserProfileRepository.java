@@ -12,7 +12,7 @@ import rebootedmvp.User;
 import rebootedmvp.domain.impl.UserProfileImpl;
 
 @Repository
-public interface UserProfileRepository extends JpaRepository<UserProfileImpl, Long> {
+public interface UserProfileRepository extends JpaRepository<UserProfileImpl, String> {
 
     /**
      * Find user by Supabase user ID
