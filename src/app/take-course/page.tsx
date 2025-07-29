@@ -73,21 +73,23 @@ const TakeCoursePage: React.FC = () => {
   };
 
   return (
-    <>
+    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Navbar />
-      {course && (
-        <CourseView
-          course={course}
-          modules={modules}
-          isLoading={isLoading}
-          error={error}
-          showBackButton={true}
-          onBackClick={handleBackToDashboard}
-          showStudentView={true}
-          onContentUpdate={handleContentUpdate}
-        />
-      )}
-    </>
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        {course && (
+          <CourseView
+            course={course}
+            modules={modules}
+            isLoading={isLoading}
+            error={error}
+            showBackButton={true}
+            onBackClick={handleBackToDashboard}
+            showStudentView={true}
+            onContentUpdate={handleContentUpdate}
+          />
+        )}
+      </div>
+    </div>
   );
 };
 
