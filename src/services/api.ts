@@ -126,6 +126,20 @@ export class BackendApiService {
     return backendApiClient.getUserByUsername(username);
   }
 
+  async getAllUsers(): Promise<UserProfile[]> {
+    return backendApiClient.getAllUsers();
+  }
+
+  async getAllTeachers(): Promise<UserProfile[]> {
+    const allUsers = await this.getAllUsers();
+    return allUsers.filter(user => user.userType === 'Teacher');
+  }
+
+  async getAllStudents(): Promise<UserProfile[]> {
+    const allUsers = await this.getAllUsers();
+    return allUsers.filter(user => user.userType === 'Student');
+  }
+
   // ================ Course Membership Operations ================
 
   async addTeachersToCourse(courseId: number, usernames: string[]): Promise<void> {
@@ -142,6 +156,14 @@ export class BackendApiService {
 
   async getCourseUsers(courseId: number): Promise<CourseUser[]> {
     return backendApiClient.getCourseUsers(courseId);
+  }
+
+  async getCourseTeachers(courseId: number): Promise<UserProfile[]> {
+    return backendApiClient.getCourseTeachers(courseId);
+  }
+
+  async getCourseStudents(courseId: number): Promise<UserProfile[]> {
+    return backendApiClient.getCourseStudents(courseId);
   }
 
   async removeUserFromCourse(courseId: number, userId: string): Promise<void> {

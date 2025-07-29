@@ -25,7 +25,9 @@ import {
   Trash2,
   ChevronDown,
   ChevronRight,
-  Info
+  Info,
+  Users,
+  GraduationCap
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiService } from "@/services/api";
@@ -33,6 +35,7 @@ import { createClient } from '@/utils/supabase/client';
 import { Course, Module, ContentResponse, NewModuleRequest } from "@/types/backend-api";
 import ContentBlockList from "@/components/content/ContentBlockList";
 import EnhancedContentCreator from "@/components/content/EnhancedContentCreator";
+import AddUserToCourseDialog from "@/components/content/AddUserToCourseDialog";
 import { useAIAssistant } from "@/components/ai-assistant";
 
 const ModifyCoursePage: React.FC = () => {
@@ -59,6 +62,10 @@ const ModifyCoursePage: React.FC = () => {
   const [newModuleDescription, setNewModuleDescription] = useState('');
   const [isCreatingModule, setIsCreatingModule] = useState(false);
   const [moduleCreationError, setModuleCreationError] = useState<string | null>(null);
+
+  // Add user dialog state
+  const [showAddTeacherDialog, setShowAddTeacherDialog] = useState(false);
+  const [showAddStudentDialog, setShowAddStudentDialog] = useState(false);
 
   // Module expansion state
   const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set());
@@ -178,6 +185,20 @@ const ModifyCoursePage: React.FC = () => {
 
   const handlePreviewCourse = () => {
     router.push(`/preview-course?id=${courseId}`);
+  };
+
+  // Add user dialog handlers
+  const handleAddTeacher = () => {
+    setShowAddTeacherDialog(true);
+  };
+
+  const handleAddStudent = () => {
+    setShowAddStudentDialog(true);
+  };
+
+  const handleUserAdded = () => {
+    // Optionally refresh course data or show updated member count
+    // For now, just show success message which is handled in the dialog
   };
 
   // Course editing handlers
@@ -404,6 +425,14 @@ const ModifyCoursePage: React.FC = () => {
               </div>
             </div>
             <div className="flex gap-2">
+              <Button onClick={handleAddTeacher} variant="outline" className="border-[var(--border)] text-[var(--primary)]">
+                <Users className="h-4 w-4 mr-2" />
+                Add Teacher
+              </Button>
+              <Button onClick={handleAddStudent} variant="outline" className="border-[var(--border)] text-[var(--primary)]">
+                <GraduationCap className="h-4 w-4 mr-2" />
+                Add Student
+              </Button>
               {!isEditingCourse && (
                 <Button onClick={handleEditCourse} variant="outline" className="border-[var(--border)] text-[var(--primary)]">
                   <Edit className="h-4 w-4 mr-2" />
@@ -690,6 +719,23 @@ const ModifyCoursePage: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Add User Dialogs */}
+      <AddUserToCourseDialog
+        open={showAddTeacherDialog}
+        onOpenChange={setShowAddTeacherDialog}
+        courseId={parseInt(courseId!)}
+        userType="teacher"
+        onUserAdded={handleUserAdded}
+      />
+      
+      <AddUserToCourseDialog
+        open={showAddStudentDialog}
+        onOpenChange={setShowAddStudentDialog}
+        courseId={parseInt(courseId!)}
+        userType="student"
+        onUserAdded={handleUserAdded}
+      />
     </>
   );
 };
