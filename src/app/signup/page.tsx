@@ -56,16 +56,16 @@ export default function SignupPage() {
           await backendApiClient.createTeacher({
             username: username.trim(),
             email: user.email
-          })
+          });
           break;
         case 'student':
           await backendApiClient.createStudent({
             username: username.trim(),
             email: user.email
-          })
+          });
           break;
         default:
-          throw new Error('Invalid role selected')
+          throw new Error('Invalid role selected');
 
       }
 

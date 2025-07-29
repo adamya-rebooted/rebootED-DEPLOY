@@ -1,6 +1,7 @@
 package rebootedmvp.dto;
 
 import rebootedmvp.User;
+import rebootedmvp.domain.impl.AdminImpl;
 import rebootedmvp.domain.impl.TeacherImpl;
 
 public class AdminDTO extends UserProfileDTO {
@@ -15,9 +16,9 @@ public class AdminDTO extends UserProfileDTO {
         super(supabaseUserId, username, User.UserType.Admin, email, fullName);
     }
 
-    public AdminDTO(TeacherImpl teacher) {
-        super(teacher.getSupabaseUserId(), teacher.getUsername(), User.UserType.Teacher, teacher.getEmail(),
-                teacher.getFullName());
+    public AdminDTO(AdminImpl admin) {
+        super(admin.getSupabaseUserId(), admin.getUsername(), User.UserType.Admin, admin.getEmail(),
+                admin.getFullName());
     }
 
 }

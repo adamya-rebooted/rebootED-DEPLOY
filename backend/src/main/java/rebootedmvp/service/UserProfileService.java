@@ -12,9 +12,12 @@ import jakarta.transaction.Transactional;
 import rebootedmvp.Course;
 import rebootedmvp.User;
 import rebootedmvp.UserMapper;
+import rebootedmvp.domain.impl.AdminImpl;
 import rebootedmvp.domain.impl.StudentImpl;
 import rebootedmvp.domain.impl.TeacherImpl;
 import rebootedmvp.domain.impl.UserProfileImpl;
+import rebootedmvp.dto.AdminDTO;
+import rebootedmvp.dto.NewAdminDTO;
 import rebootedmvp.dto.NewStudentDTO;
 import rebootedmvp.dto.NewTeacherDTO;
 import rebootedmvp.dto.NewUserDTO;
@@ -195,6 +198,16 @@ public class UserProfileService {
         return savedUser.getId(); // Return Supabase UUID as the ID
     }
 
+    public Long addAdmin(String supabaseUserId, NewAdminDTO newUserDTO) {
+        logger.debug("UserProfileService.addStudent({}) called", newUserDTO);
+        if (newUserDTO.getUsername() == null) {
+            throw new IllegalArgumentException("The user's name must be supplied in the DTO");
+        }
+        User savedUser = userProfileRepository.save(new AdminImpl(supabaseUserId, newUserDTO));
+
+        return savedUser.getId(); // Return Supabase UUID as the ID
+    }
+
     /**
      * Delete a user by ID
      */
@@ -231,6 +244,8 @@ public class UserProfileService {
                     return new TeacherDTO(((TeacherImpl) profile));
                 case Student:
                     return new StudentDTO(((StudentImpl) profile));
+                case Admin:
+                    return new AdminDTO(((AdminImpl) profile));
                 default:
                     throw new IllegalArgumentException("Unknown user type: " + profile.getUserType());
             }

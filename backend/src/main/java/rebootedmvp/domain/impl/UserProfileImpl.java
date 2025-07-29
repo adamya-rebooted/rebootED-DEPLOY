@@ -128,16 +128,10 @@ public abstract class UserProfileImpl extends User {
     }
 
     @Override
-    public List<String> getCourseNames() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCourseNames'");
-    }
+    public abstract List<String> getCourseNames();
 
     @Override
-    public boolean hasAccess(String course) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'hasAccess'");
-    }
+    public abstract boolean hasAccess(String course);
 
     @Override
     public Course getCourse(String courseName) throws InaccessibleCourseException, CourseDoesNotExistException {

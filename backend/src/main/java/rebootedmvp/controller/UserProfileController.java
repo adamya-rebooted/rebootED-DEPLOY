@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import rebootedmvp.dto.NewAdminDTO;
 import rebootedmvp.dto.NewStudentDTO;
 import rebootedmvp.dto.NewTeacherDTO;
 import rebootedmvp.dto.NewUserDTO;
@@ -32,7 +33,8 @@ public class UserProfileController {
     private final AuthenticationContextService authenticationContextService;
 
     // Constructor for dependency injection
-    public UserProfileController(JwtService jwtService, UserProfileService userProfileService, AuthenticationContextService authenticationContextService) {
+    public UserProfileController(JwtService jwtService, UserProfileService userProfileService,
+            AuthenticationContextService authenticationContextService) {
         this.jwtService = jwtService;
         this.userProfileService = userProfileService;
         this.authenticationContextService = authenticationContextService;
@@ -48,7 +50,8 @@ public class UserProfileController {
     public ResponseEntity<Long> createTeacherUser(@RequestBody NewTeacherDTO newUserDTO) {
         System.out.println("Incoming DTO = " + newUserDTO);
 
-        // Extract supabaseUserId from JWT token (without requiring user to exist in database)
+        // Extract supabaseUserId from JWT token (without requiring user to exist in
+        // database)
         String supabaseUserId = authenticationContextService.getCurrentSupabaseUserIdFromJwt();
         Long userId = userProfileService.addTeacher(supabaseUserId, newUserDTO);
         return ResponseEntity.ok(userId);
@@ -58,9 +61,21 @@ public class UserProfileController {
     public ResponseEntity<Long> createStudentUser(@RequestBody NewStudentDTO newUserDTO) {
         System.out.println("Incoming DTO = " + newUserDTO);
 
-        // Extract supabaseUserId from JWT token (without requiring user to exist in database)
+        // Extract supabaseUserId from JWT token (without requiring user to exist in
+        // database)
         String supabaseUserId = authenticationContextService.getCurrentSupabaseUserIdFromJwt();
         Long userId = userProfileService.addStudent(supabaseUserId, newUserDTO);
+        return ResponseEntity.ok(userId);
+    }
+
+    @PostMapping("/addAdmin")
+    public ResponseEntity<Long> createAdminUser(@RequestBody NewAdminDTO newUserDTO) {
+        System.out.println("Incoming DTO = " + newUserDTO);
+
+        // Extract supabaseUserId from JWT token (without requiring user to exist in
+        // database)
+        String supabaseUserId = authenticationContextService.getCurrentSupabaseUserIdFromJwt();
+        Long userId = userProfileService.addAdmin(supabaseUserId, newUserDTO);
         return ResponseEntity.ok(userId);
     }
 

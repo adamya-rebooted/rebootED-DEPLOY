@@ -19,10 +19,12 @@ import rebootedmvp.User;
 import rebootedmvp.Course;
 import rebootedmvp.CourseMapper;
 import rebootedmvp.UserMapper;
+import rebootedmvp.domain.impl.AdminImpl;
 import rebootedmvp.domain.impl.CourseEntityImpl;
 import rebootedmvp.domain.impl.StudentImpl;
 import rebootedmvp.domain.impl.TeacherImpl;
 import rebootedmvp.domain.impl.UserProfileImpl;
+import rebootedmvp.dto.AdminDTO;
 import rebootedmvp.dto.StudentDTO;
 import rebootedmvp.dto.TeacherDTO;
 import rebootedmvp.dto.UserCourseDTO;
@@ -219,7 +221,13 @@ public class CourseMembershipService {
             logger.info("User '{}' found as username, mapped to entity ID: '{}'", userId,
                     user.getSupabaseUserId());
             logger.debug("Step 2: Finding courses for user entity ID: '{}'", user.getSupabaseUserId());
-
+            if (user.getUserType() == User.UserType.Admin) {
+                List<UserCourseDTO> courseDTOs = courseRepository.findAll().stream()
+                        .map(elem -> new UserCourseDTO(elem.getId(), elem.getTitle(),
+                                elem.getBody(), User.UserType.Admin))
+                        .toList();
+                return courseDTOs;
+            }
             // Find courses where user is either teacher or student
             Stream<Course> courses = courseRepository.findCoursesByUserId(user.getSupabaseUserId())
                     .stream()
@@ -311,6 +319,8 @@ public class CourseMembershipService {
                 return new TeacherDTO(((TeacherImpl) user));
             case Student:
                 return new StudentDTO(((StudentImpl) user));
+            case Admin:
+                return new AdminDTO(((AdminImpl) user));
             default:
                 throw new IllegalArgumentException("Unknown user type: " + user.getUserType());
         }
