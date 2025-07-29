@@ -44,6 +44,10 @@ export default function SignupPage() {
         throw new Error('Authentication required')
       }
 
+      if (!user.email) {
+        throw new Error('User email is required')
+      }
+
       // Create user in backend with selected role
       // const userType = selectedRole === 'teacher' ? 'LDUser' : 'EmployeeUser'
 
