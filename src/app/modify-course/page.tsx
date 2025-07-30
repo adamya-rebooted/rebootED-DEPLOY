@@ -72,6 +72,11 @@ const ModifyCoursePage: React.FC = () => {
   const [moduleContentCreators, setModuleContentCreators] = useState<Set<number>>(new Set());
   const [addContentCallbacks, setAddContentCallbacks] = useState<Map<number, (newContent: ContentResponse) => void>>(new Map());
 
+  // Module editing state
+  const [editingModules, setEditingModules] = useState<Set<number>>(new Set());
+  const [editModuleForms, setEditModuleForms] = useState<Map<number, {title: string, body: string}>>(new Map());
+  const [savingModules, setSavingModules] = useState<Set<number>>(new Set());
+
   // Load course and modules data
   useEffect(() => {
     if (!courseId) {
@@ -306,6 +311,73 @@ const ModifyCoursePage: React.FC = () => {
     }
   };
 
+  // Module editing handlers
+  const handleEditModule = (moduleId: number, moduleTitle: string, moduleBody: string) => {
+    setEditingModules(prev => new Set([...prev, moduleId]));
+    setEditModuleForms(prev => {
+      const newMap = new Map(prev);
+      newMap.set(moduleId, { title: moduleTitle, body: moduleBody || '' });
+      return newMap;
+    });
+  };
+
+  const handleCancelEditModule = (moduleId: number) => {
+    setEditingModules(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(moduleId);
+      return newSet;
+    });
+    setEditModuleForms(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(moduleId);
+      return newMap;
+    });
+  };
+
+  const handleSaveModule = async (moduleId: number) => {
+    const moduleForm = editModuleForms.get(moduleId);
+    if (!moduleForm || !moduleForm.title.trim()) {
+      toast.error('Module title is required');
+      return;
+    }
+
+    try {
+      setSavingModules(prev => new Set([...prev, moduleId]));
+
+      const updatedModule = await apiService.updateModule(parseInt(courseId!), moduleId, {
+        title: moduleForm.title.trim(),
+        body: moduleForm.body.trim(),
+        courseId: parseInt(courseId!)
+      });
+
+      // Update the module in the list
+      setModules(prev => prev.map(m => m.id === moduleId ? updatedModule : m));
+
+      // Exit edit mode
+      handleCancelEditModule(moduleId);
+
+      toast.success('Module updated successfully!');
+    } catch (err) {
+      console.error('Error updating module:', err);
+      toast.error(err instanceof Error ? err.message : 'Failed to update module');
+    } finally {
+      setSavingModules(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(moduleId);
+        return newSet;
+      });
+    }
+  };
+
+  const updateModuleForm = (moduleId: number, field: 'title' | 'body', value: string) => {
+    setEditModuleForms(prev => {
+      const newMap = new Map(prev);
+      const currentForm = newMap.get(moduleId) || { title: '', body: '' };
+      newMap.set(moduleId, { ...currentForm, [field]: value });
+      return newMap;
+    });
+  };
+
   // Module expansion handlers
   const toggleModuleExpansion = (moduleId: number) => {
     setExpandedModules(prev => {
@@ -350,8 +422,8 @@ const ModifyCoursePage: React.FC = () => {
   };
 
   const handleModuleContentUpdate = () => {
-    // Refresh data when content is updated to reflect progress changes
-    loadData();
+    // Content is already updated locally in ContentBlockList
+    // No need to reload entire page - this was causing unnecessary page refreshes
   };
 
   // Memoize add content callbacks for each module to prevent infinite re-renders
@@ -612,53 +684,113 @@ const ModifyCoursePage: React.FC = () => {
                       onClick={() => isAIVisible && selectModule(module.id)}
                     >
                       <CardContent className="pt-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
+                        {/* Module Edit Form */}
+                        {editingModules.has(module.id) ? (
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2 mb-4">
                               <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: 'var(--muted)', color: 'var(--primary)' }}>
-                                Module {index + 1}
+                                Module {index + 1} - Editing
                               </span>
                             </div>
-                            <h3 className="font-semibold text-lg mb-2 text-[var(--primary)]">{module.title}</h3>
-                            {module.body && (
-                              <p className="text-[var(--muted-foreground)] mb-3">{module.body}</p>
-                            )}
-                            <div className="flex items-center gap-4 text-sm text-[var(--muted-foreground)]">
-                              <span>Content: {module.contentCount || 0} items</span>
-                              {module.progress !== undefined && (
-                                <span>Progress: {Math.round(module.progress)}%</span>
-                              )}
+                            <div>
+                              <Label htmlFor={`edit-module-title-${module.id}`}>Module Title *</Label>
+                              <Input
+                                id={`edit-module-title-${module.id}`}
+                                value={editModuleForms.get(module.id)?.title || ''}
+                                onChange={(e) => updateModuleForm(module.id, 'title', e.target.value)}
+                                placeholder="Enter module title..."
+                                className="mt-1"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor={`edit-module-description-${module.id}`}>Module Description</Label>
+                              <Textarea
+                                id={`edit-module-description-${module.id}`}
+                                value={editModuleForms.get(module.id)?.body || ''}
+                                onChange={(e) => updateModuleForm(module.id, 'body', e.target.value)}
+                                placeholder="Enter module description..."
+                                rows={3}
+                                className="mt-1"
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                onClick={() => handleSaveModule(module.id)}
+                                disabled={savingModules.has(module.id) || !editModuleForms.get(module.id)?.title?.trim()}
+                                className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+                              >
+                                <Save className="h-4 w-4 mr-2" />
+                                {savingModules.has(module.id) ? 'Saving...' : 'Save Changes'}
+                              </Button>
+                              <Button
+                                onClick={() => handleCancelEditModule(module.id)}
+                                variant="outline"
+                                disabled={savingModules.has(module.id)}
+                                className="border-[var(--border)] text-[var(--primary)]"
+                              >
+                                <X className="h-4 w-4 mr-2" />
+                                Cancel
+                              </Button>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              onClick={() => toggleModuleExpansion(module.id)}
-                              variant="outline"
-                              size="sm"
-                              className="border-[var(--border)] text-[var(--primary)]"
-                            >
-                              {expandedModules.has(module.id) ? (
-                                <>
-                                  <ChevronDown className="h-4 w-4 mr-2" />
-                                  Hide Content
-                                </>
-                              ) : (
-                                <>
-                                  <ChevronRight className="h-4 w-4 mr-2" />
-                                  Manage Content
-                                </>
+                        ) : (
+                          /* Regular Module Display */
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: 'var(--muted)', color: 'var(--primary)' }}>
+                                  Module {index + 1}
+                                </span>
+                              </div>
+                              <h3 className="font-semibold text-lg mb-2 text-[var(--primary)]">{module.title}</h3>
+                              {module.body && (
+                                <p className="text-[var(--muted-foreground)] mb-3">{module.body}</p>
                               )}
-                            </Button>
-                            <Button
-                              onClick={() => handleDeleteModule(module.id, module.title)}
-                              variant="outline"
-                              size="sm"
-                              className="text-[var(--destructive)] border-[var(--destructive)] hover:text-[var(--destructive)] hover:border-[var(--destructive)]"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                              <div className="flex items-center gap-4 text-sm text-[var(--muted-foreground)]">
+                                <span>Content: {module.contentCount || 0} items</span>
+                                {module.progress !== undefined && (
+                                  <span>Progress: {Math.round(module.progress)}%</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                onClick={() => toggleModuleExpansion(module.id)}
+                                variant="outline"
+                                size="sm"
+                                className="border-[var(--border)] text-[var(--primary)]"
+                              >
+                                {expandedModules.has(module.id) ? (
+                                  <>
+                                    <ChevronDown className="h-4 w-4 mr-2" />
+                                    Hide Content
+                                  </>
+                                ) : (
+                                  <>
+                                    <ChevronRight className="h-4 w-4 mr-2" />
+                                    Manage Content
+                                  </>
+                                )}
+                              </Button>
+                              <Button
+                                onClick={() => handleEditModule(module.id, module.title, module.body)}
+                                variant="outline"
+                                size="sm"
+                                className="border-[var(--border)] text-[var(--primary)]"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                onClick={() => handleDeleteModule(module.id, module.title)}
+                                variant="outline"
+                                size="sm"
+                                className="text-[var(--destructive)] border-[var(--destructive)] hover:text-[var(--destructive)] hover:border-[var(--destructive)]"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
+                        )}
                         {/* Expandable Content Management Section */}
                         {expandedModules.has(module.id) && (
                           <div className="mt-6 pt-6 border-t border-[var(--border)]">

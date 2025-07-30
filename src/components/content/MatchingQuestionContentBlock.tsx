@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { MatchingQuestion } from '@/types/backend-api';
+import { Button } from '@/components/ui/button';
+import { Edit } from 'lucide-react';
 
 interface MatchingQuestionContentBlockProps {
     content: MatchingQuestion;
     onSubmitAnswer: (contentId: number, answer: string) => Promise<void>;
+    onEdit?: (contentId: number) => void;
     isInteractive?: boolean;
 }
 
 export default function MatchingQuestionContentBlock({
     content,
     onSubmitAnswer,
+    onEdit,
     isInteractive = true,
 }: MatchingQuestionContentBlockProps) {
     // Selections map left item -> selected right item
@@ -61,12 +65,24 @@ export default function MatchingQuestionContentBlock({
                 <h4 className="m-0 text-lg font-semibold text-[var(--card-foreground)]">
                     {content.title}
                 </h4>
-                <span
-                    className="px-2 py-1 rounded text-xs font-medium"
-                    style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}
-                >
-                    Matching Question
-                </span>
+                <div className="flex items-center gap-2">
+                    <span
+                        className="px-2 py-1 rounded text-xs font-medium"
+                        style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}
+                    >
+                        Matching Question
+                    </span>
+                    {isInteractive && onEdit && (
+                        <Button
+                            onClick={() => onEdit(content.id)}
+                            variant="outline"
+                            size="sm"
+                            className="border-[var(--border)] text-[var(--primary)]"
+                        >
+                            <Edit className="h-4 w-4" />
+                        </Button>
+                    )}
+                </div>
             </div>
 
             {content.body && (
