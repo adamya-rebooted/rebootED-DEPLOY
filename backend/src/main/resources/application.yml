@@ -17,8 +17,8 @@ spring:
   
   jpa:
     hibernate:
-      #ddl-auto: update
-      ddl-auto: create-drop
+      ddl-auto: update
+      #ddl-auto: create-drop
       # create-drop deletes all data on restart, only use temporarily to hard reset database
     show-sql: true
     properties:

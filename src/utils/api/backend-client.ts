@@ -52,30 +52,49 @@ export class BackendApiClient {
   }
 
   private async getAuthToken(): Promise<string | null> {
+    const startTime = performance.now();
+    const timestamp = new Date().toISOString();
+    console.log(`[AUTH_API] ${timestamp} - Getting authentication token`);
+    
     try {
       // Always try to get a fresh session first
+      console.log(`[AUTH_API] ${timestamp} - Attempting to get current session`);
+      const sessionStartTime = performance.now();
       let { data: { session }, error: sessionError } = await this.supabase.auth.getSession();
+      const sessionTime = performance.now() - sessionStartTime;
+      
+      console.log(`[AUTH_API] ${timestamp} - Session request completed in ${sessionTime.toFixed(2)}ms`);
 
       // If we have a session error or no session, try to refresh
       if (sessionError || !session) {
-        console.log('No valid session found, attempting refresh...');
+        console.log(`[AUTH_API] ${timestamp} - No valid session found (error: ${sessionError?.message || 'none'}), attempting refresh...`);
+        const refreshStartTime = performance.now();
         const { data, error } = await this.supabase.auth.refreshSession();
+        const refreshTime = performance.now() - refreshStartTime;
+        
         if (error) {
-          console.warn('Failed to refresh session:', error);
+          console.warn(`[AUTH_API] ${timestamp} - Failed to refresh session after ${refreshTime.toFixed(2)}ms:`, error);
           return null;
         }
         session = data.session;
+        console.log(`[AUTH_API] ${timestamp} - Session refreshed successfully in ${refreshTime.toFixed(2)}ms`);
       }
 
       // Double check we have a valid token
       if (!session?.access_token) {
-        console.warn('No access token available after session check');
+        console.warn(`[AUTH_API] ${timestamp} - No access token available after session check`);
         return null;
       }
 
+      const totalTime = performance.now() - startTime;
+      const tokenLength = session.access_token.length;
+      const tokenPreview = session.access_token.substring(0, 20) + '...';
+      
+      console.log(`[AUTH_API] ${timestamp} - Successfully retrieved auth token in ${totalTime.toFixed(2)}ms (length: ${tokenLength}, preview: ${tokenPreview})`);
       return session.access_token;
     } catch (error) {
-      console.warn('Failed to get auth token:', error);
+      const errorTime = performance.now() - startTime;
+      console.warn(`[AUTH_API] ${timestamp} - Failed to get auth token after ${errorTime.toFixed(2)}ms:`, error);
       return null;
     }
   }
@@ -85,10 +104,23 @@ export class BackendApiClient {
     options: RequestInit = {},
     attempt: number = 1
   ): Promise<T> {
+    const requestStartTime = performance.now();
+    const timestamp = new Date().toISOString();
     const url = `${this.baseUrl}${endpoint}`;
+    const method = options.method || 'GET';
+    
+    console.log(`[AUTH_API] ${timestamp} - Making ${method} request to ${endpoint} (attempt ${attempt})`);
 
     // Get authentication token
+    const authTokenStartTime = performance.now();
     const authToken = await this.getAuthToken();
+    const authTokenTime = performance.now() - authTokenStartTime;
+    
+    if (authToken) {
+      console.log(`[AUTH_API] ${timestamp} - Auth token obtained in ${authTokenTime.toFixed(2)}ms`);
+    } else {
+      console.warn(`[AUTH_API] ${timestamp} - No auth token available after ${authTokenTime.toFixed(2)}ms - request will be unauthenticated`);
+    }
 
     let headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -122,12 +154,17 @@ export class BackendApiClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
+      console.log(`[AUTH_API] ${timestamp} - Sending HTTP request to ${url}`);
+      const fetchStartTime = performance.now();
       const response = await fetch(url, {
         ...config,
         signal: controller.signal,
       });
+      const fetchTime = performance.now() - fetchStartTime;
 
       clearTimeout(timeoutId);
+
+      console.log(`[AUTH_API] ${timestamp} - HTTP response received in ${fetchTime.toFixed(2)}ms (status: ${response.status})`);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -142,7 +179,8 @@ export class BackendApiClient {
 
         // Handle auth errors specifically
         if (response.status === 401 || response.status === 403) {
-          console.warn('Authentication error, token may be expired');
+          console.error(`[AUTH_API] ${timestamp} - Authentication error (${response.status}): ${errorMessage}`);
+          console.error(`[AUTH_API] ${timestamp} - Token was ${authToken ? 'present' : 'missing'} in request`);
           errorMessage = `Authentication failed. Please try logging out and back in.`;
         }
 
@@ -151,32 +189,44 @@ export class BackendApiClient {
           status: response.status,
         };
 
+        const totalErrorTime = performance.now() - requestStartTime;
+        console.error(`[AUTH_API] ${timestamp} - Request failed after ${totalErrorTime.toFixed(2)}ms:`, apiError);
         throw apiError;
       }
 
       // Handle empty responses (like DELETE operations)
       const contentType = response.headers.get('content-type');
+      let result: T;
       if (contentType && contentType.includes('application/json')) {
-        return await response.json();
+        result = await response.json();
       } else {
-        return {} as T;
+        result = {} as T;
       }
+
+      const totalTime = performance.now() - requestStartTime;
+      console.log(`[AUTH_API] ${timestamp} - Request completed successfully in ${totalTime.toFixed(2)}ms`);
+      return result;
     } catch (error) {
+      const errorTime = performance.now() - requestStartTime;
+      
       // Retry logic for network errors (not for 4xx/5xx HTTP errors)
       if (attempt < this.retryAttempts && !(error as ApiError).status) {
-        console.warn(`API request failed, retrying (${attempt}/${this.retryAttempts}):`, error);
+        console.warn(`[AUTH_API] ${timestamp} - API request failed after ${errorTime.toFixed(2)}ms, retrying (${attempt}/${this.retryAttempts}):`, error);
         await this.delay(1000 * attempt); // Exponential backoff
         return this.request<T>(endpoint, options, attempt + 1);
       }
 
       if (error instanceof Error && error.name === 'AbortError') {
+        console.error(`[AUTH_API] ${timestamp} - Request timeout after ${errorTime.toFixed(2)}ms`);
         throw new Error('Request timeout - please check your connection');
       }
 
       if ((error as ApiError).status) {
+        console.error(`[AUTH_API] ${timestamp} - API error after ${errorTime.toFixed(2)}ms:`, error);
         throw error; // Re-throw API errors with status
       }
 
+      console.error(`[AUTH_API] ${timestamp} - Network error after ${errorTime.toFixed(2)}ms:`, error);
       throw new Error(`Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

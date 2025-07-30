@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 // Note: Select components not used in current implementation but kept for potential future use
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Users, GraduationCap, X, Plus, Loader2, Search } from "lucide-react";
+import { Users, GraduationCap, X, Plus, Loader2, Search, ChevronDown, ChevronRight } from "lucide-react";
 import { apiService } from "@/services/api";
 import { UserProfile } from "@/types/backend-api";
 import { toast } from "sonner";
@@ -34,8 +34,10 @@ const AddUserToCourseDialog: React.FC<AddUserToCourseDialogProps> = ({
   onUserAdded,
 }) => {
   const [availableUsers, setAvailableUsers] = useState<UserProfile[]>([]);
+  const [currentMembers, setCurrentMembers] = useState<UserProfile[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<UserProfile[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCurrentMembersExpanded, setIsCurrentMembersExpanded] = useState(false);
   // const [isLoading, setIsLoading] = useState(false); // Currently unused but kept for future use
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,12 +54,15 @@ const AddUserToCourseDialog: React.FC<AddUserToCourseDialogProps> = ({
         : await apiService.getAllStudents();
 
       // Get current course members to exclude them
-      const currentMembers = userType === 'teacher'
+      const currentCourseMembers = userType === 'teacher'
         ? await apiService.getCourseTeachers(courseId)
         : await apiService.getCourseStudents(courseId);
 
+      // Store current members for display
+      setCurrentMembers(currentCourseMembers);
+
       // Filter out users already in the course
-      const currentMemberUsernames = new Set(currentMembers.map(user => user.username));
+      const currentMemberUsernames = new Set(currentCourseMembers.map(user => user.username));
       const availableForAddition = allUsers.filter(user => !currentMemberUsernames.has(user.username));
 
       setAvailableUsers(availableForAddition);
@@ -77,6 +82,8 @@ const AddUserToCourseDialog: React.FC<AddUserToCourseDialogProps> = ({
       // Reset state when dialog closes
       setSelectedUsers([]);
       setSearchTerm('');
+      setCurrentMembers([]);
+      setIsCurrentMembersExpanded(false);
       setError(null);
     }
   }, [open, loadAvailableUsers]);
@@ -161,6 +168,47 @@ const AddUserToCourseDialog: React.FC<AddUserToCourseDialogProps> = ({
               />
             </div>
           </div>
+
+          {/* Current Course Members Section */}
+          {currentMembers.length > 0 && (
+            <div>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-between p-0 h-auto font-normal hover:bg-transparent"
+                onClick={() => setIsCurrentMembersExpanded(!isCurrentMembersExpanded)}
+              >
+                <Label className="cursor-pointer">
+                  Current {userTypePlural} in Course ({currentMembers.length})
+                </Label>
+                {isCurrentMembersExpanded ? 
+                  <ChevronDown className="h-4 w-4" /> : 
+                  <ChevronRight className="h-4 w-4" />
+                }
+              </Button>
+              {isCurrentMembersExpanded && (
+                <div className="mt-2">
+                  <div className="border rounded-md max-h-40 overflow-y-auto bg-muted/30">
+                    {currentMembers.map((user) => (
+                      <div
+                        key={user.username}
+                        className="flex items-center justify-between p-3 border-b last:border-b-0"
+                      >
+                        <div className="flex-1">
+                          <div className="font-medium text-muted-foreground">{user.username}</div>
+                          <div className="text-sm text-muted-foreground/70">
+                            {user.fullName} {user.email && `(${user.email})`}
+                          </div>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          Enrolled
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Available Users Dropdown */}
           <div>
