@@ -92,6 +92,21 @@ public class CourseMembershipService {
         return false;
     }
 
+    public boolean addUsersToCourse(Long courseId, List<String> userIds, User.UserType role) {
+        logger.debug("Adding users {} to course {} with role {}", userIds, courseId, role);
+        boolean retBool = true;
+
+        for (String userId : userIds) {
+            boolean success = addUserToCourse(courseId, userId, role);
+            if (!success) {
+                retBool = false;
+            }
+        }
+
+        return retBool;
+
+    }
+
     public boolean removeUserFromCourse(Long courseId, String userId) {
         logger.debug("Removing user {} from course {}", userId, courseId);
 
@@ -319,15 +334,24 @@ public class CourseMembershipService {
         }
 
         // Add users to appropriate role
+        int addedCount = 0;
         for (User user : users) {
             if (role == UserType.Teacher) {
-                course.addTeacher(user);
+                if (course.addTeacher(user)) {
+                    addedCount++;
+                }
             } else if (role == UserType.Student) {
-                course.addStudent(user);
+                if (course.addStudent(user)) {
+                    addedCount++;
+                }
             }
 
-            courseRepository.save(CourseMapper.toEntity(course));
-            logger.info("Successfully added {} users to course {} as {}", users.size(), courseId, role);
+            if (addedCount > 0) {
+                courseRepository.save(CourseMapper.toEntity(course));
+                logger.info("Successfully added {} users to course {} as {}", addedCount, courseId, role);
+            } else {
+                logger.warn("No users were added to course {} - they may already be enrolled", courseId);
+            }
         }
         return true;
 
@@ -354,14 +378,16 @@ public class CourseMembershipService {
 
     private UserProfileDTO convertToDTO(User user) {
         switch (user.getUserType()) {
-            case Teacher:
+            case Teacher -> {
                 return new TeacherDTO(((TeacherImpl) user));
-            case Student:
+            }
+            case Student -> {
                 return new StudentDTO(((StudentImpl) user));
-            case Admin:
+            }
+            case Admin -> {
                 return new AdminDTO(((AdminImpl) user));
-            default:
-                throw new IllegalArgumentException("Unknown user type: " + user.getUserType());
+            }
+            default -> throw new IllegalArgumentException("Unknown user type: " + user.getUserType());
         }
     }
 }
