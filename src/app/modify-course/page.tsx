@@ -86,7 +86,7 @@ const ModifyCoursePage: React.FC = () => {
 
   // Module expansion state
   const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set());
-  const [moduleContentCreators, setModuleContentCreators] = useState<Set<number>>(new Set());
+  const [contentCreatorDialog, setContentCreatorDialog] = useState<{ open: boolean; moduleId: number | null }>({ open: false, moduleId: null });
   const [addContentCallbacks, setAddContentCallbacks] = useState<Map<number, (newContent: ContentResponse) => void>>(new Map());
 
   // Module editing state
@@ -425,19 +425,11 @@ const ModifyCoursePage: React.FC = () => {
   };
 
   const handleShowModuleContentCreator = (moduleId: number) => {
-    setModuleContentCreators(prev => {
-      const newSet = new Set(prev);
-      newSet.add(moduleId);
-      return newSet;
-    });
+    setContentCreatorDialog({ open: true, moduleId });
   };
 
-  const handleHideModuleContentCreator = (moduleId: number) => {
-    setModuleContentCreators(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(moduleId);
-      return newSet;
-    });
+  const handleHideModuleContentCreator = () => {
+    setContentCreatorDialog({ open: false, moduleId: null });
   };
 
   const handleModuleContentCreated = (moduleId: number) => (newContent: ContentResponse) => {
@@ -755,27 +747,16 @@ const ModifyCoursePage: React.FC = () => {
                                 <FileText className="h-4 w-4" />
                                 Module Content
                               </h4>
-                              {!moduleContentCreators.has(module.id) && (
-                                <Button
-                                  onClick={() => handleShowModuleContentCreator(module.id)}
-                                  size="sm"
-                                  className="bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
-                                >
-                                  <Plus className="h-4 w-4 mr-2" />
-                                  New Item
-                                </Button>
-                              )}
+                              <Button
+                                onClick={() => handleShowModuleContentCreator(module.id)}
+                                size="sm"
+                                className="bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+                              >
+                                <Plus className="h-4 w-4 mr-2" />
+                                New Item
+                              </Button>
                             </div>
-                            {/* Content Creator for this module */}
-                            {moduleContentCreators.has(module.id) && (
-                              <div className="mb-6">
-                                <EnhancedContentCreator
-                                  moduleId={module.id}
-                                  onContentCreated={handleModuleContentCreated(module.id)}
-                                  onCancel={() => handleHideModuleContentCreator(module.id)}
-                                />
-                              </div>
-                            )}
+
                             {/* Content Block List for this module */}
                             <ContentBlockList
                               moduleId={module.id}
@@ -880,6 +861,26 @@ const ModifyCoursePage: React.FC = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Add Content Dialog */}
+      <Dialog open={contentCreatorDialog.open} onOpenChange={(open) => setContentCreatorDialog({ open, moduleId: contentCreatorDialog.moduleId })}>
+        <DialogContent className="sm:max-w-5xl max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle>Add New Content</DialogTitle>
+            <DialogDescription>
+              Create new content for your module. Choose from different content types to engage your students.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto py-4">
+            {contentCreatorDialog.moduleId && (
+              <EnhancedContentCreator
+                moduleId={contentCreatorDialog.moduleId}
+                onContentCreated={handleModuleContentCreated(contentCreatorDialog.moduleId)}
+                onCancel={handleHideModuleContentCreator}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </DashboardLayout>
   );

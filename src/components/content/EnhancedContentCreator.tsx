@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, HelpCircle } from 'lucide-react';
+import { FileText, HelpCircle, Video } from 'lucide-react';
 
 // Dynamically import the markdown editor to avoid SSR issues
 const MDEditor = dynamic(
@@ -49,12 +49,21 @@ export default function EnhancedContentCreator({
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const getContentTypeDisplayName = (type: ContentType): string => {
+    switch (type) {
+      case ContentType.Text: return 'Text';
+      case ContentType.MultipleChoiceQuestion: return 'Multiple Choice Question';
+      case ContentType.MatchingQuestion: return 'Matching Question';
+      case ContentType.Video: return 'Video';
+    }
+  }
+
   const getContentTypeIcon = (type: ContentType) => {
     switch (type) {
       case ContentType.Text: return <FileText className="h-5 w-5" />;
       case ContentType.MultipleChoiceQuestion: return <HelpCircle className="h-5 w-5" />;
       case ContentType.MatchingQuestion: return <HelpCircle className="h-5 w-5" />;
-      case ContentType.Video: return <FileText className="h-5 w-5" />;
+      case ContentType.Video: return <Video className="h-5 w-5" />;
     }
   };
 
@@ -196,26 +205,12 @@ export default function EnhancedContentCreator({
     }
   };
 
-  const renderStepIndicator = () => (
-    <div className="flex items-center justify-center mb-6">
-      <div className="flex items-center space-x-4">
-        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep === 'type' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
-          }`}>
-          1
-        </div>
-        <div className="w-12 h-0.5 bg-gray-200"></div>
-        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep === 'content' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'
-          }`}>
-          2
-        </div>
-      </div>
-    </div>
-  );
+
 
   const renderTypeSelection = () => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold mb-4">Choose Content Type</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-2">
         {([ContentType.Text, ContentType.MultipleChoiceQuestion, ContentType.MatchingQuestion, ContentType.Video] as ContentType[]).map((type) => (
           <Card
             key={type}
@@ -223,17 +218,17 @@ export default function EnhancedContentCreator({
               }`}
             onClick={() => setContentType(type)}
           >
-            <CardContent className="p-6 text-center">
-              <div className="flex justify-center mb-3">
+            <CardContent className="p-4 text-center">
+              <div className="flex justify-center mb-2">
                 {getContentTypeIcon(type)}
               </div>
-              <h4 className="font-medium mb-2">{type}</h4>
-              <p className="text-sm text-gray-600">{getContentTypeDescription(type)}</p>
+              <h4 className="font-medium mb-1 text-sm">{getContentTypeDisplayName(type)}</h4>
+              <p className="text-xs text-gray-600">{getContentTypeDescription(type)}</p>
             </CardContent>
           </Card>
         ))}
       </div>
-      <div className="flex justify-end mt-6">
+      <div className="flex justify-end mt-4">
         <Button onClick={() => setCurrentStep('content')}>
           Next: Create Content
         </Button>
@@ -242,35 +237,41 @@ export default function EnhancedContentCreator({
   );
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {getContentTypeIcon(contentType)}
-          Add New {contentType} Content
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {renderStepIndicator()}
+    <div className="w-full">
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-600 text-sm">{error}</p>
-          </div>
-        )}
+      {currentStep === 'type' && renderTypeSelection()}
 
-        {currentStep === 'type' && renderTypeSelection()}
+      {currentStep === 'content' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder={`Enter ${contentType.toLowerCase()} title...`}
+                  className="mt-1"
+                />
+              </div>
 
-        {currentStep === 'content' && (
-          <div className="space-y-6">
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder={`Enter ${contentType.toLowerCase()} title...`}
-                className="mt-1"
-              />
+              {contentType === ContentType.Video && (
+                <div>
+                  <Label htmlFor="videoUrl">Video URL</Label>
+                  <Input
+                    id="videoUrl"
+                    value={videoUrl}
+                    onChange={e => setVideoUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/embed/VIDEO_ID"
+                    className="mt-1"
+                  />
+                </div>
+              )}
             </div>
 
             <div>
@@ -282,36 +283,38 @@ export default function EnhancedContentCreator({
                   value={body}
                   onChange={(val) => setBody(val || '')}
                   preview="edit"
-                  height={200}
+                  height={120}
                 />
               </div>
             </div>
 
             {contentType === ContentType.MultipleChoiceQuestion && (
-              <div className="space-y-4">
-                <Label>Answer Options</Label>
-                {options.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <Input
-                      value={option}
-                      onChange={(e) => handleOptionChange(index, e.target.value)}
-                      placeholder={`Option ${index + 1}`}
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeOption(index)}
-                      disabled={options.length <= 2}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                ))}
-                <Button type="button" variant="outline" onClick={addOption}>
-                  Add Option
-                </Button>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <Label>Answer Options</Label>
+                  {options.map((option, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <Input
+                        value={option}
+                        onChange={(e) => handleOptionChange(index, e.target.value)}
+                        placeholder={`Option ${index + 1}`}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeOption(index)}
+                        disabled={options.length <= 2}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" onClick={addOption} size="sm">
+                    Add Option
+                  </Button>
+                </div>
 
                 <div>
                   <Label htmlFor="correctAnswer">Correct Answer</Label>
@@ -379,29 +382,19 @@ export default function EnhancedContentCreator({
                 </button>
               </div>
             )}
-            {/* Video fields */}
-            {contentType === ContentType.Video && (
+            {/* Video preview */}
+            {contentType === ContentType.Video && videoUrl.trim() && (
               <div className="space-y-2">
-                <Label htmlFor="videoUrl">Video URL</Label>
-                <Input
-                  id="videoUrl"
-                  value={videoUrl}
-                  onChange={e => setVideoUrl(e.target.value)}
-                  placeholder="https://www.youtube.com/embed/VIDEO_ID"
-                  className="w-full"
-                />
-                {/* live preview */}
-                {videoUrl.trim() && (
-                  <div className="mt-2 aspect-video rounded overflow-hidden border">
-                    <iframe
-                      src={videoUrl}
-                      title="Video Preview"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="w-full h-full"
-                    />
-                  </div>
-                )}
+                <Label>Video Preview</Label>
+                <div className="aspect-video rounded overflow-hidden border max-w-md">
+                  <iframe
+                    src={videoUrl}
+                    title="Video Preview"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                </div>
               </div>
             )}
 
@@ -421,7 +414,6 @@ export default function EnhancedContentCreator({
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 }

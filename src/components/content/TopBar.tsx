@@ -39,7 +39,7 @@ const TopBar: React.FC<TopBarProps> = ({
   }
 
   return (
-    <div className="fixed top-0 left-64 right-0 h-16 bg-gradient-to-r from-gray-50 to-slate-100 border-b border-gray-200 z-40 flex items-center justify-between px-6 shadow-sm">
+    <div className="fixed top-0 left-64 right-0 h-16 bg-gradient-to-r from-gray-100 to-slate-100 z-40 flex items-center justify-between px-6 shadow-sm">
       {/* Title */}
       <div className="flex items-center">
         <h1 className="text-xl font-semibold text-gray-800">
@@ -54,7 +54,7 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={showAssistant}
               variant="outline"
-              className="border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create Course with AI
@@ -62,7 +62,7 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={onCreateCourse}
               variant="outline"
-              className="border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create Course
@@ -75,7 +75,7 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={onAddTeacher}
               variant="outline"
-              className="border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
             >
               <Users className="h-4 w-4 mr-2" />
               Add Teacher
@@ -83,7 +83,7 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={onAddStudent}
               variant="outline"
-              className="border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
             >
               <GraduationCap className="h-4 w-4 mr-2" />
               Add Student
@@ -91,7 +91,7 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={onPreviewCourse}
               variant="outline"
-              className="border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
             >
               <BookOpen className="h-4 w-4 mr-2" />
               Preview Course
@@ -99,7 +99,7 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={onEditCourse}
               variant="outline"
-              className="border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
             >
               <Edit className="h-4 w-4 mr-2" />
               Edit Course

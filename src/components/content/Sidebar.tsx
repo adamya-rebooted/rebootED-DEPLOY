@@ -3,6 +3,7 @@
 import React from "react";
 import { useUser } from "@/contexts/UserContext";
 import { usePathname, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   BarChart3,
   BookOpen,
@@ -10,9 +11,20 @@ import {
   Settings,
   LogOut,
   GraduationCap,
+  Moon,
+  Sun,
+  Monitor,
 } from "lucide-react";
 import Link from "next/link";
 import { Gochi_Hand } from "next/font/google";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const gochiHand = Gochi_Hand({ subsets: ["latin"], weight: "400" });
 
@@ -20,6 +32,7 @@ const Sidebar: React.FC = () => {
   const { user, signOut } = useUser();
   const pathname = usePathname();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = React.useState(false);
 
   const isTeacher = user?.role === "teacher";
@@ -46,6 +59,8 @@ const Sidebar: React.FC = () => {
     return names[0][0]?.toUpperCase() || "U";
   };
 
+
+
   const handleSignOut = async () => {
     setIsLoading(true);
     try {
@@ -63,19 +78,19 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="w-64 h-screen bg-gradient-to-b from-gray-50 to-slate-100 border-r border-gray-200 flex flex-col">
+    <div className="w-64 h-screen bg-gradient-to-b from-gray-100 to-slate-100 flex flex-col shadow-sm">
       {/* Logo and Portal Name */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-300">
         <div className="flex items-center space-x-3 mb-2">
-          <div className="w-12 h-12 bg-primary rounded flex items-center justify-center">
+          <div className="w-12 h-12 bg-[#1f3a60] rounded flex items-center justify-center">
             {/* <GraduationCap className="h-5 w-5 text-white" /> */}
             <img className="h-8 w-8 invert" src="/placeholder.svg" alt="rebootED" width={32} height={32} />
           </div>
-          <span className={`text-xl font-bold text-primary ${gochiHand.className}`}>
+          <span className={`text-xl font-bold text-gray-800 ${gochiHand.className}`}>
             rebootED
           </span>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-600">
           {isTeacher ? "Teacher Portal" : "Student Portal"}
         </p>
       </div>
@@ -87,58 +102,97 @@ const Sidebar: React.FC = () => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
             return (
-              <Link
+              <Button
                 key={item.name}
-                href={item.href}
-                className={`flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                asChild
+                variant="outline"
+                className={`w-full justify-start bg-white border-primary/30 text-primary hover:bg-primary/5 transition-colors ${
+                  isActive ? "" : ""
                 }`}
               >
-                <Icon className="h-5 w-5" />
-                <span>{item.name}</span>
-              </Link>
+                <Link href={item.href}>
+                  <Icon className="h-4 w-4 mr-2" />
+                  {item.name}
+                </Link>
+              </Button>
             );
           })}
         </div>
       </nav>
 
       {/* User Profile Section */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-300">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#1f3a60] rounded-full flex items-center justify-center">
             <span className="text-white font-medium text-sm">
               {getUserInitials()}
             </span>
           </div>
           <div>
-            <p className="text-sm font-medium text-foreground">
+            <p className="text-sm font-medium text-gray-800">
               {user?.user_metadata?.full_name || "User"}
             </p>
-            <p className="text-xs text-muted-foreground capitalize">
+            <p className="text-xs text-gray-600 capitalize">
               {user?.role || "User"}
             </p>
           </div>
         </div>
 
         {/* Settings and Sign Out */}
-        <div className="space-y-1">
-          <Link
-            href="/settings"
-            className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          >
-            <Settings className="h-4 w-4" />
-            <span>Settings</span>
-          </Link>
-          <button
+        <div className="space-y-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="w-56 bg-gray-800 border-gray-700"
+              align="end"
+              side="top"
+            >
+              <DropdownMenuLabel className="text-xs font-medium text-gray-400">
+                Theme
+              </DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => setTheme("light")}
+                className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700"
+              >
+                <Sun className="mr-2 h-4 w-4" />
+                <span>Light</span>
+                {theme === "light" && <div className="ml-auto h-2 w-2 rounded-full bg-blue-500" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setTheme("dark")}
+                className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700"
+              >
+                <Moon className="mr-2 h-4 w-4" />
+                <span>Dark</span>
+                {theme === "dark" && <div className="ml-auto h-2 w-2 rounded-full bg-blue-500" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setTheme("system")}
+                className="text-gray-200 hover:bg-gray-700 focus:bg-gray-700"
+              >
+                <Monitor className="mr-2 h-4 w-4" />
+                <span>System</span>
+                {theme === "system" && <div className="ml-auto h-2 w-2 rounded-full bg-blue-500" />}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button
             onClick={handleSignOut}
             disabled={isLoading}
-            className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="outline"
+            className="w-full justify-start"
           >
-            <LogOut className="h-4 w-4" />
-            <span>{isLoading ? "Signing out..." : "Sign Out"}</span>
-          </button>
+            <LogOut className="h-4 w-4 mr-2" />
+            {isLoading ? "Signing out..." : "Sign Out"}
+          </Button>
         </div>
       </div>
     </div>
@@ -146,3 +200,4 @@ const Sidebar: React.FC = () => {
 };
 
 export default Sidebar; 
+

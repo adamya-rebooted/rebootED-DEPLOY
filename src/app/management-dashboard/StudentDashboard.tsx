@@ -4,8 +4,7 @@ import React, {useState, useEffect} from "react";
 import DashboardLayout from "@/components/content/DashboardLayout";
 import CourseCard from "@/components/content/CourseCard";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { BookOpen,Clock, Trophy, TrendingUp} from "lucide-react";
+import { BookOpen,Clock, Trophy, TrendingUp, Target, Users } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { apiService } from '@/services/api';
 import { UserCourse } from "@/types/backend-api";
@@ -13,9 +12,6 @@ import { useRouter } from "next/navigation";
 
 // Study-related background images for courses
 const studyImages = [
-  // "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=200&fit=crop&crop=center", // Books and study materials
-  // "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=200&fit=crop&crop=center", // Laptop and notebook
-  // "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=200&fit=crop&crop=center", // Study desk with books
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=200&fit=crop&crop=center", // Open book with coffee
   "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=200&fit=crop&crop=center", // Library books
   "https://images.unsplash.com/photo-1472173148041-00294f0814a2?w=400&h=200&fit=crop&crop=center", // Computer and books
@@ -29,60 +25,7 @@ const getCourseImage = (courseId: number) => {
   return studyImages[index];
 };
 
-// Mock data for student courses
-// const mockCourses: Course[] = [
-//   {
-//     id: "1",
-//     title: "Digital Marketing Fundamentals",
-//     description:
-//       "Learn the basics of digital marketing including SEO, social media, and content strategy.",
-//     duration: "4 weeks",
-//     modules: 8,
-//     progress: 75,
-//     status: "in-progress",
-//     dueDate: "2024-02-15",
-//     category: "Marketing",
-//   },
-//   {
-//     id: "2",
-//     title: "Data Analytics for Business",
-//     description:
-//       "Master data analysis techniques and tools to make informed business decisions.",
-//     duration: "6 weeks",
-//     modules: 12,
-//     progress: 100,
-//     status: "completed",
-//     category: "Analytics",
-//   },
-//   {
-//     id: "3",
-//     title: "Leadership Communication",
-//     description:
-//       "Develop effective communication skills for leadership roles and team management.",
-//     duration: "3 weeks",
-//     modules: 6,
-//     progress: 0,
-//     status: "not-started",
-//     dueDate: "2024-03-01",
-//     category: "Leadership",
-//   },
-//   {
-//     id: "4",
-//     title: "Project Management Essentials",
-//     description:
-//       "Learn project management methodologies and tools to deliver successful projects.",
-//     duration: "5 weeks",
-//     modules: 10,
-//     progress: 30,
-//     status: "in-progress",
-//     dueDate: "2024-02-28",
-//     category: "Management",
-//   },
-// ];
-
-
 const StudentDashboard: React.FC = () => {
-  // const filteredCourses = mockCourses;
   const [recentCourses, setRecentCourses] = React.useState<UserCourse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,10 +42,9 @@ const StudentDashboard: React.FC = () => {
     if (!user || !user.id) return;
     try {
       const courses = await apiService.getUserCourses(user.id);
-      // console.log(apiService.getUserCourses(user.id);
-    console.log('getUserCourses returned:', courses);
-    console.log('Number of courses:', courses.length);
-    console.log('First course structure:', courses[0]);
+      console.log('getUserCourses returned:', courses);
+      console.log('Number of courses:', courses.length);
+      console.log('First course structure:', courses[0]);
       const sortedCourses = courses.sort((a, b) =>
         new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
       ).slice(0, 5);
@@ -146,77 +88,81 @@ const StudentDashboard: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-8 space-y-8">
+      <div className="p-8 space-y-8 bg-gradient-to-br from-gray-50 to-slate-100 min-h-full">
         {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-[var(--primary)]">My Learning Dashboard</h1>
-          <p className="mt-1 text-[var(--muted-foreground)]">Track your progress and continue your professional development journey</p>
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">My Learning Dashboard</h1>
+          <p className="text-gray-600">Track your progress and continue your professional development journey</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-[var(--primary)] text-[var(--primary-foreground)] shadow-md">
+          <Card className="bg-gradient-to-br from-[#1f3a60]/5 to-[#1f3a60]/10 border-[#1f3a60]/20 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
-              <BookOpen className="h-5 w-5 text-[var(--primary-foreground)]/80" />
+              <CardTitle className="text-sm font-medium text-[#1f3a60]">Total Courses</CardTitle>
+              <BookOpen className="h-5 w-5 text-[#1f3a60]" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalCourses}</div>
-              <p className="text-xs text-[var(--primary-foreground)]/80">Assigned to you</p>
+              <div className="text-2xl font-bold text-[#1f3a60]">{totalCourses}</div>
+              <p className="text-xs text-[#1f3a60]/70">Assigned to you</p>
             </CardContent>
           </Card>
-          <Card className="bg-[var(--secondary)] text-[var(--secondary-foreground)] shadow-md">
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Completed</CardTitle>
-              <Trophy className="h-5 w-5 text-[var(--secondary-foreground)]/80" />
+              <CardTitle className="text-sm font-medium text-green-800">Completed</CardTitle>
+              <Trophy className="h-5 w-5 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{completedCourses}</div>
-              <p className="text-xs text-[var(--secondary-foreground)]/80">Courses finished</p>
+              <div className="text-2xl font-bold text-green-900">{completedCourses}</div>
+              <p className="text-xs text-green-700">Courses finished</p>
             </CardContent>
           </Card>
-          {/* <Card className="bg-[var(--muted-foreground)] text-[var(--primary-foreground)] shadow-md"> */}
-          <Card className="bg-slate-400/80 rounded-2xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-sm border border-slate-400">
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-              <Clock className="h-5 w-5 text-[var(--primary-foreground)]/80" />
+              <CardTitle className="text-sm font-medium text-purple-800">In Progress</CardTitle>
+              <Clock className="h-5 w-5 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{inProgressCourses}</div>
-              <p className="text-xs text-[var(--primary-foreground)]/80">Currently learning</p>
+              <div className="text-2xl font-bold text-purple-900">{inProgressCourses}</div>
+              <p className="text-xs text-purple-700">Currently learning</p>
             </CardContent>
           </Card>
-          <Card className="bg-[var(--accent)] text-[var(--accent-foreground)] shadow-md">
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Avg. Progress</CardTitle>
-              <TrendingUp className="h-5 w-5 text-[var(--accent-foreground)]/80" />
+              <CardTitle className="text-sm font-medium text-orange-800">Avg. Progress</CardTitle>
+              <TrendingUp className="h-5 w-5 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{averageProgress}%</div>
-              <p className="text-xs text-[var(--accent-foreground)]/80">Across all courses</p>
+              <div className="text-2xl font-bold text-orange-900">{averageProgress}%</div>
+              <p className="text-xs text-orange-700">Across all courses</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Progress Overview */}
-        {/* <Card className="bg-white/90 shadow border border-[#e3e8f0]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-[#223366]">
-              <Target className="h-5 w-5 text-[#3b82f6]" />
+        <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-lg">
+          <CardHeader className="border-b border-gray-200">
+            <CardTitle className="flex items-center gap-2 text-gray-800">
+              <Target className="h-5 w-5 text-[#1f3a60]" />
               Overall Learning Progress
             </CardTitle>
-            <CardDescription className="text-[#64748b]">
+            <p className="text-gray-600 text-sm">
               Your progress across all assigned courses
-            </CardDescription>
+            </p>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-[#223366] font-medium">Completion Rate</span>
-                <span className="text-[#223366] font-semibold">{averageProgress}%</span>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700 font-medium">Completion Rate</span>
+                <span className="text-gray-800 font-semibold text-lg">{averageProgress}%</span>
               </div>
-              <Progress value={averageProgress} className="h-3 bg-[#eaf1fb]" />
-              <div className="flex justify-between text-xs text-[#64748b]">
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  className="bg-gradient-to-r from-[#1f3a60] to-[#152a4a] h-3 rounded-full transition-all duration-300"
+                  style={{ width: `${averageProgress}%` }}
+                ></div>
+              </div>
+              <div className="flex justify-between text-sm text-gray-600">
                 <span>
                   {completedCourses}/{totalCourses} courses completed
                 </span>
@@ -224,35 +170,35 @@ const StudentDashboard: React.FC = () => {
               </div>
             </div>
           </CardContent>
-        </Card> */}
+        </Card>
 
         {/* Courses Grid */}
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-[var(--text)]">My Courses</h2>
-            <div className="flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[var(--primary)] cursor-pointer transition-colors">
-              <span className="text-sm">View All</span>
+            <h2 className="text-2xl font-bold text-gray-800">My Courses</h2>
+            <div className="flex items-center gap-2 text-gray-600 hover:text-[#1f3a60] cursor-pointer transition-colors">
+              <span className="text-sm font-medium">View All</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
           </div>
           {isLoading ? (
-            <Card className="bg-[var(--card)] border-2 border-[var(--border)]">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--primary)] mb-4"></div>
-                <h3 className="text-lg font-medium mb-2 text-[var(--primary)]">Loading courses...</h3>
-                <p className="text-[var(--muted-foreground)] text-center">
+            <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-lg">
+              <CardContent className="flex flex-col items-center justify-center py-16">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1f3a60] mb-4"></div>
+                <h3 className="text-lg font-semibold mb-2 text-gray-800">Loading courses...</h3>
+                <p className="text-gray-600 text-center">
                   Please wait while we fetch your courses.
                 </p>
               </CardContent>
             </Card>
           ) : error ? (
-            <Card className="bg-[var(--card)] border-2 border-red-200">
-              <CardContent className="flex flex-col items-center justify-center py-12">
+            <Card className="bg-gradient-to-br from-white to-gray-50 border-red-200 shadow-lg">
+              <CardContent className="flex flex-col items-center justify-center py-16">
                 <div className="h-12 w-12 text-red-500 mb-4">⚠️</div>
-                <h3 className="text-lg font-medium mb-2 text-red-600">Error loading courses</h3>
-                <p className="text-[var(--muted-foreground)] text-center mb-4">
+                <h3 className="text-lg font-semibold mb-2 text-red-600">Error loading courses</h3>
+                <p className="text-gray-600 text-center mb-4">
                   {error}
                 </p>
                 <button
@@ -260,7 +206,7 @@ const StudentDashboard: React.FC = () => {
                     setError(null);
                     refreshCourses();
                   }}
-                  className="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] rounded-md hover:bg-[var(--primary)]/90 transition-colors"
+                  className="px-6 py-2 bg-[#1f3a60] text-white rounded-md hover:bg-[#152a4a] transition-colors font-medium"
                 >
                   Try Again
                 </button>
@@ -269,91 +215,45 @@ const StudentDashboard: React.FC = () => {
           ) : recentCourses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recentCourses.map((course) => (
-                <div
-                  key={course.id}
-                  className="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group h-64"
-                  onClick={() => handleCourseAction(course)}
-                >
-                  {/* Background Image Section */}
-                  <div
-                    className="h-3/5 bg-cover bg-center bg-no-repeat relative"
-                    style={{
-                      backgroundImage: `url(${getCourseImage(course.id)})`,
+                <div key={course.id} onClick={() => handleCourseAction(course)}>
+                  <CourseCard
+                    course={{
+                      id: course.id.toString(),
+                      title: course.title,
+                      description: course.body || "No description available",
+                      duration: "Self-paced",
+                      modules: 0, // This will be updated when module data is available
+                      progress: course.progress,
+                      category: course.role === 'teacher' ? 'Teaching' : 'Learning',
                     }}
-                  >
-                    {/* Dark overlay for better badge visibility */}
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-all duration-300"></div>
-
-                    {/* Status Badge */}
-                    <div className="absolute top-4 right-4 z-10">
-                      <Badge
-                        className={
-                          (course.progress || 0) >= 100
-                            ? "bg-green-500/90 text-white border-0"
-                            : (course.progress || 0) > 0
-                            ? "bg-blue-500/90 text-white border-0"
-                            : "bg-gray-500/90 text-white border-0"
-                        }
-                      >
-                        {(course.progress || 0) >= 100
-                          ? "Completed"
-                          : (course.progress || 0) > 0
-                          ? "In Progress"
-                          : "Not Started"}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* White Bottom Section with Course Info */}
-                  <div className="h-2/5 bg-white/70 p-4 flex flex-col justify-center">
-                    <div className="space-y-3">
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-[var(--primary)] transition-colors line-clamp-2">
-                          {course.title}
-                        </h3>
-                        {/* <p className="text-sm text-gray-600 mb-2"> */}
-                          {/* By Mr. Raj Mehta */}
-                        {/* </p> */}
-                      </div>
-
-                      {/* Progress Bar */}
-                      {course.progress !== undefined && (
-                        <div>
-                          <div className="flex justify-between text-xs text-gray-700 mb-1">
-                            <span>Progress</span>
-                            <span className="font-medium text-gray-900">{course.progress}%</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-1.5">
-                            <div
-                              className="bg-[var(--primary)] h-1.5 rounded-full transition-all duration-300"
-                              style={{ width: `${course.progress}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Course Details */}
-                      <div className="flex items-center gap-3 text-xs text-gray-600">
-                        <span>Role: {course.role}</span>
-                        {course.createdAt && (
-                          <>
-                            <span>•</span>
-                            <span>Enrolled: {new Date(course.createdAt).toLocaleDateString()}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                    isTeacher={course.role === 'teacher'}
+                    variant="compact"
+                    onAction={(courseData) => {
+                      // Convert back to UserCourse format for the handler
+                      const userCourse: UserCourse = {
+                        id: parseInt(courseData.id),
+                        title: courseData.title,
+                        body: courseData.description,
+                        role: courseData.category === 'Teaching' ? 'teacher' : 'student',
+                        progress: courseData.progress,
+                        createdAt: course.createdAt, // Use the original course data
+                      };
+                      handleCourseAction(userCourse);
+                    }}
+                    onPreview={() => router.push(`/preview-course?id=${course.id}`)}
+                  />
                 </div>
               ))}
             </div>
           ) : (
-            <Card className="bg-[var(--card)] border-2 border-[var(--border)]">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <BookOpen className="h-12 w-12 text-[var(--primary)] mb-4" />
-                <h3 className="text-lg font-medium mb-2 text-[var(--primary)]">No courses found</h3>
-                <p className="text-[var(--muted-foreground)] text-center">
-                  You haven't been assigned any courses yet.
+            <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-lg">
+              <CardContent className="flex flex-col items-center justify-center py-16">
+                <div className="w-16 h-16 bg-[#1f3a60]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <BookOpen className="h-8 w-8 text-[#1f3a60]" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-800">No courses found</h3>
+                <p className="text-gray-600 text-center max-w-md">
+                  You haven't been assigned any courses yet. Contact your instructor to get started.
                 </p>
               </CardContent>
             </Card>

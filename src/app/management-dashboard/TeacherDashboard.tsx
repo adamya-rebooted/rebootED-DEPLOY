@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/content/DashboardLayout";
 import CreateCourseDialog from "@/components/content/CreateCourseDialog";
 import DeleteCourseDialog from "@/components/content/DeleteCourseDialog";
+import AddUserToCourseDialog from "@/components/content/AddUserToCourseDialog";
 import {
   Card,
   CardContent,
@@ -12,7 +13,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, BookOpen, Users, BarChart3, Clock, Edit, Eye, Check, CheckCircle } from "lucide-react";
+import CourseCard from "@/components/content/CourseCard";
 import {toast} from "sonner"
 import { useRouter } from "next/navigation";
 import { apiService } from "@/services/api";
@@ -27,6 +29,12 @@ const TeacherDashboard: React.FC = () => {
   const [recentCourses, setRecentCourses] = useState<Course[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Add user dialog state
+  const [showAddTeacherDialog, setShowAddTeacherDialog] = useState(false);
+  const [showAddStudentDialog, setShowAddStudentDialog] = useState(false);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
+  
   const router = useRouter();
   const { user } = useUser(); // Get user from context
   const {showAssistant} = useAIAssistant();
@@ -125,144 +133,198 @@ const TeacherDashboard: React.FC = () => {
     }
   };
 
+  // Add user dialog handlers
+  const handleAddTeacher = () => {
+    // For management dashboard, we'll use the first course or show a selection dialog
+    if (recentCourses.length > 0) {
+      setSelectedCourseId(recentCourses[0].id);
+      setShowAddTeacherDialog(true);
+    } else {
+      toast.error("No courses available. Please create a course first.");
+    }
+  };
+
+  const handleAddStudent = () => {
+    // For management dashboard, we'll use the first course or show a selection dialog
+    if (recentCourses.length > 0) {
+      setSelectedCourseId(recentCourses[0].id);
+      setShowAddStudentDialog(true);
+    } else {
+      toast.error("No courses available. Please create a course first.");
+    }
+  };
+
+  const handlePreviewCourse = () => {
+    // For management dashboard, we'll use the first course or show a selection dialog
+    if (recentCourses.length > 0) {
+      router.push(`/preview-course?id=${recentCourses[0].id}`);
+    } else {
+      toast.error("No courses available. Please create a course first.");
+    }
+  };
+
+  const handleEditCourse = () => {
+    // For management dashboard, we'll use the first course or show a selection dialog
+    if (recentCourses.length > 0) {
+      router.push(`/modify-course?id=${recentCourses[0].id}`);
+    } else {
+      toast.error("No courses available. Please create a course first.");
+    }
+  };
+
+  const handleUserAdded = () => {
+    // Optionally refresh course data or show updated member count
+    // For now, just show success message which is handled in the dialog
+  };
+
   return (
-    <DashboardLayout onCreateCourse={() => setIsCreateDialogOpen(true)}>
-      <div className="p-8 space-y-8">
-        {/* Description */}
-        <div className="text-center md:text-left">
-          <p className="text-[var(--muted-foreground)]">Manage your courses and track student progress</p>
-        </div>
+    <DashboardLayout 
+      onCreateCourse={() => setIsCreateDialogOpen(true)}
+      onAddTeacher={handleAddTeacher}
+      onAddStudent={handleAddStudent}
+      onPreviewCourse={handlePreviewCourse}
+      onEditCourse={handleEditCourse}
+    >
+      <div className="p-8 space-y-8 bg-[#1f3a60] min-h-full">
+        {/* Header Section */}
+        {/* <div className="text-center md:text-left mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Course Management Dashboard</h1>
+          <p className="text-gray-600">Manage your courses and track student progress</p>
+        </div> */}
 
         {/* Quick Stats */}
-        {/* <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
+        {/* <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-blue-800">
                 Total Courses
               </CardTitle>
-              <BookOpen className="h-4 w-4" />
+              <BookOpen className="h-5 w-5 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground">
-                +2 from last month
+              <div className="text-2xl font-bold text-blue-900">{recentCourses.length}</div>
+              <p className="text-xs text-blue-700">
+                Active courses
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-green-800">
                 Active Students
               </CardTitle>
-              <Users className="h-4 w-4" />
+              <Users className="h-5 w-5 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+2350</div>
-              <p className="text-xs text-muted-foreground">
-                +180.1% from last month
+              <div className="text-2xl font-bold text-green-900">+0</div>
+              <p className="text-xs text-green-700">
+                Enrolled students
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Assignments</CardTitle>
-              <CheckCircle className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-purple-800">Analytics</CardTitle>
+              <BarChart3 className="h-5 w-5 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+12,234</div>
-              <p className="text-xs text-muted-foreground">
-                +19% from last month
+              <div className="text-2xl font-bold text-purple-900">Coming</div>
+              <p className="text-xs text-purple-700">
+                Soon
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Course Completion
-              </CardTitle>
-              <BarChart3 className="h-4 w-4" />
+              <CardTitle className="text-sm font-medium text-orange-800">Recent Activity</CardTitle>
+              <Clock className="h-5 w-5 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">85%</div>
-              <p className="text-xs text-muted-foreground">
-                +7% from last month
+              <div className="text-2xl font-bold text-orange-900">Live</div>
+              <p className="text-xs text-orange-700">
+                Real-time updates
               </p>
             </CardContent>
           </Card>
         </div> */}
 
         {/* Recent Courses */}
-        <Card className="bg-[var(--primary)] text-[var(--primary-foreground)]">
-          <CardHeader>
-            <CardTitle>Recent Courses</CardTitle>
-            <CardDescription className="text-[var(--muted-foreground)]">
+        <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-lg">
+          <CardHeader className="border-b border-gray-200">
+            <CardTitle className="text-3xl font-bold text-gray-800 flex items-center gap-2">
+              <CheckCircle className="h-8 w-8 text-green-600" />
+              Recent Courses
+            </CardTitle>
+            <CardDescription className="text-gray-600">
               Your most recently created courses
             </CardDescription>
           </CardHeader>
-          <CardContent className="">
+          <CardContent className="py-2 px-6">
             {isLoading ? (
-              <div className="text-center py-8">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                <p className="mt-2 text-[var(--muted-foreground)]">Loading courses...</p>
+              <div className="text-center py-12">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#1f3a60] border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                <p className="mt-4 text-gray-600 font-medium">Loading courses...</p>
               </div>
             ) : error ? (
-              <div className="text-center py-8">
-                <p className="text-[var(--destructive)]">{error}</p>
+              <div className="text-center py-12">
+                <div className="h-12 w-12 text-red-500 mb-4 mx-auto">⚠️</div>
+                <p className="text-red-600 font-medium mb-4">{error}</p>
                 <Button 
                   onClick={() => window.location.reload()} 
                   variant="outline" 
-                  className="mt-2 border-[var(--border)] text-[var(--primary)]"
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   Retry
                 </Button>
               </div>
             ) : recentCourses.length > 0 ? (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentCourses.map((course) => (
-                  <div
+                  <CourseCard
                     key={course.id}
-                    className="bg-[var(--card)] text-[var(--card-foreground)] flex items-center justify-between p-4 border border-[var(--border)] rounded-lg hover:bg-[var(--muted)] transition-colors"
-                  >
-                    <div className="flex-1">
-                      <h4 className="font-medium text-[var(--primary)]">{course.title}</h4>
-                      <p className="text-sm text-[var(--muted-foreground)]">
-                        {course.body || 'No description available'}
-                      </p>
-                      <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                        Created: {course.createdAt ? new Date(course.createdAt).toLocaleDateString() : 'Unknown'}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        className="border-[var(--secondary)] drop-shadow-md border-2 text-[var(--secondary)]"
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => router.push(`/modify-course?id=${course.id}`)}
-                      >
-                        Edit
-                      </Button>
-                      <Button 
-                        className="!border-[var(--destructive)] text-[var(--destructive)] drop-shadow-md"
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleDeleteClick(course)}
-                      >
-                        <Trash2 className="h-4 w-4 " />
-                      </Button>
-                    </div>
-                  </div>
+                    course={{
+                      id: course.id.toString(),
+                      title: course.title,
+                      description: course.body || 'No description available',
+                      duration: 'N/A',
+                      modules: course.moduleCount || 0,
+                      category: 'Course',
+                      enrolled: course.studentCount || 0
+                    }}
+                    isTeacher={true}
+                    variant="compact"
+                    onPreview={() => router.push(`/preview-course?id=${course.id}`)}
+                    onEdit={() => router.push(`/modify-course?id=${course.id}`)}
+                    onDelete={() => handleDeleteClick(course)}
+                  />
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <h3 className="text-lg mb-2 text-[var(--primary-foreground)]">Create Your First Course</h3>
-                <p className="text-[var(--muted-foreground)] mb-4">
-                  Get started by creating your first course to manage students and content.
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-[#1f3a60]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <BookOpen className="h-8 w-8 text-[#1f3a60]" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">Create Your First Course</h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  Get started by creating your first course to manage students and content effectively.
                 </p>
-                <Button className="border-[var(--secondary)] bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors" onClick={() => setIsCreateDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Your First Course
-                </Button>
+                <div className="flex gap-3 justify-center">
+                  <Button 
+                    className="bg-[#1f3a60] hover:bg-[#152a4a] text-white border-0 shadow-sm"
+                    onClick={() => setIsCreateDialogOpen(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Course
+                  </Button>
+                  <Button 
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                    variant="outline"
+                    onClick={showAssistant}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create with AI
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
@@ -282,9 +344,33 @@ const TeacherDashboard: React.FC = () => {
           course={courseToDelete}
           onConfirmDelete={handleConfirmDelete}
         />
+
+        {/* Add User Dialogs */}
+        {selectedCourseId && (
+          <>
+            <AddUserToCourseDialog
+              open={showAddTeacherDialog}
+              onOpenChange={setShowAddTeacherDialog}
+              courseId={selectedCourseId}
+              userType="teacher"
+              onUserAdded={handleUserAdded}
+            />
+            
+            <AddUserToCourseDialog
+              open={showAddStudentDialog}
+              onOpenChange={setShowAddStudentDialog}
+              courseId={selectedCourseId}
+              userType="student"
+              onUserAdded={handleUserAdded}
+            />
+          </>
+        )}
       </div>
     </DashboardLayout>
   );
 };
 
 export default TeacherDashboard;
+
+
+

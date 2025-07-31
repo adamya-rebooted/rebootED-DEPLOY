@@ -133,14 +133,14 @@ body {
   --chart-5: #f59e0b;
 
   /* Dark sidebar colors */
-  --sidebar: #1e293b;
-  --sidebar-foreground: var(--text);
+  /* --sidebar: #1e293b; */
+  /* --sidebar-foreground: var(--text);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: var(--accent);
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
+  --sidebar-ring: var(--ring); */
 }
 
 @layer base {
@@ -149,6 +149,19 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-sidebar {
+    background: var(--sidebar);
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
 
