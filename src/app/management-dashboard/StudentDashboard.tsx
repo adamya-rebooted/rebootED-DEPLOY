@@ -1,7 +1,7 @@
 'use client'
 
 import React, {useState, useEffect} from "react";
-import Navbar from "@/components/content/Navbar";
+import DashboardLayout from "@/components/content/DashboardLayout";
 import CourseCard from "@/components/content/CourseCard";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -145,9 +145,8 @@ const StudentDashboard: React.FC = () => {
   ) : 0;
 
   return (
-    <>
-      <Navbar />
-      <div className="min-h-screen bg-[var(--background)] max-w-6xl mx-auto px-6 py-10 space-y-10">
+    <DashboardLayout>
+      <div className="p-8 space-y-8">
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-[var(--primary)]">My Learning Dashboard</h1>
@@ -361,7 +360,7 @@ const StudentDashboard: React.FC = () => {
           )}
         </div>
       </div>
-    </>
+    </DashboardLayout>
   );
 };
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Navbar from "@/components/content/Navbar";
+import DashboardLayout from "@/components/content/DashboardLayout";
 import {
   Card,
   CardContent,
@@ -14,6 +14,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   ArrowLeft,
   Plus,
@@ -62,6 +77,8 @@ const ModifyCoursePage: React.FC = () => {
   const [newModuleDescription, setNewModuleDescription] = useState('');
   const [isCreatingModule, setIsCreatingModule] = useState(false);
   const [moduleCreationError, setModuleCreationError] = useState<string | null>(null);
+
+
 
   // Add user dialog state
   const [showAddTeacherDialog, setShowAddTeacherDialog] = useState(false);
@@ -281,6 +298,22 @@ const ModifyCoursePage: React.FC = () => {
     }
   };
 
+  const handleOpenModuleDialog = () => {
+    setShowModuleCreator(true);
+    setNewModuleTitle('');
+    setNewModuleDescription('');
+    setModuleCreationError(null);
+  };
+
+  const handleCloseModuleDialog = () => {
+    setShowModuleCreator(false);
+    setNewModuleTitle('');
+    setNewModuleDescription('');
+    setModuleCreationError(null);
+  };
+
+
+
   const handleDeleteModule = async (moduleId: number, moduleTitle: string) => {
     if (!confirm(`Are you sure you want to delete the module "${moduleTitle}"? This action cannot be undone.`)) {
       return;
@@ -371,22 +404,20 @@ const ModifyCoursePage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <>
-        <Navbar />
+      <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading course data...</p>
           </div>
         </div>
-      </>
+      </DashboardLayout>
     );
   }
 
   if (error) {
     return (
-      <>
-        <Navbar />
+      <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <p className="text-red-600 mb-4">Error: {error}</p>
@@ -396,53 +427,35 @@ const ModifyCoursePage: React.FC = () => {
             </Button>
           </div>
         </div>
-      </>
+      </DashboardLayout>
     );
   }
 
   return (
-    <>
-      <Navbar />
-      <div className="container mx-auto p-6 bg-[var(--background)] min-h-screen">
+    <DashboardLayout
+      onAddTeacher={handleAddTeacher}
+      onAddStudent={handleAddStudent}
+      onPreviewCourse={handlePreviewCourse}
+      onEditCourse={handleEditCourse}
+    >
+      <div className="p-8">
         <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={handleBackToDashboard}
-                variant="outline"
-                size="sm"
-                className="border-[var(--border)] text-[var(--primary)]"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold text-[var(--primary)]">{course?.title}</h1>
-                <p className="text-[var(--muted-foreground)]">
-                  Modify course content, add modules, and manage course structure
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={handleAddTeacher} variant="outline" className="border-[var(--border)] text-[var(--primary)]">
-                <Users className="h-4 w-4 mr-2" />
-                Add Teacher
-              </Button>
-              <Button onClick={handleAddStudent} variant="outline" className="border-[var(--border)] text-[var(--primary)]">
-                <GraduationCap className="h-4 w-4 mr-2" />
-                Add Student
-              </Button>
-              {!isEditingCourse && (
-                <Button onClick={handleEditCourse} variant="outline" className="border-[var(--border)] text-[var(--primary)]">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Edit Course
-                </Button>
-              )}
-              <Button onClick={handlePreviewCourse} variant="outline" className="border-[var(--border)] text-[var(--primary)]">
-                <BookOpen className="h-4 w-4 mr-2" />
-                Preview Course
-              </Button>
+          {/* Back Button and Course Info */}
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={handleBackToDashboard}
+              variant="outline"
+              size="sm"
+              className="border-[var(--border)] text-[var(--primary)]"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-[var(--primary)]">{course?.title}</h1>
+              <p className="text-[var(--muted-foreground)]">
+                Modify course content, add modules, and manage course structure
+              </p>
             </div>
           </div>
 
@@ -524,71 +537,14 @@ const ModifyCoursePage: React.FC = () => {
                     Create and organize modules for your course content. Think of Modules like chapters to teach.
                   </CardDescription>
                 </div>
-                <Button onClick={() => setShowModuleCreator(true)} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
+                <Button onClick={handleOpenModuleDialog} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Module
                 </Button>
               </div>
             </CardHeader>
             <CardContent>
-              {/* Module Creator */}
-              {showModuleCreator && (
-                <Card className="mb-6 border-dashed bg-[var(--muted)] border-[var(--border)]">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-[var(--primary)]">Create New Module</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="module-title">Module Title *</Label>
-                      <Input
-                        id="module-title"
-                        value={newModuleTitle}
-                        onChange={(e) => setNewModuleTitle(e.target.value)}
-                        placeholder="Enter module title..."
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="module-description">Module Description</Label>
-                      <Textarea
-                        id="module-description"
-                        value={newModuleDescription}
-                        onChange={(e) => setNewModuleDescription(e.target.value)}
-                        placeholder="Enter module description..."
-                        rows={3}
-                        className="mt-1"
-                      />
-                    </div>
-                    {moduleCreationError && (
-                      <p className="text-sm text-[var(--destructive)]">{moduleCreationError}</p>
-                    )}
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={handleCreateModule}
-                        disabled={isCreatingModule || !newModuleTitle.trim()}
-                        className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        {isCreatingModule ? 'Creating...' : 'Create Module'}
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          setShowModuleCreator(false);
-                          setNewModuleTitle('');
-                          setNewModuleDescription('');
-                          setModuleCreationError(null);
-                        }}
-                        variant="outline"
-                        disabled={isCreatingModule}
-                        className="border-[var(--border)] text-[var(--primary)]"
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Cancel
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+
 
               {/* AI Assistant Module Selection Indicator */}
               {isAIVisible && modules.length > 0 && (
@@ -709,7 +665,7 @@ const ModifyCoursePage: React.FC = () => {
                   <p className="text-[var(--muted-foreground)] mb-4">
                     Start building your course by adding your first module
                   </p>
-                  <Button onClick={() => setShowModuleCreator(true)} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
+                  <Button onClick={handleOpenModuleDialog} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
                     <Plus className="h-4 w-4 mr-2" />
                     Add First Module
                   </Button>
@@ -736,7 +692,64 @@ const ModifyCoursePage: React.FC = () => {
         userType="student"
         onUserAdded={handleUserAdded}
       />
-    </>
+
+      {/* Add Module Dialog */}
+      <Dialog open={showModuleCreator} onOpenChange={setShowModuleCreator}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Create New Module</DialogTitle>
+            <DialogDescription>
+              Add a new module to organize your course content. Modules are like chapters that help structure your course.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="module-title">Module Title *</Label>
+              <Input
+                id="module-title"
+                value={newModuleTitle}
+                onChange={(e) => setNewModuleTitle(e.target.value)}
+                placeholder="Enter module title..."
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="module-description">Module Description</Label>
+              <Textarea
+                id="module-description"
+                value={newModuleDescription}
+                onChange={(e) => setNewModuleDescription(e.target.value)}
+                placeholder="Enter module description..."
+                rows={3}
+              />
+            </div>
+            {moduleCreationError && (
+              <p className="text-sm text-[var(--destructive)]">{moduleCreationError}</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={handleCreateModule}
+              disabled={isCreatingModule || !newModuleTitle.trim()}
+              className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {isCreatingModule ? 'Creating...' : 'Create Module'}
+            </Button>
+            <Button
+              onClick={handleCloseModuleDialog}
+              variant="outline"
+              disabled={isCreatingModule}
+              className="border-[var(--border)] text-[var(--primary)]"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
+    </DashboardLayout>
   );
 };
 

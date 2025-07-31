@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from "react";
-import Navbar from "@/components/content/Navbar";
+import DashboardLayout from "@/components/content/DashboardLayout";
 import CreateCourseDialog from "@/components/content/CreateCourseDialog";
 import DeleteCourseDialog from "@/components/content/DeleteCourseDialog";
 import {
@@ -126,25 +126,11 @@ const TeacherDashboard: React.FC = () => {
   };
 
   return (
-    <>
-      <Navbar />
-      <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-0 text-center md:text-left">
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-[var(--primary)]">Course Management</h1>
-            <p className="text-[var(--muted-foreground)]">Manage your courses and track student progress</p>
-          </div>
-          <div className="flex justify-center space-x-4 md:justify-end w-full md:w-auto">
-            <Button onClick={showAssistant} className="w-full md:w-auto bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Course with AI
-            </Button>
-            <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full md:w-auto bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Course
-            </Button>
-          </div>
+    <DashboardLayout onCreateCourse={() => setIsCreateDialogOpen(true)}>
+      <div className="p-8 space-y-8">
+        {/* Description */}
+        <div className="text-center md:text-left">
+          <p className="text-[var(--muted-foreground)]">Manage your courses and track student progress</p>
         </div>
 
         {/* Quick Stats */}
@@ -297,7 +283,7 @@ const TeacherDashboard: React.FC = () => {
           onConfirmDelete={handleConfirmDelete}
         />
       </div>
-    </>
+    </DashboardLayout>
   );
 };
 
