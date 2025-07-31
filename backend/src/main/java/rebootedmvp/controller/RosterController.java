@@ -1,6 +1,7 @@
 package rebootedmvp.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import rebootedmvp.User;
 import rebootedmvp.domain.impl.RosterEntityImpl;
+import rebootedmvp.domain.impl.UserProfileImpl;
 import rebootedmvp.dto.CourseDTO;
 import rebootedmvp.dto.NewCourseDTO;
 import rebootedmvp.dto.NewRosterDTO;
@@ -74,8 +76,10 @@ public class RosterController {
         try {
             Long courseId = rosterService.addNew(Long.valueOf(0), newCourseDTO);
             String supabaseUserId = authorizationService.getCurrentSupabaseUserId(); // <-- step 2
-
-            courseMembershipService.addUserToCourse(courseId, supabaseUserId, User.UserType.Teacher);
+            Optional<UserProfileImpl> userOpt = userProfileRepository.findBySupabaseUserId(supabaseUserId);
+            User actualUser = userOpt.get();
+            courseMembershipService.addUsersByCourse(courseId, List.of(actualUser.getUsername()),
+                    User.UserType.Teacher);
             // courseService.addTeacher(courseId, userId);
 
             return ResponseEntity.ok(courseId);
