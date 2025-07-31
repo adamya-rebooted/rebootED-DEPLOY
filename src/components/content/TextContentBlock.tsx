@@ -2,14 +2,17 @@
 
 import { useState } from 'react';
 import { Content } from '@/types/backend-api';
+import { Button } from '@/components/ui/button';
+import { Edit } from 'lucide-react';
 
 interface TextContentBlockProps {
   content: Content;
   onComplete: (contentId: number) => Promise<void>;
+  onEdit?: (contentId: number) => void;
   isInteractive?: boolean;
 }
 
-export default function TextContentBlock({ content, onComplete, isInteractive = true }: TextContentBlockProps) {
+export default function TextContentBlock({ content, onComplete, onEdit, isInteractive = true }: TextContentBlockProps) {
   const [completing, setCompleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +56,16 @@ export default function TextContentBlock({ content, onComplete, isInteractive = 
           <span className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}>
             Text
           </span>
+          {isInteractive && onEdit && (
+            <Button
+              onClick={() => onEdit(content.id)}
+              variant="outline"
+              size="sm"
+              className="border-[var(--border)] text-[var(--primary)]"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
       <div className="mb-4 text-[var(--muted-foreground)] leading-relaxed">

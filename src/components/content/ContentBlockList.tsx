@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ContentResponse, isMatchingQuestionContent, isMultipleChoiceQuestionContent, isVideoContent } from '@/types/backend-api';
+import { ContentResponse, isMatchingQuestionContent, isMultipleChoiceQuestionContent, isVideoContent, UpdateContentRequest } from '@/types/backend-api';
 import { apiService } from '@/services/api';
+import { toast } from 'sonner';
 import TextContentBlock from './TextContentBlock';
 import MultipleChoiceQuestionContentBlock from './MultipleChoiceQuestionContentBlock';
 import MatchingQuestionContentBlock from './MatchingQuestionContentBlock';
 import VideoContentBlock from './VideoContentBlock';
+import ContentEditor from './ContentEditor';
 
 
 
@@ -28,6 +30,10 @@ export default function ContentBlockList({
   const [content, setContent] = useState<ContentResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Edit state management
+  const [editingContent, setEditingContent] = useState<Set<number>>(new Set());
+  const [savingContent, setSavingContent] = useState<Set<number>>(new Set());
 
   const loadContent = async () => {
     try {
@@ -97,6 +103,53 @@ export default function ContentBlockList({
     } catch (err) {
       console.error('Error submitting answer:', err);
       throw err; // Let the component handle the error display
+    }
+  };
+
+  // Content editing handlers
+  const handleEditContent = (contentId: number) => {
+    setEditingContent(prev => new Set([...prev, contentId]));
+  };
+
+  const handleCancelEditContent = (contentId: number) => {
+    setEditingContent(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(contentId);
+      return newSet;
+    });
+  };
+
+  const handleUpdateContent = async (contentId: number, updateData: UpdateContentRequest) => {
+    try {
+      setSavingContent(prev => new Set([...prev, contentId]));
+
+      const updatedContent = await apiService.updateContent(contentId, updateData);
+
+      // Update the content in our local state
+      setContent(prevContent =>
+        prevContent.map(item =>
+          item.id === contentId ? updatedContent : item
+        )
+      );
+
+      // Exit edit mode
+      handleCancelEditContent(contentId);
+
+      // Notify parent component of the update
+      if (onContentUpdate) {
+        onContentUpdate();
+      }
+
+      toast.success('Content updated successfully!');
+    } catch (err) {
+      console.error('Error updating content:', err);
+      toast.error(err instanceof Error ? err.message : 'Failed to update content');
+    } finally {
+      setSavingContent(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(contentId);
+        return newSet;
+      });
     }
   };
 
@@ -189,13 +242,29 @@ export default function ContentBlockList({
       </div> */}
       {/* Content Blocks */}
       <div>
-        {content.map((item, index) => {
+        {content.map((item) => {
+          // Check if this content is being edited
+          if (editingContent.has(item.id)) {
+            return (
+              <div key={item.id} className="mb-4">
+                <ContentEditor
+                  content={item}
+                  onSave={handleUpdateContent}
+                  onCancel={() => handleCancelEditContent(item.id)}
+                  isSaving={savingContent.has(item.id)}
+                />
+              </div>
+            );
+          }
+
+          // Render normal content blocks with edit functionality
           if (isMultipleChoiceQuestionContent(item)) {
             return (
               <MultipleChoiceQuestionContentBlock
                 key={item.id}
                 content={item}
                 onSubmitAnswer={handleSubmitAnswer}
+                onEdit={handleEditContent}
                 isInteractive={isInteractive}
               />
             );
@@ -204,6 +273,7 @@ export default function ContentBlockList({
               key={item.id}
               content={item}
               onSubmitAnswer={handleSubmitAnswer}
+              onEdit={handleEditContent}
               isInteractive={isInteractive}
             />
           }
@@ -213,6 +283,7 @@ export default function ContentBlockList({
                 key={item.id}
                 content={item}
                 onComplete={handleComplete}
+                onEdit={handleEditContent}
                 isInteractive={isInteractive}
               />
             );
@@ -224,6 +295,7 @@ export default function ContentBlockList({
                 key={item.id}
                 content={item}
                 onComplete={handleComplete}
+                onEdit={handleEditContent}
                 isInteractive={isInteractive}
               />
             );

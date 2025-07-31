@@ -2,14 +2,17 @@
 
 import { useState } from 'react';
 import { MultipleChoiceQuestion } from '@/types/backend-api';
+import { Button } from '@/components/ui/button';
+import { Edit } from 'lucide-react';
 
 interface MultipleChoiceQuestionContentBlockProps {
   content: MultipleChoiceQuestion;
   onSubmitAnswer: (contentId: number, answer: string) => Promise<void>;
+  onEdit?: (contentId: number) => void;
   isInteractive?: boolean;
 }
 
-export default function MultipleChoiceQuestionContentBlock({ content, onSubmitAnswer, isInteractive = true }: MultipleChoiceQuestionContentBlockProps) {
+export default function MultipleChoiceQuestionContentBlock({ content, onSubmitAnswer, onEdit, isInteractive = true }: MultipleChoiceQuestionContentBlockProps) {
   const [selectedAnswer, setSelectedAnswer] = useState<string>(content.userAnswer || '');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +60,16 @@ export default function MultipleChoiceQuestionContentBlock({ content, onSubmitAn
           <span className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: 'var(--accent)', color: 'var(--accent-foreground)' }}>
             Question
           </span>
+          {isInteractive && onEdit && (
+            <Button
+              onClick={() => onEdit(content.id)}
+              variant="outline"
+              size="sm"
+              className="border-[var(--border)] text-[var(--primary)]"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
       <div className="mb-5 text-[var(--muted-foreground)] leading-relaxed">

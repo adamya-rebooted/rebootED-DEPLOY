@@ -2,16 +2,20 @@
 
 import { useState } from 'react';
 import { Video } from '@/types/backend-api';
+import { Button } from '@/components/ui/button';
+import { Edit } from 'lucide-react';
 
 interface VideoContentBlockProps {
     content: Video;
     onComplete: (contentId: number) => Promise<void>;
+    onEdit?: (contentId: number) => void;
     isInteractive?: boolean;
 }
 
 export default function VideoContentBlock({
     content,
     onComplete,
+    onEdit,
     isInteractive = true,
 }: VideoContentBlockProps) {
     const [completing, setCompleting] = useState(false);
@@ -59,6 +63,16 @@ export default function VideoContentBlock({
                     >
                         Video
                     </span>
+                    {isInteractive && onEdit && (
+                        <Button
+                            onClick={() => onEdit(content.id)}
+                            variant="outline"
+                            size="sm"
+                            className="border-[var(--border)] text-[var(--primary)]"
+                        >
+                            <Edit className="h-4 w-4" />
+                        </Button>
+                    )}
                 </div>
             </div>
 
