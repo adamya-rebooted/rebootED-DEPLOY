@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.NewContentDTO;
+import rebootedmvp.dto.NewMatchingQuestionContentDTO;
+import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
+import rebootedmvp.dto.NewTextContentDTO;
+import rebootedmvp.dto.NewVideoContentDTO;
 import rebootedmvp.service.ContentService;
 
 @RestController
@@ -57,9 +61,51 @@ public class ContentController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ContentDTO> updateContent(@PathVariable Long id,
-            @RequestBody NewContentDTO updateContentDTO) {
+    @PutMapping("/updateText/{id}")
+    public ResponseEntity<ContentDTO> updateTextContent(@PathVariable Long id,
+            @RequestBody NewTextContentDTO updateContentDTO) {
+        try {
+            ContentDTO updatedContent = contentService.update(id, updateContentDTO);
+            if (updatedContent == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(updatedContent);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/updateMultipleChoice/{id}")
+    public ResponseEntity<ContentDTO> updateMultipleChoiceQuestionContent(@PathVariable Long id,
+            @RequestBody NewMultipleChoiceQuestionContentDTO updateContentDTO) {
+        try {
+            ContentDTO updatedContent = contentService.update(id, updateContentDTO);
+            if (updatedContent == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(updatedContent);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/updateMatching/{id}")
+    public ResponseEntity<ContentDTO> updateMatchingQuestionContent(@PathVariable Long id,
+            @RequestBody NewMatchingQuestionContentDTO updateContentDTO) {
+        try {
+            ContentDTO updatedContent = contentService.update(id, updateContentDTO);
+            if (updatedContent == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(updatedContent);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/updateVideo/{id}")
+    public ResponseEntity<ContentDTO> updateVideoContent(@PathVariable Long id,
+            @RequestBody NewVideoContentDTO updateContentDTO) {
         try {
             ContentDTO updatedContent = contentService.update(id, updateContentDTO);
             if (updatedContent == null) {

@@ -6,15 +6,15 @@ import java.util.Objects;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
-public class UserCourseProgressId implements Serializable {
+public class UserProgressId implements Serializable {
 
     private String supabaseUserId;
     private Long courseId;
 
-    public UserCourseProgressId() {
+    public UserProgressId() {
     }
 
-    public UserCourseProgressId(String supabaseUserId, Long courseId) {
+    public UserProgressId(String supabaseUserId, Long courseId) {
         this.supabaseUserId = supabaseUserId;
         this.courseId = courseId;
     }
@@ -40,7 +40,7 @@ public class UserCourseProgressId implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof UserCourseProgressId that))
+        if (!(o instanceof UserProgressId that))
             return false;
         return Objects.equals(supabaseUserId, that.supabaseUserId)
                 && Objects.equals(courseId, that.courseId);

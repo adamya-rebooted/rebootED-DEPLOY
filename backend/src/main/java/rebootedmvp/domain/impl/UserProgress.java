@@ -11,10 +11,10 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "user_course_progress")
-public class UserCourseProgress {
+public class UserProgress {
 
     @EmbeddedId
-    private UserCourseProgressId id;
+    private UserProgressId id;
 
     @Column(name = "total_progress", nullable = false)
     private double totalProgress;
@@ -22,20 +22,20 @@ public class UserCourseProgress {
     @OneToMany(mappedBy = "userCourseProgress", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PairImpl> progress;
 
-    public UserCourseProgress() {
+    public UserProgress() {
     }
 
-    public UserCourseProgress(UserCourseProgressId id, double totalProgress, List<PairImpl> progress) {
+    public UserProgress(UserProgressId id, double totalProgress, List<PairImpl> progress) {
         this.id = id;
         this.totalProgress = totalProgress;
         this.progress = progress;
     }
 
-    public UserCourseProgressId getId() {
+    public UserProgressId getId() {
         return id;
     }
 
-    public void setId(UserCourseProgressId id) {
+    public void setId(UserProgressId id) {
         this.id = id;
     }
 

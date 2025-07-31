@@ -31,7 +31,7 @@ public class PairImpl {
             @JoinColumn(name = "supabase_user_id", referencedColumnName = "supabaseUserId"),
             @JoinColumn(name = "course_id", referencedColumnName = "courseId")
     })
-    private UserCourseProgress userCourseProgress;
+    private UserProgress userCourseProgress;
 
     @OneToMany(mappedBy = "pair", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BooleanEntry> right = new ArrayList<>();
@@ -57,11 +57,11 @@ public class PairImpl {
         this.left = left;
     }
 
-    public UserCourseProgress getUserCourseProgress() {
+    public UserProgress getUserCourseProgress() {
         return userCourseProgress;
     }
 
-    public void setUserCourseProgress(UserCourseProgress userCourseProgress) {
+    public void setUserCourseProgress(UserProgress userCourseProgress) {
         this.userCourseProgress = userCourseProgress;
     }
 
