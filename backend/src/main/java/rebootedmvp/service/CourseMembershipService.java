@@ -49,63 +49,71 @@ public class CourseMembershipService {
     @Lazy
     private CourseService courseService;
 
-    public boolean addUserToCourse(Long courseId, String userId, User.UserType role) {
-        logger.debug("Adding user {} to course {} with role {}", userId, courseId, role);
+    // public boolean addUserToCourse(Long courseId, String userId, User.UserType
+    // role) {
+    // logger.debug("Adding user {} to course {} with role {}", userId, courseId,
+    // role);
 
-        // Find the user
-        UserProfileDTO userDTO = userProfileService.findById(userId);
-        if (userDTO == null) {
-            logger.warn("User not found with ID: {}", userId);
-            return false;
-        }
+    // // Find the user
+    // UserProfileDTO userDTO = userProfileService.findById(userId);
+    // if (userDTO == null) {
+    // logger.warn("User not found with ID: {}", userId);
+    // return false;
+    // }
 
-        // Find the UserProfileImpl entity
-        Optional<User> userOpt = userProfileRepository.findBySupabaseUserId(userDTO.getId()).map(UserMapper::toDomain);
-        if (userOpt.isEmpty()) {
-            logger.warn("UserProfileImpl not found for ID: {}", userId);
-            return false;
-        }
-        User user = userOpt.get();
+    // // Find the UserProfileImpl entity
+    // Optional<User> userOpt =
+    // userProfileRepository.findBySupabaseUserId(userDTO.getId()).map(UserMapper::toDomain);
+    // if (userOpt.isEmpty()) {
+    // logger.warn("UserProfileImpl not found for ID: {}", userId);
+    // return false;
+    // }
+    // User user = userOpt.get();
 
-        // Find the course
-        Optional<Course> courseOpt = courseRepository.findById(courseId).map(CourseMapper::toDomain);
-        if (courseOpt.isEmpty()) {
-            logger.warn("Course not found with ID: {}", courseId);
-            return false;
-        }
-        Course course = courseOpt.get();
+    // // Find the course
+    // Optional<Course> courseOpt =
+    // courseRepository.findById(courseId).map(CourseMapper::toDomain);
+    // if (courseOpt.isEmpty()) {
+    // logger.warn("Course not found with ID: {}", courseId);
+    // return false;
+    // }
+    // Course course = courseOpt.get();
 
-        // Add user to appropriate role
-        if (User.UserType.Teacher == role) {
+    // // Add user to appropriate role
+    // if (User.UserType.Teacher == role) {
 
-            course.addTeacher(user);
-            courseRepository.save(CourseMapper.toEntity(course));
-            logger.info("Successfully added user {} to course {} as {}", userId, courseId, role);
-            return true;
+    // course.addTeacher(user);
+    // courseRepository.save(CourseMapper.toEntity(course));
+    // logger.info("Successfully added user {} to course {} as {}", userId,
+    // courseId, role);
+    // return true;
 
-        } else if (role == User.UserType.Student) {
-            course.addStudent(user);
-            courseRepository.save(CourseMapper.toEntity(course));
-            logger.info("Successfully added user {} to course {} as {}", userId, courseId, role);
-            return true;
-        }
-        return false;
-    }
+    // } else if (role == User.UserType.Student) {
+    // course.addStudent(user);
+    // courseRepository.save(CourseMapper.toEntity(course));
+    // logger.info("Successfully added user {} to course {} as {}", userId,
+    // courseId, role);
+    // return true;
+    // }
+    // return false;
+    // }
 
-    public boolean addUsersToCourse(Long courseId, List<String> userIds, User.UserType role) {
-        logger.debug("Adding users {} to course {} with role {}", userIds, courseId, role);
-        boolean retBool = true;
+    // public boolean addUsersToCourse(Long courseId, List<String> userIds,
+    // User.UserType role) {
+    // logger.debug("Adding users {} to course {} with role {}", userIds, courseId,
+    // role);
+    // boolean retBool = true;
 
-        for (String userId : userIds) {
-            boolean success = addUserToCourse(courseId, userId, role);
-            if (!success) {
-                retBool = false;
-            }
-        }
+    // for (String userId : userIds) {
+    // boolean success = addUserToCourse(courseId, userId, role);
+    // if (!success) {
+    // retBool = false;
+    // }
+    // }
 
-        return retBool;
+    // return retBool;
 
-    }
+    // }
 
     public boolean removeUserFromCourse(Long courseId, String userId) {
         logger.debug("Removing user {} from course {}", userId, courseId);
