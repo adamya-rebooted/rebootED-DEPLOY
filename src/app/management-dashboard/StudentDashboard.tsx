@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 
 const StudentDashboard: React.FC = () => {
   const [recentCourses, setRecentCourses] = React.useState<UserCourse[]>([]);
+  const [moduleCounts, setModuleCounts] = React.useState<{[courseId: number]: number}>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const {user} = useUser();
@@ -36,6 +37,19 @@ const StudentDashboard: React.FC = () => {
         new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
       ).slice(0, 5);
       setRecentCourses(sortedCourses);
+
+      // Fetch module counts for each course
+      const moduleCountPromises = sortedCourses.map(async (course) => {
+        const count = await apiService.getModuleCountByCourseId(course.id);
+        return { courseId: course.id, count };
+      });
+
+      const moduleCountResults = await Promise.all(moduleCountPromises);
+      const newModuleCounts: {[courseId: number]: number} = {};
+      moduleCountResults.forEach(({ courseId, count }) => {
+        newModuleCounts[courseId] = count;
+      });
+      setModuleCounts(newModuleCounts);
     } catch (err) {
       console.error('Error refreshing courses:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch courses');
@@ -209,7 +223,7 @@ const StudentDashboard: React.FC = () => {
                       title: course.title,
                       description: course.body || "No description available",
                       duration: "Self-paced",
-                      modules: course.moduleCount || 0, // This will be updated when module data is available
+                      modules: moduleCounts[course.id] || 0,
                       progress: course.progress,
                       category: course.role === 'teacher' ? 'Teaching' : 'Learning',
                     }}
@@ -227,7 +241,7 @@ const StudentDashboard: React.FC = () => {
                       };
                       handleCourseAction(userCourse);
                     }}
-                    onPreview={() => router.push(`/preview-course?id=${course.id}`)}
+                    onPreview={() => router.push(`/take-course?id=${course.id}`)}
                   />
                 </div>
               ))}

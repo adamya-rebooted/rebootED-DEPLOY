@@ -530,7 +530,7 @@ const ModifyCoursePage: React.FC = () => {
               <div>
                 <h1 className="text-3xl font-bold text-[var(--primary)]">{course?.title}</h1>
                 <p className="text-[var(--muted-foreground)]">
-                  Modify course content, add modules, and manage course structure
+                 {course?.body}
                 </p>
               </div>
             </div>
@@ -604,7 +604,7 @@ const ModifyCoursePage: React.FC = () => {
           {/* Course Content Management - Two Column Layout */}
           <div className="flex gap-6 h-[calc(100vh-300px)] min-h-[600px]">
             {/* Left Sidebar - Course Structure */}
-            <div className="w-1/3 max-w-sm">
+            <div className="w-1/3 max-h-[calc(100vh-200px)] max-w-sm">
               <div className="bg-[var(--card)] text-[var(--card-foreground)] border border-[var(--border)] rounded-lg h-full flex flex-col">
                 {/* Header */}
                 <div className="p-4 border-b border-[var(--border)]">
@@ -617,6 +617,7 @@ const ModifyCoursePage: React.FC = () => {
                         size="sm"
                         className="border-[var(--border)] bg-[var(--primary)] text-[var(--background)]"
                       >
+                        <Plus className="h-4 w-4 mr-2" />
                         Create Module
                       </Button>
                      
@@ -725,7 +726,7 @@ const ModifyCoursePage: React.FC = () => {
 
             {/* Right Content Area */}
             <div className="flex-1">
-              <div className="bg-[var(--card)] text-[var(--card-foreground)] border border-[var(--border)] rounded-lg h-full flex flex-col">
+              <div className="max-h-[calc(100vh-200px)] bg-[var(--card)] text-[var(--card-foreground)] border border-[var(--border)] rounded-lg h-full flex flex-col">
                 {/* Header */}
                 <div className="p-4 border-b border-[var(--border)]">
                   <h2 className="text-lg font-semibold text-[var(--primary)]">

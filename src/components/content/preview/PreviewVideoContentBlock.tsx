@@ -33,41 +33,16 @@ export default function PreviewVideoContentBlock({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6 transition-all duration-200 hover:shadow-md">
-      {/* Header Section */}
-      <div className="px-6 py-4 border-b border-gray-100" style={{ background: 'linear-gradient(to right, #fafcff, #f0f4ff)' }}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg`} style={{ backgroundColor: content.isComplete ? '#1e7656' : '#73afc9', color: '#fafcff' }}>
-              {content.isComplete ? (
-                <CheckCircle className="h-5 w-5" />
-              ) : (
-                <VideoIcon className="h-5 w-5" />
-              )}
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-1" style={{ color: '#070809' }}>
-                {content.title}
-              </h3>
-              <div className="flex items-center gap-2 text-sm" style={{ color: '#1f3a60' }}>
-                <Play className="h-4 w-4" />
-                <span>Video Content</span>
-              </div>
-            </div>
-          </div>
+    <div className="bg-white min-h-full">
+      {/* Main Content Area */}
+      <div className="max-w-4xl mx-auto px-8 py-8">
+        {/* Content Title */}
+        <h1 className="text-3xl font-bold mb-8" style={{ color: '#070809' }}>
+          {content.title}
+        </h1>
 
-          {content.isComplete && (
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium" style={{ backgroundColor: '#1e7656', color: '#fafcff' }}>
-              <CheckCircle className="h-4 w-4" />
-              Completed
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Video Section */}
-      <div className="px-6 py-6">
-        <div className="mb-6">
+        {/* Video Section */}
+        <div className="mb-8">
           {content.videoUrl ? (
             <div className="relative bg-gray-900 rounded-lg overflow-hidden shadow-lg">
               <div className="aspect-video">
@@ -93,35 +68,56 @@ export default function PreviewVideoContentBlock({
 
         {/* Description */}
         {content.body && (
-          <div className="mb-6">
-            <h4 className="text-sm font-semibold mb-3 uppercase tracking-wide" style={{ color: '#070809' }}>
-              Description
-            </h4>
-            <div className="prose prose-gray max-w-none">
-              {content.body.split('\n').map((line, idx) => (
-                <p key={idx} className="mb-3 last:mb-0 leading-relaxed" style={{ color: '#070809' }}>
-                  {line}
+          <div className="prose prose-lg max-w-none">
+            {content.body.split('\n').map((line, idx) => {
+              // Handle different content formatting
+              if (line.trim() === '') {
+                return <div key={idx} className="mb-4" />;
+              }
+
+              // Check if it's a heading (starts with numbers like "1.", "2.", etc.)
+              if (/^\d+\.\s/.test(line.trim())) {
+                return (
+                  <h3 key={idx} className="text-xl font-bold mt-8 mb-4" style={{ color: '#070809' }}>
+                    {line.trim()}
+                  </h3>
+                );
+              }
+
+              // Check if it's a subheading or key point
+              if (line.includes(':') && line.length < 100) {
+                return (
+                  <h4 key={idx} className="text-lg font-semibold mt-6 mb-3" style={{ color: '#070809' }}>
+                    {line.trim()}
+                  </h4>
+                );
+              }
+
+              // Regular paragraph
+              return (
+                <p key={idx} className="mb-4 text-base leading-relaxed" style={{ color: '#070809' }}>
+                  {line.trim()}
                 </p>
-              ))}
-            </div>
+              );
+            })}
           </div>
         )}
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-700 text-sm">{error}</p>
           </div>
         )}
 
-        {/* Action Section */}
+        {/* Mark Complete Button - Only show if not completed */}
         {isInteractive && !content.isComplete && (
-          <div className="pt-4 border-t border-gray-100">
+          <div className="mt-12 pt-6 border-t border-gray-200">
             <button
               onClick={handleComplete}
               disabled={completing}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200 disabled:opacity-50 hover:opacity-90"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-colors duration-200 disabled:opacity-50 hover:opacity-90"
               style={{
-                backgroundColor: completing ? '#6b7280' : '#73afc9',
+                backgroundColor: completing ? '#6b7280' : '#1f3a60',
                 color: '#fafcff'
               }}
             >
@@ -132,7 +128,9 @@ export default function PreviewVideoContentBlock({
                 </>
               ) : (
                 <>
-                  <CheckCircle className="h-4 w-4" />
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
                   Mark as Complete
                 </>
               )}

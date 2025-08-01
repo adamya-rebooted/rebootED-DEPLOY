@@ -38,88 +38,54 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
   const hasAnswered = content.userAnswer !== undefined && content.userAnswer !== null;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6 transition-all duration-200 hover:shadow-md">
-      {/* Header Section */}
-      <div className="px-6 py-4 border-b border-gray-100" style={{
-        background: hasAnswered
-          ? isCorrect
-            ? 'linear-gradient(to right, #f0fdf4, #dcfce7)'
-            : 'linear-gradient(to right, #fef2f2, #fee2e2)'
-          : 'linear-gradient(to right, #fafcff, #f0f4ff)'
-      }}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg" style={{
-              backgroundColor: hasAnswered
-                ? isCorrect
-                  ? '#1e7656'
-                  : '#dc2626'
-                : '#1f3a60',
-              color: '#fafcff'
-            }}>
-              {hasAnswered ? (
-                isCorrect ? (
-                  <CheckCircle className="h-5 w-5" />
-                ) : (
-                  <XCircle className="h-5 w-5" />
-                )
-              ) : (
-                <HelpCircle className="h-5 w-5" />
-              )}
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-1" style={{ color: '#070809' }}>
-                {content.title}
-              </h3>
-              <div className="flex items-center gap-2 text-sm" style={{ color: '#1f3a60' }}>
-                <HelpCircle className="h-4 w-4" />
-                <span>Multiple Choice Question</span>
-              </div>
-            </div>
-          </div>
+    <div className="bg-white min-h-full">
+      {/* Main Content Area */}
+      <div className="max-w-4xl mx-auto px-8 py-8">
+        {/* Content Title */}
+        <h1 className="text-3xl font-bold mb-8" style={{ color: '#070809' }}>
+          {content.title}
+        </h1>
 
-          {hasAnswered && (
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium" style={{
-              backgroundColor: isCorrect ? '#1e7656' : '#dc2626',
-              color: '#fafcff'
-            }}>
-              {isCorrect ? (
-                <>
-                  <CheckCircle className="h-4 w-4" />
-                  Correct
-                </>
-              ) : (
-                <>
-                  <XCircle className="h-4 w-4" />
-                  Incorrect
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <div className="px-6 py-6">
         {/* Question Body */}
         {content.body && (
-          <div className="mb-6">
-            <div className="prose prose-gray max-w-none">
-              {content.body.split('\n').map((paragraph, index) => (
-                <p key={index} className="mb-3 last:mb-0 leading-relaxed" style={{ color: '#070809' }}>
-                  {paragraph}
+          <div className="prose prose-lg max-w-none mb-8">
+            {content.body.split('\n').map((paragraph, index) => {
+              // Handle different content formatting
+              if (paragraph.trim() === '') {
+                return <div key={index} className="mb-4" />;
+              }
+
+              // Check if it's a heading (starts with numbers like "1.", "2.", etc.)
+              if (/^\d+\.\s/.test(paragraph.trim())) {
+                return (
+                  <h3 key={index} className="text-xl font-bold mt-8 mb-4" style={{ color: '#070809' }}>
+                    {paragraph.trim()}
+                  </h3>
+                );
+              }
+
+              // Check if it's a subheading or key point
+              if (paragraph.includes(':') && paragraph.length < 100) {
+                return (
+                  <h4 key={index} className="text-lg font-semibold mt-6 mb-3" style={{ color: '#070809' }}>
+                    {paragraph.trim()}
+                  </h4>
+                );
+              }
+
+              // Regular paragraph
+              return (
+                <p key={index} className="mb-4 text-base leading-relaxed" style={{ color: '#070809' }}>
+                  {paragraph.trim()}
                 </p>
-              ))}
-            </div>
+              );
+            })}
           </div>
         )}
 
         {/* Options */}
         {content.options && content.options.length > 0 && (
-          <div className="space-y-3 mb-6">
-            <h4 className="text-sm font-semibold mb-3 uppercase tracking-wide" style={{ color: '#070809' }}>
-              Choose your answer:
-            </h4>
+          <div className="space-y-3 mb-8">
             {content.options.map((option, index) => {
               const optionLetter = String.fromCharCode(65 + index);
               const isSelectedOption = selectedAnswer === option;
@@ -172,7 +138,7 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
                     }`}>
                       {optionLetter}
                     </span>
-                    <span className="flex-1 text-gray-900">{option}</span>
+                    <span className="flex-1" style={{ color: '#070809' }}>{option}</span>
                     {hasAnswered && isCorrectOption && (
                       <CheckCircle className="h-5 w-5 text-green-600" />
                     )}
@@ -188,21 +154,21 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
 
         {/* Feedback Section */}
         {hasAnswered && (
-          <div className={`p-4 rounded-lg border ${
+          <div className={`p-4 rounded-lg border mb-8 ${
             isCorrect 
               ? 'bg-green-50 border-green-200' 
               : 'bg-red-50 border-red-200'
           }`}>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900">Your answer:</span>
+                <span className="font-semibold" style={{ color: '#070809' }}>Your answer:</span>
                 <span className={isCorrect ? 'text-green-700' : 'text-red-700'}>
                   {content.userAnswer}
                 </span>
               </div>
               {!isCorrect && (
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900">Correct answer:</span>
+                  <span className="font-semibold" style={{ color: '#070809' }}>Correct answer:</span>
                   <span className="text-green-700">{content.correctAnswer}</span>
                 </div>
               )}
@@ -211,18 +177,18 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
         )}
 
         {error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-700 text-sm">{error}</p>
           </div>
         )}
 
         {/* Submit Button */}
         {isInteractive && !hasAnswered && (
-          <div className="mt-6 pt-4 border-t border-gray-100">
+          <div className="mt-12 pt-6 border-t border-gray-200">
             <button
               onClick={handleSubmit}
               disabled={!selectedAnswer || submitting}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200 disabled:opacity-50 hover:opacity-90"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-colors duration-200 disabled:opacity-50 hover:opacity-90"
               style={{
                 backgroundColor: (!selectedAnswer || submitting) ? '#6b7280' : '#1f3a60',
                 color: '#fafcff'
@@ -235,7 +201,9 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
                 </>
               ) : (
                 <>
-                  <Send className="h-4 w-4" />
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
                   Submit Answer
                 </>
               )}

@@ -388,14 +388,22 @@ const CourseView: React.FC<CourseViewProps> = ({
                                 onClick={() => handleContentSelect(content)}
                               >
                                 <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium text-[var(--primary)] underline decoration-1 underline-offset-2">
+                                  <span className={`text-sm font-medium underline decoration-1 underline-offset-2 ${
+                                    selectedContent?.id === content.id
+                                      ? 'text-[var(--primary-foreground)]'
+                                      : 'text-[var(--primary)]'
+                                  }`}>
                                     {content.title}
                                   </span>
                                   {isContentCompleted(content) && (
                                     <CheckCircle className="h-4 w-4 text-green-600" />
                                   )}
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+                                <div className={`flex items-center gap-2 text-xs ${
+                                  selectedContent?.id === content.id
+                                    ? 'text-[var(--primary-foreground)]'
+                                    : 'text-[var(--muted-foreground)]'
+                                }`}>
                                   {getContentIcon(content)}
                                   <span>{getContentTypeLabel(content)}</span>
                                 </div>

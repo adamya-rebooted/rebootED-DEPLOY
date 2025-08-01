@@ -60,6 +60,16 @@ export class BackendApiService {
     return backendApiClient.getModulesByCourse(courseId);
   }
 
+  async getModuleCountByCourseId(courseId: number): Promise<number> {
+    try {
+      const modules = await this.getModulesByCourseId(courseId);
+      return modules.length;
+    } catch (error) {
+      console.error(`Error fetching module count for course ${courseId}:`, error);
+      return 0;
+    }
+  }
+
   async getModuleById(courseId: number, moduleId: number): Promise<Module> {
     return backendApiClient.getModuleById(courseId, moduleId);
   }

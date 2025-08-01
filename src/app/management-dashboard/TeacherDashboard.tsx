@@ -27,6 +27,7 @@ const TeacherDashboard: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [recentCourses, setRecentCourses] = useState<Course[]>([]);
+  const [moduleCounts, setModuleCounts] = useState<{[courseId: number]: number}>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -48,6 +49,19 @@ const TeacherDashboard: React.FC = () => {
         new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
       ).slice(0, 5);
       setRecentCourses(sortedCourses);
+
+      // Fetch module counts for each course
+      const moduleCountPromises = sortedCourses.map(async (course) => {
+        const count = await apiService.getModuleCountByCourseId(course.id);
+        return { courseId: course.id, count };
+      });
+
+      const moduleCountResults = await Promise.all(moduleCountPromises);
+      const newModuleCounts: {[courseId: number]: number} = {};
+      moduleCountResults.forEach(({ courseId, count }) => {
+        newModuleCounts[courseId] = count;
+      });
+      setModuleCounts(newModuleCounts);
     } catch (err) {
       console.error('Error refreshing courses:', err);
     }
@@ -287,7 +301,7 @@ const TeacherDashboard: React.FC = () => {
                       title: course.title,
                       description: course.body || 'No description available',
                       duration: 'N/A',
-                      modules: course.moduleCount || 0,
+                      modules: moduleCounts[course.id] || 0,
                       category: 'Course',
                       enrolled: course.studentCount || 0
                     }}

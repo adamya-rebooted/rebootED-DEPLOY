@@ -78,24 +78,45 @@ export default function PreviewMatchingQuestionContentBlock({
     <div className="bg-white min-h-full">
       {/* Main Content Area */}
       <div className="max-w-4xl mx-auto px-8 py-8">
-        {/* Question Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold" style={{ color: '#070809' }}>
-            {content.title}
-          </h1>
-          {/* <div className="px-4 py-2 rounded-full border-2 border-gray-300">
-            <span className="text-lg font-medium" style={{ color: '#070809' }}>
-              {totalPoints} points
-            </span>
-          </div> */}
-        </div>
+        {/* Content Title */}
+        <h1 className="text-3xl font-bold mb-8" style={{ color: '#070809' }}>
+          {content.title}
+        </h1>
 
         {/* Question Body */}
         {content.body && (
-          <div className="mb-8">
-            <p className="text-lg leading-relaxed" style={{ color: '#070809' }}>
-              {content.body}
-            </p>
+          <div className="prose prose-lg max-w-none mb-8">
+            {content.body.split('\n').map((paragraph, index) => {
+              // Handle different content formatting
+              if (paragraph.trim() === '') {
+                return <div key={index} className="mb-4" />;
+              }
+
+              // Check if it's a heading (starts with numbers like "1.", "2.", etc.)
+              if (/^\d+\.\s/.test(paragraph.trim())) {
+                return (
+                  <h3 key={index} className="text-xl font-bold mt-8 mb-4" style={{ color: '#070809' }}>
+                    {paragraph.trim()}
+                  </h3>
+                );
+              }
+
+              // Check if it's a subheading or key point
+              if (paragraph.includes(':') && paragraph.length < 100) {
+                return (
+                  <h4 key={index} className="text-lg font-semibold mt-6 mb-3" style={{ color: '#070809' }}>
+                    {paragraph.trim()}
+                  </h4>
+                );
+              }
+
+              // Regular paragraph
+              return (
+                <p key={index} className="mb-4 text-base leading-relaxed" style={{ color: '#070809' }}>
+                  {paragraph.trim()}
+                </p>
+              );
+            })}
           </div>
         )}
 
@@ -220,7 +241,7 @@ export default function PreviewMatchingQuestionContentBlock({
 
         {/* Submit Button */}
         {isInteractive && !submitted && (
-          <div className="pt-6 border-t border-gray-200">
+          <div className="mt-12 pt-6 border-t border-gray-200">
             <button
               onClick={handleSubmit}
               disabled={Object.keys(selections).length !== leftItems.length || submitting}
@@ -238,7 +259,7 @@ export default function PreviewMatchingQuestionContentBlock({
               ) : (
                 <>
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                   Submit Answer
                 </>
@@ -249,7 +270,7 @@ export default function PreviewMatchingQuestionContentBlock({
 
         {/* Results Summary for submitted answers */}
         {submitted && (
-          <div className="pt-6 border-t border-gray-200">
+          <div className="mt-12 pt-6 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="text-lg font-semibold" style={{ color: '#070809' }}>

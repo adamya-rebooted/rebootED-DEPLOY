@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 
 // Study-related background images for courses
 const studyImages = [
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=200&fit=crop&crop=center", // Open book with coffee
   "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=200&fit=crop&crop=center", // Library books
   "https://images.unsplash.com/photo-1472173148041-00294f0814a2?w=400&h=200&fit=crop&crop=center", // Computer and books
   "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&h=200&fit=crop&crop=center", // Stack of books
   "https://images.unsplash.com/photo-1519452575417-564c1401ecc0?w=400&h=200&fit=crop&crop=center", // Study materials and pen
+  "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400&h=200&fit=crop&crop=center", // Study materials and pen
+  "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&h=200&fit=crop&crop=center", // Study materials and pen
+  "https://images.unsplash.com/photo-1515666991427-9b0f67becfa1?w=400&h=200&fit=crop&crop=center", // Study materials and pen
 ];
 
 // Function to get a randomized image for each course
