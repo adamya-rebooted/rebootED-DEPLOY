@@ -144,6 +144,11 @@ public class ContentService {
     public ContentDTO update(Long id, NewContentDTO updateContentDTO) {
         logger.debug("ContentService.update({}) called", id);
 
+        // Validate required fields
+        if (updateContentDTO.getTitle() == null || updateContentDTO.getTitle().trim().isEmpty()) {
+            throw new IllegalArgumentException("Content title cannot be empty");
+        }
+
         Optional<Content> contentOpt = contentRepository.findById(id).map(ContentMapper::toDomain);
         if (contentOpt.isEmpty()) {
             return null;
@@ -163,23 +168,45 @@ public class ContentService {
         // Update question-specific fields if this is a question
         switch (content.getType()) {
             case MultipleChoiceQuestion:
-                MultipleChoiceQuestionContentDTO qDTO = (MultipleChoiceQuestionContentDTO) convertToDTO(content);
-                ((MultipleChoiceQuestionContentImpl) content).setQuestionText(updateContentDTO.getBody());
-                if ((qDTO).getOptions() != null) {
-                    ((MultipleChoiceQuestionContentImpl) content).setOptions(qDTO.getOptions());
+                NewMultipleChoiceQuestionContentDTO mcUpdateDTO = (NewMultipleChoiceQuestionContentDTO) updateContentDTO;
+                MultipleChoiceQuestionContentImpl mcContent = (MultipleChoiceQuestionContentImpl) content;
+                
+                // Update question text (body)
+                if (mcUpdateDTO.getBody() != null) {
+                    mcContent.setQuestionText(mcUpdateDTO.getBody());
                 }
-                if (((NewMultipleChoiceQuestionContentDTO) updateContentDTO).getCorrectAnswer() != null) {
-                    ((MultipleChoiceQuestionContentImpl) content)
-                            .setCorrectAnswer(
-                                    ((NewMultipleChoiceQuestionContentDTO) updateContentDTO).getCorrectAnswer());
+                
+                // Update options and correct answer
+                if (mcUpdateDTO.getOptions() != null) {
+                    List<String> options = mcUpdateDTO.getOptions();
+                    String correctAnswer = mcUpdateDTO.getCorrectAnswer();
+                    
+                    // Validate business logic
+                    if (options.size() < 2) {
+                        throw new IllegalArgumentException("Question must have at least 2 options");
+                    }
+                    if (correctAnswer == null || correctAnswer.trim().isEmpty()) {
+                        throw new IllegalArgumentException("Question must have a correct answer");
+                    }
+                    if (!options.contains(correctAnswer)) {
+                        throw new IllegalArgumentException("Correct answer must be one of the provided options");
+                    }
+                    
+                    mcContent.setOptions(options);
+                    mcContent.setCorrectAnswer(correctAnswer);
                 }
+                break;
+                
             case Video:
                 if (((NewVideoContentDTO) updateContentDTO).getVideoUrl() != null) {
                     ((VideoContentImpl) content).setVideoUrl(((NewVideoContentDTO) updateContentDTO).getVideoUrl());
                 }
+                break;
+                
             case Text:
                 // No additional fields to update for TextContent
                 break;
+                
             case MatchingQuestion:
                 if (((NewMatchingQuestionContentDTO) updateContentDTO).getMatches() != null) {
                     ((MatchingQuestionContentImpl) content)
@@ -187,15 +214,10 @@ public class ContentService {
                 }
                 break;
         }
-        if (content.getType() == Content.ContentType.MultipleChoiceQuestion) {
-
-        }
 
         Content savedContent = contentRepository.save(ContentMapper.toEntity(content));
         logger.info("Updated content with ID: {}", savedContent.getId());
-        return
-
-        convertToDTO(savedContent);
+        return convertToDTO(savedContent);
     }
 
     public boolean delete(Long id) {

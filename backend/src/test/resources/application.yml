@@ -1,0 +1,61 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:6543/postgres?prepareThreshold=0&autosave=conservative
+    username: postgres.snvasvzrqiordsgmfcai
+    password: fusenfellow3
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        use_sql_comments: false
+        generate_statistics: false
+    open-in-view: false
+
+  # Test transactions
+  transaction:
+    default-timeout: 30
+    rollback-on-commit-failure: true
+
+# Supabase Configuration (same as production for integration testing)
+supabase:
+  project-url: https://snvasvzrqiordsgmfcai.supabase.co
+  jwt-secret: 8ded79f6-e7d7-4232-8fa4-7ed7f6434d04
+  anon-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudmFzdnpycWlvcmRzZ21mY2FpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxNjk1OTMsImV4cCI6MjA2NTc0NTU5M30.Ya0nx3pHDl2Pwtatkjw_BjTvo_mxJmSlam2XKbEKTvA
+  service-role-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudmFzdnpycWlvcmRzZ21mY2FpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDE2OTU5MywiZXhwIjoyMDY1NzQ1NTkzfQ.YUlpVsDQJTsjEl3bV6X2O-32mGeIL42CMQOpODkqGMY
+
+# Reduced logging for cleaner test output
+logging:
+  level:
+    rebootedmvp: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    org.hibernate.stat: WARN
+    com.zaxxer.hikari: WARN
+    org.springframework.jdbc: WARN
+    org.postgresql: WARN
+    rebootedmvp.controller: INFO
+    rebootedmvp.service: INFO
+    rebootedmvp.security: WARN
+    org.springframework.test: INFO
+
+# Management endpoints disabled for tests
+management:
+  endpoints:
+    enabled-by-default: false
