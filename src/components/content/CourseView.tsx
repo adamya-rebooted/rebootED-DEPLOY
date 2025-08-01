@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -63,7 +63,7 @@ const CourseView: React.FC<CourseViewProps> = ({
   const [loadingContent, setLoadingContent] = useState<{[key: number]: boolean}>({});
 
   // Load content for a module when it's expanded
-  const loadModuleContent = async (moduleId: number) => {
+  const loadModuleContent = useCallback(async (moduleId: number) => {
     if (moduleContents[moduleId] || loadingContent[moduleId]) return;
 
     try {
@@ -75,7 +75,18 @@ const CourseView: React.FC<CourseViewProps> = ({
     } finally {
       setLoadingContent(prev => ({ ...prev, [moduleId]: false }));
     }
-  };
+  }, [moduleContents, loadingContent]);
+
+  // Load content count for all modules on initial load
+  useEffect(() => {
+    if (modules.length > 0) {
+      modules.forEach(module => {
+        if (!moduleContents[module.id] && !loadingContent[module.id]) {
+          loadModuleContent(module.id);
+        }
+      });
+    }
+  }, [modules, loadModuleContent]);
 
   // Toggle module expansion
   const toggleModuleExpansion = (moduleId: number) => {
@@ -85,7 +96,7 @@ const CourseView: React.FC<CourseViewProps> = ({
         newSet.delete(moduleId);
       } else {
         newSet.add(moduleId);
-        loadModuleContent(moduleId);
+        // Content should already be loaded from initial load
       }
       return newSet;
     });
@@ -286,89 +297,112 @@ const CourseView: React.FC<CourseViewProps> = ({
         {/* Modules List */}
         <div className="p-4">
           {modules.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-0">
               {modules.map((module, index) => (
-                <div key={module.id} className="border border-[var(--border)] rounded-lg">
+                <div key={module.id}>
                   {/* Module Header */}
                   <div
-                    className="p-3 cursor-pointer hover:bg-[var(--muted)] transition-colors"
+                    className="p-3 cursor-pointer hover:bg-[var(--muted)] transition-colors flex items-center justify-between"
                     onClick={() => toggleModuleExpansion(module.id)}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {expandedModules.has(module.id) ? (
-                          <ChevronDown className="h-4 w-4 text-[var(--primary)]" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4 text-[var(--primary)]" />
-                        )}
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-medium text-[var(--primary)]">
-                              Module {index + 1}
-                            </span>
-                            {module.progress === 100 && (
-                              <CheckCircle className="h-3 w-3 text-[var(--secondary)]" />
-                            )}
-                          </div>
-                          <h3 className="font-medium text-sm text-[var(--card-foreground)]">
-                            {module.title}
-                          </h3>
-                        </div>
-                      </div>
-                      {module.progress !== undefined && (
-                        <div className="text-xs text-[var(--muted-foreground)]">
-                          {Math.round(module.progress)}%
-                        </div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-sm text-[var(--primary)] underline decoration-1 underline-offset-2">
+                        Module {index + 1}: {module.title}
+                      </h3>
+                      {module.progress === 100 && (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
                       )}
                     </div>
-                    {module.progress !== undefined && (
-                      <div className="mt-2 w-full h-1 bg-[var(--muted)] rounded-full">
-                        <div
-                          className="h-1 bg-[var(--primary)] rounded-full transition-all duration-300"
-                          style={{ width: `${module.progress}%` }}
-                        />
-                      </div>
+                    {moduleContents[module.id]?.length > 0 && !expandedModules.has(module.id) && (
+                      <span className="bg-gray-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
+                        {moduleContents[module.id].length}
+                      </span>
                     )}
                   </div>
 
                   {/* Module Content */}
                   {expandedModules.has(module.id) && (
-                    <div className="border-t border-[var(--border)]">
+                    <div className="ml-6 space-y-1">
                       {loadingContent[module.id] ? (
                         <div className="p-3 text-center text-sm text-[var(--muted-foreground)]">
                           Loading content...
                         </div>
                       ) : moduleContents[module.id]?.length > 0 ? (
-                        <div className="p-2">
-                          {moduleContents[module.id].map((content) => (
-                            <div
-                              key={content.id}
-                              className={`p-2 rounded cursor-pointer transition-colors mb-1 ${
-                                selectedContent?.id === content.id
-                                  ? 'bg-[var(--primary)] text-[var(--primary-foreground)]'
-                                  : 'hover:bg-[var(--muted)]'
-                              }`}
-                              onClick={() => handleContentSelect(content)}
-                            >
-                              <div className="flex items-center gap-2">
-                                {getContentIcon(content)}
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-sm font-medium truncate">
-                                    {content.title}
-                                  </div>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-xs px-1.5 py-0.5 rounded bg-[var(--accent)] text-[var(--accent-foreground)]">
-                                      {getContentTypeLabel(content)}
-                                    </span>
-                                    {isContentCompleted(content) && (
-                                      <CheckCircle className="h-3 w-3 text-[var(--secondary)]" />
-                                    )}
-                                  </div>
+                        <>
+                          {/* Group content by type */}
+                          {moduleContents[module.id].some(content => getContentTypeLabel(content) === 'Text') && (
+                            <div className="py-2">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-sm text-[var(--card-foreground)]">
+                                    Module {index + 1}: Learning Materials
+                                  </span>
+                                  {moduleContents[module.id].filter(content => getContentTypeLabel(content) === 'Text').every(content => isContentCompleted(content)) && (
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                  )}
                                 </div>
                               </div>
                             </div>
-                          ))}
-                        </div>
+                          )}
+                          
+                          {moduleContents[module.id].some(content => getContentTypeLabel(content) === 'Question') && (
+                            <div className="py-2">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-sm text-[var(--card-foreground)]">
+                                    Quizzes
+                                  </span>
+                                  {moduleContents[module.id].filter(content => getContentTypeLabel(content) === 'Question').every(content => isContentCompleted(content)) && (
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {moduleContents[module.id].some(content => getContentTypeLabel(content) === 'Video') && (
+                            <div className="py-2">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-sm text-[var(--card-foreground)]">
+                                    Videos
+                                  </span>
+                                  {moduleContents[module.id].filter(content => getContentTypeLabel(content) === 'Video').every(content => isContentCompleted(content)) && (
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Individual content items for detailed view */}
+                          <div className="ml-4 space-y-1">
+                            {moduleContents[module.id].map((content) => (
+                              <div
+                                key={content.id}
+                                className={`p-2 cursor-pointer transition-colors flex items-center justify-between ${
+                                  selectedContent?.id === content.id
+                                    ? 'bg-[var(--primary)] text-[var(--primary-foreground)] rounded'
+                                    : 'hover:bg-[var(--muted)] rounded'
+                                }`}
+                                onClick={() => handleContentSelect(content)}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-[var(--primary)] underline decoration-1 underline-offset-2">
+                                    {content.title}
+                                  </span>
+                                  {isContentCompleted(content) && (
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
+                                  {getContentIcon(content)}
+                                  <span>{getContentTypeLabel(content)}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </>
                       ) : (
                         <div className="p-3 text-center text-sm text-[var(--muted-foreground)]">
                           No content available

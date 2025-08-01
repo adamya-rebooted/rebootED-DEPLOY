@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useUser } from "@/contexts/UserContext";
+import { useSidebar } from "@/contexts/SidebarContext";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import {
@@ -14,6 +15,8 @@ import {
   Moon,
   Sun,
   Monitor,
+  Menu,
+  ChevronLeft,
 } from "lucide-react";
 import Link from "next/link";
 import { Gochi_Hand } from "next/font/google";
@@ -30,6 +33,7 @@ const gochiHand = Gochi_Hand({ subsets: ["latin"], weight: "400" });
 
 const Sidebar: React.FC = () => {
   const { user, signOut } = useUser();
+  const { isCollapsed, toggleSidebar } = useSidebar();
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
@@ -78,25 +82,38 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="w-64 h-screen bg-gradient-to-b from-gray-100 to-slate-100 flex flex-col shadow-sm">
+    <div className={`${isCollapsed ? 'w-16' : 'w-64'} h-screen bg-gradient-to-b from-gray-100 to-slate-100 flex flex-col shadow-sm transition-all duration-300 ease-in-out`}>
       {/* Logo and Portal Name */}
-      <div className="p-6 border-b border-gray-300">
-        <div className="flex items-center space-x-3 mb-2">
+      <div className={`${isCollapsed ? 'p-3' : 'p-6'} border-b border-gray-300 relative`}>
+        {/* Toggle Button */}
+        <Button
+          onClick={toggleSidebar}
+          variant="ghost"
+          size="sm"
+          className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-gray-200"
+        >
+          {isCollapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </Button>
+        
+        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} mb-2`}>
           <div className="w-12 h-12 bg-[#1f3a60] rounded flex items-center justify-center">
-            {/* <GraduationCap className="h-5 w-5 text-white" /> */}
             <img className="h-8 w-8 invert" src="/placeholder.svg" alt="rebootED" width={32} height={32} />
           </div>
-          <span className={`text-xl font-bold text-gray-800 ${gochiHand.className}`}>
-            rebootED
-          </span>
+          {!isCollapsed && (
+            <span className={`text-xl font-bold text-gray-800 ${gochiHand.className}`}>
+              rebootED
+            </span>
+          )}
         </div>
-        <p className="text-sm text-gray-600">
-          {isTeacher ? "Teacher Portal" : "Student Portal"}
-        </p>
+        {!isCollapsed && (
+          <p className="text-sm text-gray-600">
+            {isTeacher ? "Teacher Portal" : "Student Portal"}
+          </p>
+        )}
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 p-4">
+      <nav className={`flex-1 ${isCollapsed ? 'p-2' : 'p-4'}`}>
         <div className="space-y-2">
           {navigation.map((item) => {
             const Icon = item.icon;
@@ -106,13 +123,14 @@ const Sidebar: React.FC = () => {
                 key={item.name}
                 asChild
                 variant="outline"
-                className={`w-full justify-start bg-white border-primary/30 text-primary hover:bg-primary/5 transition-colors ${
+                className={`w-full ${isCollapsed ? 'justify-center px-2' : 'justify-start'} bg-white border-primary/30 text-primary hover:bg-primary/5 transition-colors ${
                   isActive ? "" : ""
                 }`}
+                title={isCollapsed ? item.name : undefined}
               >
                 <Link href={item.href}>
-                  <Icon className="h-4 w-4 mr-2" />
-                  {item.name}
+                  <Icon className={`h-4 w-4 ${!isCollapsed ? 'mr-2' : ''}`} />
+                  {!isCollapsed && item.name}
                 </Link>
               </Button>
             );
@@ -121,21 +139,23 @@ const Sidebar: React.FC = () => {
       </nav>
 
       {/* User Profile Section */}
-      <div className="p-4 border-t border-gray-300">
-        <div className="flex items-center space-x-3 mb-4">
+      <div className={`${isCollapsed ? 'p-2' : 'p-4'} border-t border-gray-300`}>
+        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} mb-4`}>
           <div className="w-10 h-10 bg-[#1f3a60] rounded-full flex items-center justify-center">
             <span className="text-white font-medium text-sm">
               {getUserInitials()}
             </span>
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-800">
-              {user?.user_metadata?.full_name || "User"}
-            </p>
-            <p className="text-xs text-gray-600 capitalize">
-              {user?.role || "User"}
-            </p>
-          </div>
+          {!isCollapsed && (
+            <div>
+              <p className="text-sm font-medium text-gray-800">
+                {user?.user_metadata?.full_name || "User"}
+              </p>
+              <p className="text-xs text-gray-600 capitalize">
+                {user?.role || "User"}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Settings and Sign Out */}
@@ -144,10 +164,11 @@ const Sidebar: React.FC = () => {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-start"
+                className={`w-full ${isCollapsed ? 'justify-center px-2' : 'justify-start'}`}
+                title={isCollapsed ? "Settings" : undefined}
               >
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
+                <Settings className={`h-4 w-4 ${!isCollapsed ? 'mr-2' : ''}`} />
+                {!isCollapsed && "Settings"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -188,10 +209,11 @@ const Sidebar: React.FC = () => {
             onClick={handleSignOut}
             disabled={isLoading}
             variant="outline"
-            className="w-full justify-start"
+            className={`w-full ${isCollapsed ? 'justify-center px-2' : 'justify-start'}`}
+            title={isCollapsed ? (isLoading ? "Signing out..." : "Sign Out") : undefined}
           >
-            <LogOut className="h-4 w-4 mr-2" />
-            {isLoading ? "Signing out..." : "Sign Out"}
+            <LogOut className={`h-4 w-4 ${!isCollapsed ? 'mr-2' : ''}`} />
+            {!isCollapsed && (isLoading ? "Signing out..." : "Sign Out")}
           </Button>
         </div>
       </div>

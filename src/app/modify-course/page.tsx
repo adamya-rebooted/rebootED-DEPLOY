@@ -51,6 +51,7 @@ import { Course, Module, ContentResponse, NewModuleRequest } from "@/types/backe
 import ContentBlockList from "@/components/content/ContentBlockList";
 import EnhancedContentCreator from "@/components/content/EnhancedContentCreator";
 import AddUserToCourseDialog from "@/components/content/AddUserToCourseDialog";
+import PublishCourseDialog from "@/components/content/PublishCourseDialog";
 import { useAIAssistant } from "@/components/ai-assistant";
 
 const ModifyCoursePage: React.FC = () => {
@@ -84,10 +85,15 @@ const ModifyCoursePage: React.FC = () => {
   const [showAddTeacherDialog, setShowAddTeacherDialog] = useState(false);
   const [showAddStudentDialog, setShowAddStudentDialog] = useState(false);
 
-  // Module expansion state
-  const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set());
+  // Publish course dialog state
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
+
+  // Module content management state
   const [contentCreatorDialog, setContentCreatorDialog] = useState<{ open: boolean; moduleId: number | null }>({ open: false, moduleId: null });
   const [addContentCallbacks, setAddContentCallbacks] = useState<Map<number, (newContent: ContentResponse) => void>>(new Map());
+
+  // Module selection state for new layout
+  const [selectedModuleForContent, setSelectedModuleForContent] = useState<number | null>(null);
 
   // Module editing state
   const [editingModules, setEditingModules] = useState<Set<number>>(new Set());
@@ -110,10 +116,8 @@ const ModifyCoursePage: React.FC = () => {
     const handleModuleCreated = (event: CustomEvent) => {
       const { module } = event.detail;
       if (module && module.id) {
-        // Add the new module to the list
-        setModules(prev => [...prev, module]);
-        // Auto-expand the newly created module
-        setExpandedModules(prev => new Set([...prev, module.id]));
+              // Add the new module to the list
+      setModules(prev => [...prev, module]);
       }
     };
 
@@ -223,6 +227,26 @@ const ModifyCoursePage: React.FC = () => {
     // For now, just show success message which is handled in the dialog
   };
 
+  // Publish course handlers
+  const handlePublishCourse = () => {
+    setShowPublishDialog(true);
+  };
+
+  const handleConfirmPublish = async () => {
+    try {
+      // Here you would implement the actual publish API call
+      // For now, just show a success message
+      console.log('Publishing course:', courseId);
+      toast.success('Course published successfully!', {
+        description: 'Your course is now live and available to students.',
+        duration: 5000,
+      });
+    } catch (err) {
+      console.error('Error publishing course:', err);
+      throw err; // Re-throw to let the dialog handle the error
+    }
+  };
+
   // Course editing handlers
   const handleEditCourse = () => {
     setIsEditingCourse(true);
@@ -283,8 +307,8 @@ const ModifyCoursePage: React.FC = () => {
       // Add the new module to the list
       setModules(prev => [...prev, newModule]);
 
-      // Auto-expand the newly created module
-      setExpandedModules(prev => new Set([...prev, newModule.id]));
+      // Auto-select the newly created module
+      setSelectedModuleForContent(newModule.id);
 
       // Reset form
       setNewModuleTitle('');
@@ -330,12 +354,10 @@ const ModifyCoursePage: React.FC = () => {
       // Remove the module from the list
       setModules(prev => prev.filter(m => m.id !== moduleId));
 
-      // Remove from expanded modules if it was expanded
-      setExpandedModules(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(moduleId);
-        return newSet;
-      });
+      // Clear selection if this module was selected
+      if (selectedModuleForContent === moduleId) {
+        setSelectedModuleForContent(null);
+      }
 
       toast.success(`Module "${moduleTitle}" deleted successfully`);
     } catch (err) {
@@ -411,18 +433,7 @@ const ModifyCoursePage: React.FC = () => {
     });
   };
 
-  // Module expansion handlers
-  const toggleModuleExpansion = (moduleId: number) => {
-    setExpandedModules(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(moduleId)) {
-        newSet.delete(moduleId);
-      } else {
-        newSet.add(moduleId);
-      }
-      return newSet;
-    });
-  };
+  // Module content management handlers
 
   const handleShowModuleContentCreator = (moduleId: number) => {
     setContentCreatorDialog({ open: true, moduleId });
@@ -433,7 +444,7 @@ const ModifyCoursePage: React.FC = () => {
   };
 
   const handleModuleContentCreated = (moduleId: number) => (newContent: ContentResponse) => {
-    handleHideModuleContentCreator(moduleId);
+    handleHideModuleContentCreator();
     toast.success("Content created successfully!");
 
     // Add the new content directly to the list if the function is available
@@ -505,22 +516,33 @@ const ModifyCoursePage: React.FC = () => {
       <div className="p-8">
         <div className="space-y-6">
           {/* Back Button and Course Info */}
-          <div className="flex items-center gap-4">
-            <Button
-              onClick={handleBackToDashboard}
-              variant="outline"
-              size="sm"
-              className="border-[var(--border)] text-[var(--primary)]"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-[var(--primary)]">{course?.title}</h1>
-              <p className="text-[var(--muted-foreground)]">
-                Modify course content, add modules, and manage course structure
-              </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={handleBackToDashboard}
+                variant="outline"
+                size="sm"
+                className="border-[var(--border)] text-[var(--primary)]"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold text-[var(--primary)]">{course?.title}</h1>
+                <p className="text-[var(--muted-foreground)]">
+                  Modify course content, add modules, and manage course structure
+                </p>
+              </div>
             </div>
+            
+            {/* Publish Course Button */}
+            <Button
+              onClick={handlePublishCourse}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              Publish Course
+            </Button>
           </div>
 
           {/* Course Editing Form */}
@@ -579,213 +601,245 @@ const ModifyCoursePage: React.FC = () => {
             </Card>
           )}
 
-          {/* Modules Section */}
-          <Card className="bg-[var(--card)] text-[var(--card-foreground)] border-[var(--border)]">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2 text-[var(--primary)]">
-                    <BookOpen className="h-5 w-5" />
-                    Course Modules ({modules.length})
-                    <div className="relative group">
-                      <Info
-                        className="h-4 w-4 text-[var(--muted-foreground)] cursor-help hover:text-[var(--primary)] transition-colors"
-                      />
-                      <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-[var(--popover)] text-[var(--popover-foreground)] text-sm rounded-md shadow-lg border border-[var(--border)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 w-80">
-                        Modules are like chapters in a textbook or weeks of content - they help organize your course into manageable sections
-                        <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[var(--border)]"></div>
-                      </div>
+          {/* Course Content Management - Two Column Layout */}
+          <div className="flex gap-6 h-[calc(100vh-300px)] min-h-[600px]">
+            {/* Left Sidebar - Course Structure */}
+            <div className="w-1/3 max-w-sm">
+              <div className="bg-[var(--card)] text-[var(--card-foreground)] border border-[var(--border)] rounded-lg h-full flex flex-col">
+                {/* Header */}
+                <div className="p-4 border-b border-[var(--border)]">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-[var(--primary)]">Course Structure</h2>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={handleOpenModuleDialog}
+                        variant="outline"
+                        size="sm"
+                        className="border-[var(--border)] bg-[var(--primary)] text-[var(--background)]"
+                      >
+                        Create Module
+                      </Button>
+                     
                     </div>
-                  </CardTitle>
-                  <CardDescription className="text-[var(--muted-foreground)]">
-                    Create and organize modules for your course content. Think of Modules like chapters to teach.
-                  </CardDescription>
+                  </div>
+                  <p className="text-sm text-[var(--muted-foreground)] mt-1">New Course</p>
                 </div>
-                <Button onClick={handleOpenModuleDialog} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Module
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
 
+                {/* Add Module Button */}
+                {/* <div className="p-4">
+                  <button
+                    onClick={handleOpenModuleDialog}
+                    className="w-full border-2 border-dashed border-[var(--border)] rounded-lg p-4 text-[var(--muted-foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Add Module
+                  </button>
+                </div> */}
 
-              {/* AI Assistant Module Selection Indicator */}
-              {isAIVisible && modules.length > 0 && (
-                <div className="text-sm text-blue-600 mb-4 p-2 bg-blue-50 rounded">
-                  💡 Click on a module below to create content with AI{selectedModuleId ? ' • Click outside to deselect' : ''}
-                </div>
-              )}
+                {/* AI Assistant Module Selection Indicator */}
+                {isAIVisible && modules.length > 0 && (
+                  <div className="text-sm text-blue-600 mx-4 mb-2 p-2 bg-blue-50 rounded">
+                    💡 Click on a module to create content with AI{selectedModuleId ? ' • Click outside to deselect' : ''}
+                  </div>
+                )}
 
-              {/* Modules List */}
-              {modules.length > 0 ? (
-                <div className="space-y-4">
-                  {modules.map((module, index) => (
-                    <Card 
-                      key={module.id} 
-                      data-module-card
-                      className={`border-l-4 border-l-[var(--primary)] bg-[var(--background)] transition-all duration-200 ${
-                        isAIVisible ? 'cursor-pointer hover:shadow-md' : ''
-                      } ${
-                        selectedModuleId === module.id ? 'ring-2 ring-blue-400 shadow-lg shadow-blue-400/25' : ''
-                      }`}
-                      onClick={() => isAIVisible && selectModule(module.id)}
-                    >
-                      <CardContent className="pt-6">
-                        {/* Module Edit Form */}
-                        {editingModules.has(module.id) ? (
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-4">
-                              <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: 'var(--muted)', color: 'var(--primary)' }}>
-                                Module {index + 1} - Editing
-                              </span>
-                            </div>
-                            <div>
-                              <Label htmlFor={`edit-module-title-${module.id}`}>Module Title *</Label>
-                              <Input
-                                id={`edit-module-title-${module.id}`}
-                                value={editModuleForms.get(module.id)?.title || ''}
-                                onChange={(e) => updateModuleForm(module.id, 'title', e.target.value)}
-                                placeholder="Enter module title..."
-                                className="mt-1"
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor={`edit-module-description-${module.id}`}>Module Description</Label>
-                              <Textarea
-                                id={`edit-module-description-${module.id}`}
-                                value={editModuleForms.get(module.id)?.body || ''}
-                                onChange={(e) => updateModuleForm(module.id, 'body', e.target.value)}
-                                placeholder="Enter module description..."
-                                rows={3}
-                                className="mt-1"
-                              />
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={() => handleSaveModule(module.id)}
-                                disabled={savingModules.has(module.id) || !editModuleForms.get(module.id)?.title?.trim()}
-                                className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
-                              >
-                                <Save className="h-4 w-4 mr-2" />
-                                {savingModules.has(module.id) ? 'Saving...' : 'Save Changes'}
-                              </Button>
-                              <Button
-                                onClick={() => handleCancelEditModule(module.id)}
-                                variant="outline"
-                                disabled={savingModules.has(module.id)}
-                                className="border-[var(--border)] text-[var(--primary)]"
-                              >
-                                <X className="h-4 w-4 mr-2" />
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          /* Regular Module Display */
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: 'var(--muted)', color: 'var(--primary)' }}>
+                {/* Modules List */}
+                <div className="flex-1 overflow-y-auto p-4 pt-0">
+                  {modules.length > 0 ? (
+                    <div className="space-y-2">
+                      {modules.map((module, index) => (
+                        <div
+                          key={module.id}
+                          data-module-card
+                          className={`p-3 border border-[var(--border)] rounded-lg cursor-pointer transition-all duration-200 ${
+                            selectedModuleForContent === module.id
+                              ? 'bg-[var(--primary)] text-[var(--primary-foreground)] border-[var(--primary)]'
+                              : 'bg-[var(--background)] hover:bg-[var(--muted)] hover:border-[var(--primary)]'
+                          } ${
+                            isAIVisible && selectedModuleId === module.id
+                              ? 'ring-2 ring-blue-400 shadow-lg shadow-blue-400/25'
+                              : ''
+                          }`}
+                          onClick={() => {
+                            setSelectedModuleForContent(module.id);
+                            if (isAIVisible) {
+                              selectModule(module.id);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                  selectedModuleForContent === module.id
+                                    ? 'bg-[var(--primary-foreground)]/20 text-[var(--primary-foreground)]'
+                                    : 'bg-[var(--muted)] text-[var(--primary)]'
+                                }`}>
                                   Module {index + 1}
                                 </span>
                               </div>
-                              <h3 className="font-semibold text-lg mb-2 text-[var(--primary)]">{module.title}</h3>
-                              {module.body && (
-                                <p className="text-[var(--muted-foreground)] mb-3">{module.body}</p>
-                              )}
-                              <div className="flex items-center gap-4 text-sm text-[var(--muted-foreground)]">
-                                <span>Content: {module.contentCount || 0} items</span>
-                                {module.progress !== undefined && (
-                                  <span>Progress: {Math.round(module.progress)}%</span>
-                                )}
+                              <h3 className="font-medium text-sm truncate">{module.title}</h3>
+                              <p className="text-xs text-opacity-70 mt-1">
+                                {module.contentCount || 0} items
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditModule(module.id, module.title, module.body);
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0"
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteModule(module.id, module.title);
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0 text-[var(--destructive)] hover:text-[var(--destructive)]"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <BookOpen className="h-8 w-8 text-[var(--muted-foreground)] mx-auto mb-2" />
+                      <p className="text-sm text-[var(--muted-foreground)]">
+                        No modules yet. Add your first module to get started.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Content Area */}
+            <div className="flex-1">
+              <div className="bg-[var(--card)] text-[var(--card-foreground)] border border-[var(--border)] rounded-lg h-full flex flex-col">
+                {/* Header */}
+                <div className="p-4 border-b border-[var(--border)]">
+                  <h2 className="text-lg font-semibold text-[var(--primary)]">
+                    {selectedModuleForContent
+                      ? `${modules.find(m => m.id === selectedModuleForContent)?.title || 'Module'} Content`
+                      : 'Select content to edit'
+                    }
+                  </h2>
+                  {!selectedModuleForContent && (
+                    <p className="text-sm text-[var(--muted-foreground)] mt-1">No content selected</p>
+                  )}
+                </div>
+
+                {/* Content Area */}
+                <div className="flex-1 overflow-y-auto">
+                  {selectedModuleForContent ? (
+                    <div className="p-4">
+                      {/* Module Edit Form */}
+                      {editingModules.has(selectedModuleForContent) && (
+                        <Card className="mb-4 bg-[var(--background)]">
+                          <CardContent className="pt-6">
+                            <div className="space-y-4">
+                              <div className="flex items-center gap-2 mb-4">
+                                <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: 'var(--muted)', color: 'var(--primary)' }}>
+                                  Editing Module
+                                </span>
+                              </div>
+                              <div>
+                                <Label htmlFor={`edit-module-title-${selectedModuleForContent}`}>Module Title *</Label>
+                                <Input
+                                  id={`edit-module-title-${selectedModuleForContent}`}
+                                  value={editModuleForms.get(selectedModuleForContent)?.title || ''}
+                                  onChange={(e) => updateModuleForm(selectedModuleForContent, 'title', e.target.value)}
+                                  placeholder="Enter module title..."
+                                  className="mt-1"
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor={`edit-module-description-${selectedModuleForContent}`}>Module Description</Label>
+                                <Textarea
+                                  id={`edit-module-description-${selectedModuleForContent}`}
+                                  value={editModuleForms.get(selectedModuleForContent)?.body || ''}
+                                  onChange={(e) => updateModuleForm(selectedModuleForContent, 'body', e.target.value)}
+                                  placeholder="Enter module description..."
+                                  rows={3}
+                                  className="mt-1"
+                                />
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={() => handleSaveModule(selectedModuleForContent)}
+                                  disabled={savingModules.has(selectedModuleForContent) || !editModuleForms.get(selectedModuleForContent)?.title?.trim()}
+                                  className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+                                >
+                                  <Save className="h-4 w-4 mr-2" />
+                                  {savingModules.has(selectedModuleForContent) ? 'Saving...' : 'Save Changes'}
+                                </Button>
+                                <Button
+                                  onClick={() => handleCancelEditModule(selectedModuleForContent)}
+                                  variant="outline"
+                                  disabled={savingModules.has(selectedModuleForContent)}
+                                  className="border-[var(--border)] text-[var(--primary)]"
+                                >
+                                  <X className="h-4 w-4 mr-2" />
+                                  Cancel
+                                </Button>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                onClick={() => toggleModuleExpansion(module.id)}
-                                variant="outline"
-                                size="sm"
-                                className="border-[var(--border)] text-[var(--primary)]"
-                              >
-                                {expandedModules.has(module.id) ? (
-                                  <>
-                                    <ChevronDown className="h-4 w-4 mr-2" />
-                                    Hide Content
-                                  </>
-                                ) : (
-                                  <>
-                                    <ChevronRight className="h-4 w-4 mr-2" />
-                                    Manage Content
-                                  </>
-                                )}
-                              </Button>
-                              <Button
-                                onClick={() => handleEditModule(module.id, module.title, module.body)}
-                                variant="outline"
-                                size="sm"
-                                className="border-[var(--border)] text-[var(--primary)]"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                onClick={() => handleDeleteModule(module.id, module.title)}
-                                variant="outline"
-                                size="sm"
-                                className="text-[var(--destructive)] border-[var(--destructive)] hover:text-[var(--destructive)] hover:border-[var(--destructive)]"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                        {/* Expandable Content Management Section */}
-                        {expandedModules.has(module.id) && (
-                          <div className="mt-6 pt-6 border-t border-[var(--border)]">
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="font-medium flex items-center gap-2 text-[var(--primary)]">
-                                <FileText className="h-4 w-4" />
-                                Module Content
-                              </h4>
-                              <Button
-                                onClick={() => handleShowModuleContentCreator(module.id)}
-                                size="sm"
-                                className="bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
-                              >
-                                <Plus className="h-4 w-4 mr-2" />
-                                New Item
-                              </Button>
-                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
 
-                            {/* Content Block List for this module */}
-                            <ContentBlockList
-                              moduleId={module.id}
-                              moduleName={module.title}
-                              isInteractive={true}
-                              onContentUpdate={handleModuleContentUpdate}
-                              onAddContent={addContentCallbacksMap.get(module.id)}
-                            />
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                      {/* Module Content Management */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium flex items-center gap-2 text-[var(--primary)]">
+                            <FileText className="h-4 w-4" />
+                            Module Content
+                          </h4>
+                          <Button
+                            onClick={() => handleShowModuleContentCreator(selectedModuleForContent)}
+                            size="sm"
+                            className="bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Content
+                          </Button>
+                        </div>
+
+                        {/* Content Block List for selected module */}
+                        <ContentBlockList
+                          moduleId={selectedModuleForContent}
+                          moduleName={modules.find(m => m.id === selectedModuleForContent)?.title || ''}
+                          isInteractive={true}
+                          onContentUpdate={handleModuleContentUpdate}
+                          onAddContent={addContentCallbacksMap.get(selectedModuleForContent)}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-center">
+                      <div className="w-24 h-24 mb-6 rounded-lg bg-[var(--muted)] flex items-center justify-center">
+                        <FileText className="h-12 w-12 text-[var(--muted-foreground)]" />
+                      </div>
+                      <h3 className="text-xl font-medium mb-2 text-[var(--primary)]">No Content Selected</h3>
+                      <p className="text-[var(--muted-foreground)] max-w-md">
+                        Create a module and add content to get started
+                      </p>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="text-center py-16">
-                  <BookOpen className="h-12 w-12 text-[var(--muted-foreground)] mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2 text-[var(--primary)]">No Modules Yet</h3>
-                  <p className="text-[var(--muted-foreground)] mb-4">
-                    Start building your course by adding your first module
-                  </p>
-                  <Button onClick={handleOpenModuleDialog} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add First Module
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -881,6 +935,14 @@ const ModifyCoursePage: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Publish Course Dialog */}
+      <PublishCourseDialog
+        open={showPublishDialog}
+        onOpenChange={setShowPublishDialog}
+        courseTitle={course?.title || 'Untitled Course'}
+        onPublish={handleConfirmPublish}
+      />
 
     </DashboardLayout>
   );

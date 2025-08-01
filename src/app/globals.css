@@ -101,31 +101,33 @@ body {
 }
 
 .dark {
-  /* Dark theme using your color palette */
+  /* Enhanced dark theme with better contrast */
   --text: #f8fafc;
-  --background: #0f172a;
-  --primary: #3b82f6;
-  --secondary: #10b981;
-  --accent: #06b6d4;
+  --background: #0a0f1a;
+  --cardbg: #1a1f2e;
+  --primary: #60a5fa;
+  --secondary: #34d399;
+  --accent: #22d3ee;
+  --trash: #f87171;
 
-  /* Derived dark theme colors */
+  /* Derived dark theme colors with improved contrast */
   --foreground: var(--text);
   --card: #1e293b;
   --card-foreground: var(--text);
   --popover: #1e293b;
   --popover-foreground: var(--text);
-  --primary-foreground: #ffffff;
-  --secondary-foreground: #ffffff;
+  --primary-foreground: #0f172a;
+  --secondary-foreground: #0f172a;
   --muted: #334155;
-  --muted-foreground: #94a3b8;
-  --accent-foreground: #ffffff;
+  --muted-foreground: #cbd5e1;
+  --accent-foreground: #0f172a;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #334155;
-  --input: #334155;
+  --border: #475569;
+  --input: #475569;
   --ring: var(--primary);
 
-  /* Dark chart colors */
+  /* Enhanced dark chart colors */
   --chart-1: var(--primary);
   --chart-2: var(--secondary);
   --chart-3: var(--accent);
@@ -133,14 +135,14 @@ body {
   --chart-5: #f59e0b;
 
   /* Dark sidebar colors */
-  /* --sidebar: #1e293b; */
-  /* --sidebar-foreground: var(--text);
+  --sidebar: #1e293b;
+  --sidebar-foreground: var(--text);
   --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: #ffffff;
+  --sidebar-primary-foreground: #0f172a;
   --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: #ffffff;
+  --sidebar-accent-foreground: #0f172a;
   --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring); */
+  --sidebar-ring: var(--ring);
 }
 
 @layer base {

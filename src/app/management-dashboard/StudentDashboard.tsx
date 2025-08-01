@@ -10,20 +10,7 @@ import { apiService } from '@/services/api';
 import { UserCourse } from "@/types/backend-api";
 import { useRouter } from "next/navigation";
 
-// Study-related background images for courses
-const studyImages = [
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=200&fit=crop&crop=center", // Open book with coffee
-  "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=200&fit=crop&crop=center", // Library books
-  "https://images.unsplash.com/photo-1472173148041-00294f0814a2?w=400&h=200&fit=crop&crop=center", // Computer and books
-  "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&h=200&fit=crop&crop=center", // Stack of books
-  "https://images.unsplash.com/photo-1519452575417-564c1401ecc0?w=400&h=200&fit=crop&crop=center", // Study materials and pen
-];
 
-// Function to get a consistent image for each course based on its ID
-const getCourseImage = (courseId: number) => {
-  const index = courseId % studyImages.length;
-  return studyImages[index];
-};
 
 const StudentDashboard: React.FC = () => {
   const [recentCourses, setRecentCourses] = React.useState<UserCourse[]>([]);
@@ -96,7 +83,7 @@ const StudentDashboard: React.FC = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="bg-gradient-to-br from-[#1f3a60]/5 to-[#1f3a60]/10 border-[#1f3a60]/20 shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-[#1f3a60]">Total Courses</CardTitle>
@@ -137,10 +124,10 @@ const StudentDashboard: React.FC = () => {
               <p className="text-xs text-orange-700">Across all courses</p>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         {/* Progress Overview */}
-        <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-lg">
+        {/* <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-lg">
           <CardHeader className="border-b border-gray-200">
             <CardTitle className="flex items-center gap-2 text-gray-800">
               <Target className="h-5 w-5 text-[#1f3a60]" />
@@ -170,17 +157,17 @@ const StudentDashboard: React.FC = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Courses Grid */}
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-800">My Courses</h2>
             <div className="flex items-center gap-2 text-gray-600 hover:text-[#1f3a60] cursor-pointer transition-colors">
-              <span className="text-sm font-medium">View All</span>
+              {/* <span className="text-sm font-medium">View All</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              </svg> */}
             </div>
           </div>
           {isLoading ? (
@@ -222,7 +209,7 @@ const StudentDashboard: React.FC = () => {
                       title: course.title,
                       description: course.body || "No description available",
                       duration: "Self-paced",
-                      modules: 0, // This will be updated when module data is available
+                      modules: course.moduleCount || 0, // This will be updated when module data is available
                       progress: course.progress,
                       category: course.role === 'teacher' ? 'Teaching' : 'Learning',
                     }}

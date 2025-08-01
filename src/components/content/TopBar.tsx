@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useUser } from "@/contexts/UserContext";
+import { useSidebar } from "@/contexts/SidebarContext";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus, Users, BookOpen, Edit, GraduationCap } from "lucide-react";
@@ -23,6 +24,7 @@ const TopBar: React.FC<TopBarProps> = ({
   onEditCourse,
 }) => {
   const { user } = useUser();
+  const { isCollapsed } = useSidebar();
   const pathname = usePathname();
   const { showAssistant } = useAIAssistant();
 
@@ -39,7 +41,7 @@ const TopBar: React.FC<TopBarProps> = ({
   }
 
   return (
-    <div className="fixed top-0 left-64 right-0 h-16 bg-gradient-to-r from-gray-100 to-slate-100 z-40 flex items-center justify-between px-6 shadow-sm">
+    <div className={`fixed top-0 ${isCollapsed ? 'left-16' : 'left-64'} right-0 h-16 bg-gradient-to-r from-gray-100 to-slate-100 z-40 flex items-center justify-between px-6 shadow-sm transition-all duration-300 ease-in-out`}>
       {/* Title */}
       <div className="flex items-center">
         <h1 className="text-xl font-semibold text-gray-800">
