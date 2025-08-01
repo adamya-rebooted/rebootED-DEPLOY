@@ -75,4 +75,9 @@ public abstract class Module implements InfoContainer<Content> {
     public Map<Long, Content> getContents() {
         return Map.copyOf(contentItems);
     }
+
+    public int getNumContents() {
+        return contentItems.size();
+    }
+
 }

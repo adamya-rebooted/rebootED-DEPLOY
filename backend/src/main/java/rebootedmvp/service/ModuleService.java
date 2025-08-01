@@ -15,6 +15,7 @@ import rebootedmvp.Content;
 import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
+import rebootedmvp.domain.impl.CourseEntityImpl;
 import rebootedmvp.domain.impl.MatchingQuestionContentImpl;
 import rebootedmvp.domain.impl.MultipleChoiceQuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
@@ -28,7 +29,9 @@ import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewVideoContentDTO;
 import rebootedmvp.dto.TextContentDTO;
 import rebootedmvp.dto.VideoContentDTO;
+import rebootedmvp.exception.CoursePublishedException;
 import rebootedmvp.repository.ContentRepository;
+import rebootedmvp.repository.CourseRepository;
 import rebootedmvp.repository.ModuleRepository;
 
 @Service
@@ -42,6 +45,9 @@ public class ModuleService {
 
     @Autowired
     private ContentRepository contentRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
 
     /**
      * Returns a list of all content in all modules
@@ -110,6 +116,12 @@ public class ModuleService {
         }
 
         Module module = moduleOpt.get();
+        Optional<CourseEntityImpl> course = courseRepository.findById(module.getCourseId());
+        if (course.get() != null) {
+            if (course.get().isPublished() == true) {
+                throw new CoursePublishedException("addNew");
+            }
+        }
 
         // Set the module ID in the DTO for the content service
         newContentDTO.setModuleId(moduleId);
@@ -153,8 +165,14 @@ public class ModuleService {
     public void update(Long moduleId, Long contentId, NewContentDTO updateDTO) {
         logger.debug("ModuleService.update({}, {}, {}) called", moduleId, contentId, updateDTO.getTitle());
 
-        if (!moduleRepository.existsById(moduleId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Module not found with id: " + moduleId);
+        Module module = moduleRepository.findById(moduleId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Module not found with id: " + moduleId));
+
+        Optional<CourseEntityImpl> course = courseRepository.findById(module.getCourseId());
+        if (course.get() != null) {
+            if (course.get().isPublished() == true) {
+                throw new CoursePublishedException("update");
+            }
         }
 
         Optional<Content> contentOpt = contentRepository.findById(contentId).map(ContentMapper::toDomain);
@@ -237,6 +255,15 @@ public class ModuleService {
 
         if (!moduleRepository.existsById(moduleId)) {
             return false;
+        }
+        Module module = moduleRepository.findById(moduleId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Module not found with id: " + moduleId));
+
+        Optional<CourseEntityImpl> course = courseRepository.findById(module.getCourseId());
+        if (course.get() != null) {
+            if (course.get().isPublished() == true) {
+                throw new CoursePublishedException("delete");
+            }
         }
 
         Optional<Content> contentOpt = contentRepository.findById(contentId).map(ContentMapper::toDomain);

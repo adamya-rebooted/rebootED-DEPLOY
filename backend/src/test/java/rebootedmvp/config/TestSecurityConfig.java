@@ -1,42 +1,34 @@
 package rebootedmvp.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
-import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.web.SecurityFilterChain;
-import rebootedmvp.security.JwtAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
 
-@Configuration
+@TestConfiguration
+@Profile("test")
 @EnableWebSecurity
-@Profile("!test")
-public class SecurityConfig {
+public class TestSecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    @Value("${supabase.project-url}")
-    private String supabaseProjectUrl;
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Bean("testSecurityFilterChain")
+    @Primary
+    public SecurityFilterChain testFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
@@ -49,7 +41,7 @@ public class SecurityConfig {
             )
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt
-                    .decoder(jwtDecoder())
+                    .decoder(mockJwtDecoder())
                     .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
             );
@@ -57,45 +49,59 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        // Use JWKS endpoint for ES256 validation with Supabase's public keys
-        String jwksUri = supabaseProjectUrl + "/auth/v1/.well-known/jwks.json";
-        
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwksUri)
-                .jwsAlgorithm(SignatureAlgorithm.ES256)
-                .build();
-        
-        // Configure to only validate timestamp (not issuer/audience which may cause Supabase tokens to fail)
-        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
-            new JwtTimestampValidator()
-        ));
-        
-        return decoder;
+    @Bean("testJwtDecoder")
+    @Primary
+    public JwtDecoder mockJwtDecoder() {
+        return new JwtDecoder() {
+            @Override
+            public Jwt decode(String token) throws org.springframework.security.oauth2.jwt.JwtException {
+                // Create a mock JWT for testing
+                // In real tests, this will be overridden with specific test data
+                Map<String, Object> headers = Map.of(
+                    "alg", "ES256",
+                    "typ", "JWT"
+                );
+                
+                Map<String, Object> claims = Map.of(
+                    "sub", "test-user-id",
+                    "email", "test@example.com",
+                    "role", "authenticated",
+                    "iat", Instant.now().getEpochSecond(),
+                    "exp", Instant.now().plusSeconds(3600).getEpochSecond()
+                );
+
+                return new Jwt(
+                    token,
+                    Instant.now(),
+                    Instant.now().plusSeconds(3600),
+                    headers,
+                    claims
+                );
+            }
+        };
     }
 
-    @Bean
+    @Bean("testJwtAuthenticationConverter")
+    @Primary
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            // Extract role from JWT claims
             String role = jwt.getClaimAsString("role");
             if (role != null) {
                 return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
             }
-            
-            // Default role if none specified
             return Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
         });
         
         return converter;
     }
 
-    @Bean
+    @Bean("testCorsConfigurationSource")
+    @Primary
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "https://localhost:3000"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

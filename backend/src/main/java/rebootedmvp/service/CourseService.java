@@ -11,12 +11,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceContext;
 import rebootedmvp.Course;
 import rebootedmvp.CourseMapper;
 import rebootedmvp.InfoContainer;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
 import rebootedmvp.domain.impl.ContentEntityImpl;
+import rebootedmvp.domain.impl.CourseEntityImpl;
 import rebootedmvp.domain.impl.ModuleEntityImpl;
 import rebootedmvp.domain.impl.StudentImpl;
 import rebootedmvp.domain.impl.TeacherImpl;
@@ -25,6 +29,7 @@ import rebootedmvp.dto.CourseDTO;
 import rebootedmvp.dto.ModuleDTO;
 import rebootedmvp.dto.NewCourseDTO;
 import rebootedmvp.dto.NewModuleDTO;
+import rebootedmvp.exception.CoursePublishedException;
 import rebootedmvp.exception.UnauthorizedAccessException;
 import rebootedmvp.repository.ContentRepository;
 import rebootedmvp.repository.CourseRepository;
@@ -54,6 +59,9 @@ public class CourseService {
 
     @Autowired
     private AuthenticationContextService authContextService;
+
+    @PersistenceContext
+    private EntityManager em;
 
     /**
      * Returns a list of all modules from courses the current user has access to.
@@ -151,6 +159,7 @@ public class CourseService {
      * Adds a new module to the specified course.
      * Requires the current user to be a teacher of the course.
      */
+    @Transactional
     public Long addNew(Long courseId, NewModuleDTO newModuleDTO) {
         logger.debug("CourseService.addNew({}, {}) called", courseId, newModuleDTO.getTitle());
 
@@ -167,7 +176,9 @@ public class CourseService {
         authorizationService.requireTeacherAccess(courseId);
 
         Course course = courseOpt.get();
-
+        if (course.isPublished()) {
+            throw new CoursePublishedException("addNew");
+        }
         Module module = new ModuleEntityImpl(
                 newModuleDTO.getTitle().trim(),
                 newModuleDTO.getBody(),
@@ -182,13 +193,15 @@ public class CourseService {
      * Updates a module within a course.
      * Requires the current user to be a teacher of the course.
      */
+    @Transactional
     public void update(Long courseId, Long moduleId, NewModuleDTO updateDTO) {
         logger.debug("CourseService.update({}, {}, {}) called", courseId, moduleId, updateDTO.getTitle());
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found with id: " + courseId));
 
-        if (!courseRepository.existsById(courseId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found with id: " + courseId);
+        if (course.isPublished()) {
+            throw new CoursePublishedException("update");
         }
-
         // Verify user has teacher access to this course
         authorizationService.requireTeacherAccess(courseId);
 
@@ -198,6 +211,7 @@ public class CourseService {
         }
 
         Module module = moduleOpt.get();
+
         if (!module.getCourseId().equals(courseId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Module " + moduleId + " does not belong to course " + courseId);
@@ -218,11 +232,18 @@ public class CourseService {
      * Deletes a module from a course using manual cascade deletion.
      * Requires the current user to be a teacher of the course.
      */
+    @Transactional
     public boolean delete(Long courseId, Long moduleId) {
         logger.debug("CourseService.delete({}, {}) called", courseId, moduleId);
-
         if (!courseRepository.existsById(courseId)) {
             return false;
+        }
+        Optional<CourseEntityImpl> course = courseRepository.findById(courseId);
+        if (course.get() == null) {
+            return false;
+        }
+        if (course.get().isPublished()) {
+            throw new CoursePublishedException("delete");
         }
 
         try {
@@ -258,6 +279,14 @@ public class CourseService {
         logger.info("Deleted module with ID: {} from course: {} (with {} content items)",
                 moduleId, courseId, contentList.size());
         return true;
+    }
+
+    @Transactional
+    public void publishCourse(Long courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow();
+        course.setPublished(true);
+        System.out.println("Managed? " + em.contains(course));
+        courseRepository.save(CourseMapper.toEntity(course));
     }
 
     // /**

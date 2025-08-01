@@ -47,7 +47,31 @@ export interface UpdateContentRequest {
   correctAnswer?: string;
   matches?: { first: string; second: string }[];
   videoUrl?: string; // For Video content
+}
 
+// Specific update request interfaces to match backend DTOs
+export interface UpdateTextContentRequest {
+  title?: string;
+  body?: string | null;
+}
+
+export interface UpdateMultipleChoiceQuestionRequest {
+  title?: string;
+  body?: string | null;
+  options?: string[];
+  correctAnswer?: string;
+}
+
+export interface UpdateMatchingQuestionRequest {
+  title?: string;
+  body?: string | null;
+  matches?: { first: string; second: string }[];
+}
+
+export interface UpdateVideoContentRequest {
+  title?: string;
+  body?: string | null;
+  videoUrl?: string;
 }
 
 export interface UserValidationRequest {
@@ -122,6 +146,7 @@ export interface MultipleChoiceQuestion extends Content {
 export interface MatchingQuestion extends Content {
   type: 'MatchingQuestion';
   matches: { first: string; second: string }[];
+  userAnswer?: string;
 }
 export interface Video extends Content {
   type: 'Video';

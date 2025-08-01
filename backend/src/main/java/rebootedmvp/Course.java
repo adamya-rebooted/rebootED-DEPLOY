@@ -38,6 +38,9 @@ public abstract class Course implements InfoContainer<Module> {
     @Column(nullable = false)
     protected String title;
 
+    @Column(name = "is_published", nullable = false)
+    protected Boolean isPublished;
+
     @Column(columnDefinition = "TEXT")
     protected String body;
 
@@ -145,5 +148,23 @@ public abstract class Course implements InfoContainer<Module> {
      * Returns whether or not 'user' is a teacher in this course
      */
     public abstract boolean isTeacher(User user);
+
+    /**
+     * Returns whether or not the course has been published
+     */
+    public boolean isPublished() {
+        return isPublished;
+    }
+
+    public void setPublished(boolean newState) {
+        this.isPublished = newState;
+    }
+
+    /**
+     * Returns the number of modules in this course
+     */
+    public int numModules() {
+        return modules.size();
+    }
 
 }
