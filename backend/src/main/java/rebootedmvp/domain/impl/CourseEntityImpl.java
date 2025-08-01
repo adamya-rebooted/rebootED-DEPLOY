@@ -11,6 +11,7 @@ import rebootedmvp.Course;
 import rebootedmvp.Module;
 import rebootedmvp.UnknownUserException;
 import rebootedmvp.User;
+import rebootedmvp.exception.CoursePublishedException;
 
 /**
  * JPA Entity implementation of Course interface for database persistence.
@@ -24,12 +25,14 @@ public class CourseEntityImpl extends Course {
     public CourseEntityImpl(String title, String body) {
         this.title = title;
         this.body = body;
+        this.isPublished = false;
     }
 
     // ⚠️ Required by JPA — but not usable by normal code
     @Deprecated
     protected CourseEntityImpl() {
         // JPA only
+        this.isPublished = false;
     }
 
     @PrePersist
@@ -74,6 +77,7 @@ public class CourseEntityImpl extends Course {
     }
 
     public void setStudents(Set<User> students) {
+
         this.students = students;
     }
 

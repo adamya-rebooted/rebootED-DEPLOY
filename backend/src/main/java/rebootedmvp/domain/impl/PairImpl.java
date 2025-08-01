@@ -73,4 +73,12 @@ public class PairImpl {
         this.right = right;
 
     }
+
+    public Boolean getBool(int contentNum) {
+        return right.get(contentNum).getValue();
+    }
+
+    public void setBool(int contentNum, boolean newState) {
+        right.get(contentNum).setValue(newState);
+    }
 }

@@ -1,16 +1,17 @@
 package rebootedmvp.controller;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import rebootedmvp.domain.impl.UserProgress;
+import rebootedmvp.dto.UserProgressDTO;
 import rebootedmvp.service.UserProgressService;
 
-import java.util.List;
-import java.util.Optional;
-
 @RestController
-@RequestMapping("/api/progress")
+@RequestMapping("/api/user-progress")
 public class UserProgressController {
 
     private final UserProgressService userProgressService;
@@ -19,25 +20,47 @@ public class UserProgressController {
         this.userProgressService = userProgressService;
     }
 
-    @GetMapping("/{courseId}/{supabaseUserId}")
-    public ResponseEntity<UserProgress> getProgressByCourseAndUser(
+    @GetMapping("/{supabaseUserId}/{courseId}")
+    public ResponseEntity<UserProgressDTO> getUserProgress(
+            @PathVariable String supabaseUserId,
+            @PathVariable Long courseId) {
+        UserProgressDTO progress = userProgressService.getUserProgress(supabaseUserId, courseId);
+        return ResponseEntity.ok(progress);
+    }
+
+    // @PostMapping("/{supabaseUserId}/{courseId}/init")
+    // public ResponseEntity<UserProgressDTO> createInitialProgress(
+    // @PathVariable String supabaseUserId,
+    // @PathVariable Long courseId) {
+    // UserProgress progress =
+    // userProgressService.createInitialProgress(supabaseUserId, courseId);
+    // return ResponseEntity.ok(new UserProgressDTO(progress));
+    // }
+
+    // @PatchMapping("/{supabaseUserId}/{courseId}/total")
+    // public ResponseEntity<UserProgressDTO> updateTotalProgress(
+    // @PathVariable String supabaseUserId,
+    // @PathVariable Long courseId,
+    // @RequestParam double newProgress) {
+    // UserProgress updated =
+    // userProgressService.updateTotalProgress(supabaseUserId, courseId,
+    // newProgress);
+    // return ResponseEntity.ok(new UserProgressDTO(updated));
+    // }
+
+    @PatchMapping("/{supabaseUserId}/{courseId}/update-content")
+    public ResponseEntity<Void> updateContentCompleted(
+            @PathVariable String supabaseUserId,
             @PathVariable Long courseId,
-            @PathVariable String supabaseUserId) {
-
-        Optional<UserProgress> progress = userProgressService.getProgressByCourseAndUser(courseId, supabaseUserId);
-        return progress.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            @RequestParam int moduleNum,
+            @RequestParam int contentNum,
+            @RequestParam boolean newStatus) {
+        userProgressService.updateContentCompleted(courseId, supabaseUserId, moduleNum, contentNum, newStatus);
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/")
-    public ResponseEntity<UserProgress> createOrUpdateProgress(@RequestBody UserProgress progress) {
-        UserProgress saved = userProgressService.saveProgress(progress);
-        return ResponseEntity.ok(saved);
-    }
-
-    @GetMapping("/")
-    public ResponseEntity<List<UserProgress>> getAllProgress() {
-        List<UserProgress> all = userProgressService.getAllProgress();
-        return ResponseEntity.ok(all);
-    }
+    // @GetMapping
+    // public ResponseEntity<List<UserProgress>> getAllProgress() {
+    // return ResponseEntity.ok(userProgressService.getAllProgress());
+    // }
 }

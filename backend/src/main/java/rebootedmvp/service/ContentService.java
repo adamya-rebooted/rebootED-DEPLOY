@@ -14,10 +14,13 @@ import rebootedmvp.Content;
 import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
+import rebootedmvp.domain.impl.CourseEntityImpl;
 import rebootedmvp.domain.impl.MatchingQuestionContentImpl;
 import rebootedmvp.domain.impl.MultipleChoiceQuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.domain.impl.VideoContentImpl;
+import rebootedmvp.domain.impl.ModuleEntityImpl;
+
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.MatchingQuestionContentDTO;
 import rebootedmvp.dto.MultipleChoiceQuestionContentDTO;
@@ -27,7 +30,9 @@ import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewVideoContentDTO;
 import rebootedmvp.dto.TextContentDTO;
 import rebootedmvp.dto.VideoContentDTO;
+import rebootedmvp.exception.CoursePublishedException;
 import rebootedmvp.repository.ContentRepository;
+import rebootedmvp.repository.CourseRepository;
 import rebootedmvp.repository.ModuleRepository;
 
 @Service
@@ -41,6 +46,9 @@ public class ContentService {
 
     @Autowired
     private ModuleRepository moduleRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
 
     @Transactional(readOnly = true)
     public List<ContentDTO> findAll() {
@@ -141,6 +149,7 @@ public class ContentService {
         return convertToDTO(savedContent);
     }
 
+    @Transactional
     public ContentDTO update(Long id, NewContentDTO updateContentDTO) {
         logger.debug("ContentService.update({}) called", id);
 
@@ -155,6 +164,17 @@ public class ContentService {
         }
 
         Content content = contentOpt.get();
+
+        Optional<ModuleEntityImpl> module = moduleRepository.findById(content.getModuleId());
+
+        if (module.isPresent()) {
+            Optional<CourseEntityImpl> course = courseRepository.findById(module.get().getCourseId());
+            if (course.isPresent()) {
+                if (course.get().isPublished()) {
+                    throw new CoursePublishedException("update");
+                }
+            }
+        }
 
         if (updateContentDTO.getTitle() != null && !updateContentDTO.getTitle().trim().isEmpty()) {
             content.setTitle(updateContentDTO.getTitle().trim());
@@ -220,10 +240,23 @@ public class ContentService {
         return convertToDTO(savedContent);
     }
 
+    @Transactional
     public boolean delete(Long id) {
+
         logger.debug("ContentService.delete({}) called", id);
 
         if (contentRepository.existsById(id)) {
+            Content content = contentRepository.findById(id).orElseThrow(() -> new RuntimeException());
+            Optional<ModuleEntityImpl> module = moduleRepository.findById(content.getModuleId());
+
+            if (module.isPresent()) {
+                Optional<CourseEntityImpl> course = courseRepository.findById(module.get().getCourseId());
+                if (course.isPresent()) {
+                    if (course.get().isPublished()) {
+                        throw new CoursePublishedException("delete");
+                    }
+                }
+            }
             contentRepository.deleteById(id);
             logger.info("Deleted content with ID: {}", id);
             return true;
@@ -240,6 +273,16 @@ public class ContentService {
         }
 
         Content content = contentOpt.get();
+        Optional<ModuleEntityImpl> module = moduleRepository.findById(content.getModuleId());
+
+        if (module.isPresent()) {
+            Optional<CourseEntityImpl> course = courseRepository.findById(module.get().getCourseId());
+            if (course.isPresent()) {
+                if (course.get().isPublished()) {
+                    throw new CoursePublishedException("update");
+                }
+            }
+        }
         content.setComplete(true);
 
         Content savedContent = contentRepository.save(ContentMapper.toEntity(content));
@@ -247,6 +290,7 @@ public class ContentService {
         return convertToDTO(savedContent);
     }
 
+    @Transactional
     public ContentDTO markIncomplete(Long id) {
         logger.debug("ContentService.markComplete({}) called", id);
 
@@ -256,6 +300,16 @@ public class ContentService {
         }
 
         Content content = contentOpt.get();
+        Optional<ModuleEntityImpl> module = moduleRepository.findById(content.getModuleId());
+
+        if (module.isPresent()) {
+            Optional<CourseEntityImpl> course = courseRepository.findById(module.get().getCourseId());
+            if (course.isPresent()) {
+                if (course.get().isPublished()) {
+                    throw new CoursePublishedException("update");
+                }
+            }
+        }
         content.setComplete(false);
 
         Content savedContent = contentRepository.save(ContentMapper.toEntity(content));

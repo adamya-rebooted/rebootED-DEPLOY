@@ -46,8 +46,6 @@ public class UserProgressDTO {
         this.progress = progress;
     }
 
-    public void setContentCompleted(int moduleNum, int contentNum, boolean newState) {
-
-    }
+   
 
 }
