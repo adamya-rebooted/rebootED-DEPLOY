@@ -60,9 +60,6 @@ public class CourseService {
     @Autowired
     private AuthenticationContextService authContextService;
 
-    @PersistenceContext
-    private EntityManager em;
-
     /**
      * Returns a list of all modules from courses the current user has access to.
      * This replaces the previous findAll() method which was a security risk.
@@ -285,8 +282,12 @@ public class CourseService {
     public void publishCourse(Long courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow();
         course.setPublished(true);
-        System.out.println("Managed? " + em.contains(course));
         courseRepository.save(CourseMapper.toEntity(course));
+    }
+
+    public boolean isPublished(Long courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow();
+        return course.isPublished();
     }
 
     // /**

@@ -20,6 +20,7 @@ import rebootedmvp.dto.ModuleDTO;
 import rebootedmvp.dto.NewModuleDTO;
 import rebootedmvp.exception.UnauthorizedAccessException;
 import rebootedmvp.exception.UserNotAuthenticatedException;
+import rebootedmvp.repository.CourseRepository;
 import rebootedmvp.repository.UserProfileRepository;
 import rebootedmvp.service.CourseMembershipService;
 import rebootedmvp.service.CourseService;
@@ -100,6 +101,12 @@ public class CourseController {
     public ResponseEntity<Void> publishModule(@PathVariable Long courseId) {
         courseService.publishCourse(courseId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/isPublished")
+    public ResponseEntity<Boolean> isPublished(@PathVariable Long courseId) {
+
+        return ResponseEntity.ok(courseService.isPublished(courseId));
     }
 
     // @PostMapping("/addTeacher/{userId}")
