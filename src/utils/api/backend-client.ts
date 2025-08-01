@@ -14,6 +14,10 @@ import {
   UpdateModuleRequest,
   NewContentRequest,
   UpdateContentRequest,
+  UpdateTextContentRequest,
+  UpdateMultipleChoiceQuestionRequest,
+  UpdateMatchingQuestionRequest,
+  UpdateVideoContentRequest,
   Course,
   Module,
   Content,
@@ -423,7 +427,20 @@ export class BackendApiClient {
   }
 
   async updateContent(id: number, contentData: UpdateContentRequest): Promise<ContentResponse> {
-    return this.put<ContentResponse>(`/content/${id}`, contentData);
+    const { type, ...payload } = contentData;
+    
+    switch (type) {
+      case ContentType.Text:
+        return this.put<ContentResponse>(`/content/updateText/${id}`, payload as UpdateTextContentRequest);
+      case ContentType.MultipleChoiceQuestion:
+        return this.put<ContentResponse>(`/content/updateMultipleChoice/${id}`, payload as UpdateMultipleChoiceQuestionRequest);
+      case ContentType.MatchingQuestion:
+        return this.put<ContentResponse>(`/content/updateMatching/${id}`, payload as UpdateMatchingQuestionRequest);
+      case ContentType.Video:
+        return this.put<ContentResponse>(`/content/updateVideo/${id}`, payload as UpdateVideoContentRequest);
+      default:
+        throw new Error(`Unsupported content type: ${type}`);
+    }
   }
 
   async deleteContent(id: number): Promise<void> {

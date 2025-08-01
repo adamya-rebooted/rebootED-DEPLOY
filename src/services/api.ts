@@ -13,6 +13,7 @@ import {
   NewCourseRequest,
   NewModuleRequest,
   NewContentRequest,
+  UpdateContentRequest,
 } from '@/types/backend-api';
 
 
@@ -92,7 +93,7 @@ export class BackendApiService {
     return backendApiClient.getContentById(id);
   }
 
-  async updateContent(id: number, contentData: { title: string; body: string; type: ContentType; moduleId: number }): Promise<ContentResponse> {
+  async updateContent(id: number, contentData: UpdateContentRequest): Promise<ContentResponse> {
     return backendApiClient.updateContent(id, contentData);
   }
 
