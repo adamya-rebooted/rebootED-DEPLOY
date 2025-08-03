@@ -14,11 +14,43 @@
   /* Your custom color palette */
   --text: #070809;
   --background: #fafcff;
-  --cardbg: #f9f9f9 ;
+  --cardbg: #f9f9f9;
   --primary: #1f3a60;
   --secondary: #89e1c1;
   --accent: #73afc9;
   --trash: #FA8072;
+
+  /* Gray scale colors for consistent theming */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  /* Slate colors for gradients and UI elements */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+
+  /* Gradient colors for sidebar and topbar */
+  --gradient-from: var(--gray-100);
+  --gradient-to: var(--slate-100);
+
+  /* Interactive states */
+  --hover-bg: var(--gray-200);
+  --active-bg: var(--gray-300);
 
   /* Derived colors for UI components */
   --foreground: var(--text);
@@ -53,6 +85,17 @@
   --sidebar-accent-foreground: var(--text);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
+
+  /* Topbar colors */
+  --topbar-bg: var(--gradient-from);
+  --topbar-foreground: var(--gray-800);
+
+  /* Dropdown menu colors */
+  --dropdown-bg: var(--gray-800);
+  --dropdown-border: var(--gray-700);
+  --dropdown-foreground: var(--gray-200);
+  --dropdown-hover: var(--gray-700);
+  --dropdown-label: var(--gray-400);
 }
 
 body {
@@ -103,12 +146,44 @@ body {
 .dark {
   /* Enhanced dark theme with better contrast */
   --text: #f8fafc;
-  --background: #0a0f1a;
-  --cardbg: #1a1f2e;
+  --background: #0f172a;
+  --cardbg: #1e293b;
   --primary: #60a5fa;
   --secondary: #34d399;
   --accent: #22d3ee;
   --trash: #f87171;
+
+  /* Dark gray scale colors */
+  --gray-50: #1a1a1a;
+  --gray-100: #2d2d2d;
+  --gray-200: #404040;
+  --gray-300: #525252;
+  --gray-400: #737373;
+  --gray-500: #a3a3a3;
+  --gray-600: #d4d4d4;
+  --gray-700: #e5e5e5;
+  --gray-800: #f5f5f5;
+  --gray-900: #ffffff;
+
+  /* Dark slate colors */
+  --slate-50: #0f172a;
+  --slate-100: #1e293b;
+  --slate-200: #334155;
+  --slate-300: #475569;
+  --slate-400: #64748b;
+  --slate-500: #94a3b8;
+  --slate-600: #cbd5e1;
+  --slate-700: #e2e8f0;
+  --slate-800: #f1f5f9;
+  --slate-900: #f8fafc;
+
+  /* Dark gradient colors for sidebar and topbar */
+  --gradient-from: var(--gray-100);
+  --gradient-to: var(--slate-100);
+
+  /* Dark interactive states */
+  --hover-bg: var(--gray-200);
+  --active-bg: var(--gray-300);
 
   /* Derived dark theme colors with improved contrast */
   --foreground: var(--text);
@@ -135,7 +210,7 @@ body {
   --chart-5: #f59e0b;
 
   /* Dark sidebar colors */
-  --sidebar: #1e293b;
+  --sidebar: var(--slate-100);
   --sidebar-foreground: var(--text);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: #0f172a;
@@ -143,6 +218,105 @@ body {
   --sidebar-accent-foreground: #0f172a;
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
+
+  /* Dark topbar colors */
+  --topbar-bg: var(--gradient-from);
+  --topbar-foreground: var(--gray-800);
+
+  /* Dark dropdown menu colors */
+  --dropdown-bg: var(--slate-200);
+  --dropdown-border: var(--slate-300);
+  --dropdown-foreground: var(--gray-800);
+  --dropdown-hover: var(--slate-300);
+  --dropdown-label: var(--gray-600);
+}
+
+.inverse {
+  /* Inverse theme - opposite colors on the color wheel */
+  --text: #f8f7f6; /* Inverted from #070809 */
+  --background: #050300; /* Inverted from #fafcff */
+  --cardbg: #060606; /* Inverted from #f9f9f9 */
+  --primary: #e0c59f; /* Inverted from #1f3a60 (blue to orange) */
+  --secondary: #761e3e; /* Inverted from #89e1c1 (green to red) */
+  --accent: #8c5036; /* Inverted from #73afc9 (cyan to orange-red) */
+  --trash: #058d7d; /* Inverted from #FA8072 (salmon to teal) */
+
+  /* Inverse gray scale colors */
+  --gray-50: #060504;
+  --gray-100: #0c0b09;
+  --gray-200: #1a1814;
+  --gray-300: #2e2a24;
+  --gray-400: #635c50;
+  --gray-500: #948d7f;
+  --gray-600: #b4ac9c;
+  --gray-700: #cbc4ae;
+  --gray-800: #e0d6c8;
+  --gray-900: #eee4d8;
+
+  /* Inverse slate colors */
+  --slate-50: #f0e8d5;
+  --slate-100: #e1d6c4;
+  --slate-200: #ccbeaa;
+  --slate-300: #b8aa96;
+  --slate-400: #9b8b74;
+  --slate-500: #6b5c47;
+  --slate-600: #342a1e;
+  --slate-700: #1d170f;
+  --slate-800: #0e0a06;
+  --slate-900: #070503;
+
+  /* Inverse gradient colors for sidebar and topbar */
+  --gradient-from: var(--gray-100);
+  --gradient-to: var(--slate-100);
+
+  /* Inverse interactive states */
+  --hover-bg: var(--gray-200);
+  --active-bg: var(--gray-300);
+
+  /* Derived inverse theme colors */
+  --foreground: var(--text);
+  --card: #e1d6c4;
+  --card-foreground: var(--text);
+  --popover: #e1d6c4;
+  --popover-foreground: var(--text);
+  --primary-foreground: #f0e8d5;
+  --secondary-foreground: #f0e8d5;
+  --muted: #ccbeaa;
+  --muted-foreground: #342a1e;
+  --accent-foreground: #f0e8d5;
+  --destructive: #10bbbb; /* Inverted from #ef4444 (red to cyan) */
+  --destructive-foreground: #000000;
+  --border: #b8aa96;
+  --input: #b8aa96;
+  --ring: var(--primary);
+
+  /* Inverse chart colors */
+  --chart-1: var(--primary);
+  --chart-2: var(--secondary);
+  --chart-3: var(--accent);
+  --chart-4: #57aa08; /* Inverted from #a855f7 (purple to green) */
+  --chart-5: #0a60f4; /* Inverted from #f59e0b (orange to blue) */
+
+  /* Inverse sidebar colors */
+  --sidebar: var(--slate-100);
+  --sidebar-foreground: var(--text);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: #f0e8d5;
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: #f0e8d5;
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  /* Inverse topbar colors */
+  --topbar-bg: var(--gradient-from);
+  --topbar-foreground: var(--gray-800);
+
+  /* Inverse dropdown menu colors */
+  --dropdown-bg: var(--slate-200);
+  --dropdown-border: var(--slate-300);
+  --dropdown-foreground: var(--gray-800);
+  --dropdown-hover: var(--slate-300);
+  --dropdown-label: var(--gray-600);
 }
 
 @layer base {
@@ -158,12 +332,133 @@ body {
   .bg-sidebar {
     background: var(--sidebar);
   }
-  
+
+  .bg-topbar {
+    background: linear-gradient(to right, var(--gradient-from), var(--gradient-to));
+  }
+
+  .bg-sidebar-gradient {
+    background: linear-gradient(to bottom, var(--gradient-from), var(--gradient-to));
+  }
+
+  .text-sidebar-foreground {
+    color: var(--sidebar-foreground);
+  }
+
+  .text-topbar-foreground {
+    color: var(--topbar-foreground);
+  }
+
+  .bg-hover {
+    background-color: var(--hover-bg);
+  }
+
+  .bg-active {
+    background-color: var(--active-bg);
+  }
+
+  .border-sidebar {
+    border-color: var(--sidebar-border);
+  }
+
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  .bg-grid {
+    background-image: radial-gradient(circle, var(--gray-300) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .drag-handle {
+    cursor: grab;
+  }
+
+  .drag-handle:active {
+    cursor: grabbing;
+  }
+
+  .resize-handle {
+    position: absolute;
+    background: var(--primary);
+    border: 1px solid var(--background);
+    border-radius: 2px;
+  }
+
+  .resize-handle:hover {
+    background: var(--primary);
+    opacity: 0.8;
+  }
+
+  .resize-handle.nw {
+    top: -4px;
+    left: -4px;
+    width: 8px;
+    height: 8px;
+    cursor: nw-resize;
+  }
+
+  .resize-handle.ne {
+    top: -4px;
+    right: -4px;
+    width: 8px;
+    height: 8px;
+    cursor: ne-resize;
+  }
+
+  .resize-handle.sw {
+    bottom: -4px;
+    left: -4px;
+    width: 8px;
+    height: 8px;
+    cursor: sw-resize;
+  }
+
+  .resize-handle.se {
+    bottom: -4px;
+    right: -4px;
+    width: 8px;
+    height: 8px;
+    cursor: se-resize;
+  }
+
+  .resize-handle.n {
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    cursor: n-resize;
+  }
+
+  .resize-handle.s {
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    cursor: s-resize;
+  }
+
+  .resize-handle.w {
+    top: 50%;
+    left: -4px;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    cursor: w-resize;
+  }
+
+  .resize-handle.e {
+    top: 50%;
+    right: -4px;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    cursor: e-resize;
   }
 }
 

@@ -89,11 +89,11 @@ const StudentDashboard: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-8 space-y-8 bg-gradient-to-br from-gray-50 to-slate-100 min-h-full">
+      <div className="p-8 space-y-8 bg-background min-h-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">My Learning Dashboard</h1>
-          <p className="text-gray-600">Track your progress and continue your professional development journey</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">My Learning Dashboard</h1>
+          <p className="text-muted-foreground">Track your progress and continue your professional development journey</p>
         </div>
 
         {/* Stats Cards */}
@@ -176,8 +176,8 @@ const StudentDashboard: React.FC = () => {
         {/* Courses Grid */}
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">My Courses</h2>
-            <div className="flex items-center gap-2 text-gray-600 hover:text-[#1f3a60] cursor-pointer transition-colors">
+            <h2 className="text-2xl font-bold text-foreground">My Courses</h2>
+            <div className="flex items-center gap-2 text-muted-foreground hover:text-primary cursor-pointer transition-colors">
               {/* <span className="text-sm font-medium">View All</span>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -185,21 +185,21 @@ const StudentDashboard: React.FC = () => {
             </div>
           </div>
           {isLoading ? (
-            <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-lg">
+            <Card className="bg-card border-border shadow-lg">
               <CardContent className="flex flex-col items-center justify-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1f3a60] mb-4"></div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">Loading courses...</h3>
-                <p className="text-gray-600 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <h3 className="text-lg font-semibold mb-2 text-card-foreground">Loading courses...</h3>
+                <p className="text-muted-foreground text-center">
                   Please wait while we fetch your courses.
                 </p>
               </CardContent>
             </Card>
           ) : error ? (
-            <Card className="bg-gradient-to-br from-white to-gray-50 border-red-200 shadow-lg">
+            <Card className="bg-card border-destructive shadow-lg">
               <CardContent className="flex flex-col items-center justify-center py-16">
-                <div className="h-12 w-12 text-red-500 mb-4">⚠️</div>
-                <h3 className="text-lg font-semibold mb-2 text-red-600">Error loading courses</h3>
-                <p className="text-gray-600 text-center mb-4">
+                <div className="h-12 w-12 text-destructive mb-4">⚠️</div>
+                <h3 className="text-lg font-semibold mb-2 text-destructive">Error loading courses</h3>
+                <p className="text-muted-foreground text-center mb-4">
                   {error}
                 </p>
                 <button
@@ -207,7 +207,7 @@ const StudentDashboard: React.FC = () => {
                     setError(null);
                     refreshCourses();
                   }}
-                  className="px-6 py-2 bg-[#1f3a60] text-white rounded-md hover:bg-[#152a4a] transition-colors font-medium"
+                  className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium"
                 >
                   Try Again
                 </button>
@@ -247,13 +247,13 @@ const StudentDashboard: React.FC = () => {
               ))}
             </div>
           ) : (
-            <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-lg">
+            <Card className="bg-card border-border shadow-lg">
               <CardContent className="flex flex-col items-center justify-center py-16">
-                <div className="w-16 h-16 bg-[#1f3a60]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <BookOpen className="h-8 w-8 text-[#1f3a60]" />
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <BookOpen className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-gray-800">No courses found</h3>
-                <p className="text-gray-600 text-center max-w-md">
+                <h3 className="text-xl font-semibold mb-3 text-card-foreground">No courses found</h3>
+                <p className="text-muted-foreground text-center max-w-md">
                   You haven't been assigned any courses yet. Contact your instructor to get started.
                 </p>
               </CardContent>

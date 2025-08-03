@@ -20,6 +20,7 @@ import {
   Sun,
   Monitor,
   ChevronDown,
+  Palette,
 } from "lucide-react";
 
 interface ProfileDropdownProps {
@@ -54,6 +55,8 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className }) => {
         return <Moon className="h-4 w-4" />;
       case "light":
         return <Sun className="h-4 w-4" />;
+      case "inverse":
+        return <Palette className="h-4 w-4" />;
       default:
         return <Monitor className="h-4 w-4" />;
     }
@@ -65,6 +68,8 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className }) => {
         return "Dark";
       case "light":
         return "Light";
+      case "inverse":
+        return "Inverse";
       default:
         return "System";
     }
@@ -121,6 +126,11 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ className }) => {
           <Monitor className="mr-2 h-4 w-4" />
           <span>System</span>
           {theme === "system" && <div className="ml-auto h-2 w-2 rounded-full bg-primary" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("inverse")}>
+          <Palette className="mr-2 h-4 w-4" />
+          <span>Inverse</span>
+          {theme === "inverse" && <div className="ml-auto h-2 w-2 rounded-full bg-primary" />}
         </DropdownMenuItem>
         
         <DropdownMenuSeparator />

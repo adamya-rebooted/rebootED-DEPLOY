@@ -25,6 +25,7 @@ const Navbar: React.FC = () => {
     ? [
         { name: "Dashboard", href: "/management-dashboard", icon: BarChart3 },
         { name: "Courses", href: "/management-dashboard", icon: BookOpen },
+        { name: "Page Builder (Test)", href: "/modify-content-test", icon: BookOpen },
         // { name: "Students", href: "/teacher/students", icon: Users },
         // { name: "Settings", href: "/teacher/settings", icon: Settings },
       ]

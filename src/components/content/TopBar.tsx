@@ -41,10 +41,10 @@ const TopBar: React.FC<TopBarProps> = ({
   }
 
   return (
-    <div className={`fixed top-0 ${isCollapsed ? 'left-16' : 'left-64'} right-0 h-16 bg-gradient-to-r from-gray-100 to-slate-100 z-40 flex items-center justify-between px-6 shadow-sm transition-all duration-300 ease-in-out`}>
+    <div className={`fixed top-0 ${isCollapsed ? 'left-16' : 'left-64'} right-0 h-16 bg-topbar z-40 flex items-center justify-between px-6 shadow-sm transition-all duration-300 ease-in-out`}>
       {/* Title */}
       <div className="flex items-center">
-        <h1 className="text-xl font-semibold text-gray-800">
+        <h1 className="text-xl font-semibold text-topbar-foreground">
           {isCourseManagement ? "Course Management" : "Modify Course"}
         </h1>
       </div>
@@ -56,7 +56,12 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={showAssistant}
               variant="outline"
-              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
+              style={{
+                borderColor: 'var(--primary)',
+                color: 'var(--primary)',
+                '--tw-border-opacity': '0.3'
+              } as React.CSSProperties}
+              className="transition-colors hover:bg-primary/5"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create Course with AI
@@ -64,7 +69,12 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={onCreateCourse}
               variant="outline"
-              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
+              style={{
+                borderColor: 'var(--primary)',
+                color: 'var(--primary)',
+                '--tw-border-opacity': '0.3'
+              } as React.CSSProperties}
+              className="transition-colors hover:bg-primary/5"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create Course
@@ -77,7 +87,12 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={onAddTeacher}
               variant="outline"
-              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
+              style={{
+                borderColor: 'var(--primary)',
+                color: 'var(--primary)',
+                '--tw-border-opacity': '0.3'
+              } as React.CSSProperties}
+              className="transition-colors hover:bg-primary/5"
             >
               <Users className="h-4 w-4 mr-2" />
               Add Teacher
@@ -85,7 +100,12 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={onAddStudent}
               variant="outline"
-              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
+              style={{
+                borderColor: 'var(--primary)',
+                color: 'var(--primary)',
+                '--tw-border-opacity': '0.3'
+              } as React.CSSProperties}
+              className="transition-colors hover:bg-primary/5"
             >
               <GraduationCap className="h-4 w-4 mr-2" />
               Add Student
@@ -93,7 +113,12 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={onPreviewCourse}
               variant="outline"
-              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
+              style={{
+                borderColor: 'var(--primary)',
+                color: 'var(--primary)',
+                '--tw-border-opacity': '0.3'
+              } as React.CSSProperties}
+              className="transition-colors hover:bg-primary/5"
             >
               <BookOpen className="h-4 w-4 mr-2" />
               Preview Course
@@ -101,7 +126,12 @@ const TopBar: React.FC<TopBarProps> = ({
             <Button
               onClick={onEditCourse}
               variant="outline"
-              className="border-[#1f3a60]/30 text-[#1f3a60] hover:bg-[#1f3a60]/5 transition-colors"
+              style={{
+                borderColor: 'var(--primary)',
+                color: 'var(--primary)',
+                '--tw-border-opacity': '0.3'
+              } as React.CSSProperties}
+              className="transition-colors hover:bg-primary/5"
             >
               <Edit className="h-4 w-4 mr-2" />
               Edit Course

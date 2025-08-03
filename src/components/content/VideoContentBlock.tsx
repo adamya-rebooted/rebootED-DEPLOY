@@ -111,7 +111,7 @@ export default function VideoContentBlock({
                 </div>
             )}
 
-            {isInteractive && !content.isComplete && (
+            {/* {isInteractive && !content.isComplete && (
                 <button
                     onClick={handleComplete}
                     disabled={completing}
@@ -120,7 +120,7 @@ export default function VideoContentBlock({
                 >
                     {completing ? 'Marking Complete...' : 'Mark as Complete'}
                 </button>
-            )}
+            )} */}
         </div>
     );
 }

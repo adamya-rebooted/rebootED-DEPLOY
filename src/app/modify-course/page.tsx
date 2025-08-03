@@ -615,7 +615,7 @@ const ModifyCoursePage: React.FC = () => {
                         onClick={handleOpenModuleDialog}
                         variant="outline"
                         size="sm"
-                        className="border-[var(--border)] bg-[var(--primary)] text-[var(--background)]"
+                        className="border-[var(--border)] bg-[var(--primary)] text-[var(--background)] hover:bg-[var(--primary)]/90 transition-colors"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Create Module

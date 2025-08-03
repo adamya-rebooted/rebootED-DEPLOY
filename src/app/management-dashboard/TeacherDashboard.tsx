@@ -199,7 +199,7 @@ const TeacherDashboard: React.FC = () => {
       onPreviewCourse={handlePreviewCourse}
       onEditCourse={handleEditCourse}
     >
-      <div className="p-8 space-y-8 bg-[#1f3a60] min-h-full">
+      <div className="p-8 space-y-8 bg-background min-h-full">
         {/* Header Section */}
         {/* <div className="text-center md:text-left mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Course Management Dashboard</h1>
@@ -263,30 +263,30 @@ const TeacherDashboard: React.FC = () => {
         </div> */}
 
         {/* Recent Courses */}
-        <Card className="bg-gradient-to-br from-white to-gray-50 border-gray-200 shadow-lg">
-          <CardHeader className="border-b border-gray-200">
-            <CardTitle className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-              <CheckCircle className="h-8 w-8 text-green-600" />
+        <Card className="bg-card border-border shadow-lg">
+          <CardHeader className="border-b border-border">
+            <CardTitle className="text-3xl font-bold text-card-foreground flex items-center gap-2">
+              <CheckCircle className="h-8 w-8 text-secondary" />
               Recent Courses
             </CardTitle>
-            <CardDescription className="text-gray-600">
+            <CardDescription className="text-muted-foreground">
               Your most recently created courses
             </CardDescription>
           </CardHeader>
           <CardContent className="py-2 px-6">
             {isLoading ? (
               <div className="text-center py-12">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#1f3a60] border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
-                <p className="mt-4 text-gray-600 font-medium">Loading courses...</p>
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                <p className="mt-4 text-muted-foreground font-medium">Loading courses...</p>
               </div>
             ) : error ? (
               <div className="text-center py-12">
-                <div className="h-12 w-12 text-red-500 mb-4 mx-auto">⚠️</div>
-                <p className="text-red-600 font-medium mb-4">{error}</p>
-                <Button 
-                  onClick={() => window.location.reload()} 
-                  variant="outline" 
-                  className="border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                <div className="h-12 w-12 text-destructive mb-4 mx-auto">⚠️</div>
+                <p className="text-destructive font-medium mb-4">{error}</p>
+                <Button
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                  className="border-border text-card-foreground hover:bg-muted transition-colors"
                 >
                   Retry
                 </Button>
@@ -315,23 +315,23 @@ const TeacherDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-16">
-                <div className="w-16 h-16 bg-[#1f3a60]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <BookOpen className="h-8 w-8 text-[#1f3a60]" />
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <BookOpen className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">Create Your First Course</h3>
-                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                <h3 className="text-xl font-semibold text-card-foreground mb-3">Create Your First Course</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                   Get started by creating your first course to manage students and content effectively.
                 </p>
                 <div className="flex gap-3 justify-center">
-                  <Button 
-                    className="bg-[#1f3a60] hover:bg-[#152a4a] text-white border-0 shadow-sm"
+                  <Button
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground border-0 shadow-sm"
                     onClick={() => setIsCreateDialogOpen(true)}
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Create Course
                   </Button>
-                  <Button 
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                  <Button
+                    className="border-border text-card-foreground hover:bg-muted transition-colors"
                     variant="outline"
                     onClick={showAssistant}
                   >
