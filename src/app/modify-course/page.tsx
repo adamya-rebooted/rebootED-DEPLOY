@@ -116,17 +116,24 @@ const ModifyCoursePage: React.FC = () => {
     const handleModuleCreated = (event: CustomEvent) => {
       const { module } = event.detail;
       if (module && module.id) {
-              // Add the new module to the list
-      setModules(prev => [...prev, module]);
+        // Add the new module to the list
+        setModules(prev => {
+          const newModules = [...prev, module];
+          // Auto-select the first module if none is currently selected
+          if (!selectedModuleForContent && newModules.length > 0) {
+            setSelectedModuleForContent(newModules[0].id);
+          }
+          return newModules;
+        });
       }
     };
 
     window.addEventListener('moduleCreated', handleModuleCreated as EventListener);
-    
+
     return () => {
       window.removeEventListener('moduleCreated', handleModuleCreated as EventListener);
     };
-  }, []);
+  }, [selectedModuleForContent]);
 
   // Listen for contentCreated events from AI assistant
   useEffect(() => {
@@ -192,6 +199,11 @@ const ModifyCoursePage: React.FC = () => {
 
       setCourse(courseData);
       setModules(modulesData);
+
+      // Auto-select the first module if none is currently selected and modules exist
+      if (!selectedModuleForContent && modulesData.length > 0) {
+        setSelectedModuleForContent(modulesData[0].id);
+      }
 
       // Initialize edit form with current course data
       setEditCourseTitle(courseData.title);
@@ -352,12 +364,18 @@ const ModifyCoursePage: React.FC = () => {
       await apiService.deleteModule(parseInt(courseId!), moduleId);
 
       // Remove the module from the list
-      setModules(prev => prev.filter(m => m.id !== moduleId));
+      setModules(prev => {
+        const remainingModules = prev.filter(m => m.id !== moduleId);
 
-      // Clear selection if this module was selected
-      if (selectedModuleForContent === moduleId) {
-        setSelectedModuleForContent(null);
-      }
+        // If the deleted module was selected, auto-select the first remaining module
+        if (selectedModuleForContent === moduleId && remainingModules.length > 0) {
+          setSelectedModuleForContent(remainingModules[0].id);
+        } else if (selectedModuleForContent === moduleId) {
+          setSelectedModuleForContent(null);
+        }
+
+        return remainingModules;
+      });
 
       toast.success(`Module "${moduleTitle}" deleted successfully`);
     } catch (err) {
