@@ -160,20 +160,19 @@ export default function DraggableContentBlock({
 
     switch (block.type) {
       case 'heading':
-        const HeadingTag = `h${block.content.level || 2}` as keyof JSX.IntrinsicElements
-        return (
-          <HeadingTag 
-            style={commonStyles}
-            className="font-bold"
-          >
-            {block.content.text || 'Heading Text'}
-          </HeadingTag>
-        )
+        const level = block.content.level || 2
+        const HeadingTag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+        const headingText = typeof block.content.text === 'string' ? block.content.text : 'Heading Text'
+        return React.createElement(HeadingTag, {
+          style: commonStyles,
+          className: "font-bold"
+        }, headingText)
 
       case 'text':
+        const textContent = typeof block.content.text === 'string' ? block.content.text : 'Enter your text here...'
         return (
           <p style={commonStyles}>
-            {block.content.text || 'Enter your text here...'}
+            {textContent}
           </p>
         )
 
@@ -189,11 +188,15 @@ export default function DraggableContentBlock({
             </div>
           )
         }
+        const imageSrc = typeof block.content.src === 'string' ? block.content.src : ''
+        const imageAlt = typeof block.content.alt === 'string' ? block.content.alt : 'Image'
+        const imageCaption = typeof block.content.caption === 'string' ? block.content.caption : ''
+        
         return (
           <div style={commonStyles} className="h-full">
             <img 
-              src={block.content.src} 
-              alt={block.content.alt || 'Image'} 
+              src={imageSrc} 
+              alt={imageAlt} 
               className="w-full h-full object-cover rounded"
               onError={(e) => {
                 e.currentTarget.style.display = 'none'
@@ -204,9 +207,9 @@ export default function DraggableContentBlock({
               <ImageIcon className="h-8 w-8 mb-2" />
               <p className="text-sm">Failed to load image</p>
             </div>
-            {block.content.caption && (
+            {imageCaption && (
               <p className="text-sm text-gray-600 mt-2 italic">
-                {block.content.caption}
+                {imageCaption}
               </p>
             )}
           </div>
@@ -232,7 +235,9 @@ export default function DraggableContentBlock({
           return (match && match[2].length === 11) ? match[2] : null
         }
 
-        const videoId = getYouTubeId(block.content.url)
+        const videoUrl = typeof block.content.url === 'string' ? block.content.url : ''
+        const videoTitle = typeof block.content.title === 'string' ? block.content.title : ''
+        const videoId = getYouTubeId(videoUrl)
         if (videoId) {
           return (
             <div style={commonStyles} className="h-full">
@@ -240,7 +245,7 @@ export default function DraggableContentBlock({
                 width="100%"
                 height="100%"
                 src={`https://www.youtube.com/embed/${videoId}`}
-                title={block.content.title || 'Video'}
+                title={videoTitle || 'Video'}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -262,10 +267,14 @@ export default function DraggableContentBlock({
         )
 
       case 'button':
+        const buttonUrl = typeof block.content.url === 'string' ? block.content.url : ''
+        const buttonText = typeof block.content.text === 'string' ? block.content.text : 'Click Me'
+        const buttonStyle = typeof block.content.style === 'string' ? block.content.style : 'default'
+        
         return (
           <div style={{ ...commonStyles, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
             <Button
-              variant={block.content.style === 'secondary' ? 'secondary' : 'default'}
+              variant={buttonStyle === 'secondary' ? 'secondary' : 'default'}
               size="sm"
               className="w-full h-full"
               style={{
@@ -273,19 +282,22 @@ export default function DraggableContentBlock({
                 color: block.styles.textColor || '#ffffff',
                 borderRadius: block.styles.borderRadius || '6px',
               }}
-              disabled={isPreviewMode && (!block.content.url || block.content.url === '#')}
+              disabled={isPreviewMode && (!buttonUrl || buttonUrl === '#')}
             >
-              {block.content.text || 'Click Me'}
+              {buttonText}
             </Button>
           </div>
         )
 
       case 'divider':
+        const dividerStyle = typeof block.content.style === 'string' ? block.content.style : 'solid'
+        const dividerColor = typeof block.content.color === 'string' ? block.content.color : '#e2e8f0'
+        
         return (
           <hr 
             style={{
               border: 'none',
-              borderTop: `2px ${block.content.style || 'solid'} ${block.content.color || '#e2e8f0'}`,
+              borderTop: `2px ${dividerStyle} ${dividerColor}`,
               margin: '0',
               backgroundColor: 'transparent',
               width: '100%',

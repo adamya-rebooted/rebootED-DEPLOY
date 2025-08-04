@@ -75,7 +75,7 @@ export default function ContentBlockToolbar({
               <Label htmlFor="heading-text">Heading Text</Label>
               <Input
                 id="heading-text"
-                value={block.content.text || ''}
+                value={typeof block.content.text === 'string' ? block.content.text : ''}
                 onChange={(e) => updateContent({ text: e.target.value })}
                 placeholder="Enter heading text"
               />
@@ -83,7 +83,7 @@ export default function ContentBlockToolbar({
             <div>
               <Label htmlFor="heading-level">Heading Level</Label>
               <Select
-                value={block.content.level?.toString() || '2'}
+                value={typeof block.content.level === 'number' ? block.content.level.toString() : '2'}
                 onValueChange={(value) => updateContent({ level: parseInt(value) })}
               >
                 <SelectTrigger>
@@ -108,7 +108,7 @@ export default function ContentBlockToolbar({
             <Label htmlFor="text-content">Text Content</Label>
             <Textarea
               id="text-content"
-              value={block.content.text || ''}
+              value={typeof block.content.text === 'string' ? block.content.text : ''}
               onChange={(e) => updateContent({ text: e.target.value })}
               placeholder="Enter your text here..."
               rows={4}
@@ -123,7 +123,7 @@ export default function ContentBlockToolbar({
               <Label htmlFor="image-src">Image URL</Label>
               <Input
                 id="image-src"
-                value={block.content.src || ''}
+                value={typeof block.content.src === 'string' ? block.content.src : ''}
                 onChange={(e) => updateContent({ src: e.target.value })}
                 placeholder="https://example.com/image.jpg"
               />
@@ -132,7 +132,7 @@ export default function ContentBlockToolbar({
               <Label htmlFor="image-alt">Alt Text</Label>
               <Input
                 id="image-alt"
-                value={block.content.alt || ''}
+                value={typeof block.content.alt === 'string' ? block.content.alt : ''}
                 onChange={(e) => updateContent({ alt: e.target.value })}
                 placeholder="Describe the image"
               />
@@ -141,7 +141,7 @@ export default function ContentBlockToolbar({
               <Label htmlFor="image-caption">Caption (optional)</Label>
               <Input
                 id="image-caption"
-                value={block.content.caption || ''}
+                value={typeof block.content.caption === 'string' ? block.content.caption : ''}
                 onChange={(e) => updateContent({ caption: e.target.value })}
                 placeholder="Image caption"
               />
@@ -156,7 +156,7 @@ export default function ContentBlockToolbar({
               <Label htmlFor="video-url">YouTube URL</Label>
               <Input
                 id="video-url"
-                value={block.content.url || ''}
+                value={typeof block.content.url === 'string' ? block.content.url : ''}
                 onChange={(e) => updateContent({ url: e.target.value })}
                 placeholder="https://www.youtube.com/watch?v=..."
               />
@@ -165,7 +165,7 @@ export default function ContentBlockToolbar({
               <Label htmlFor="video-title">Video Title</Label>
               <Input
                 id="video-title"
-                value={block.content.title || ''}
+                value={typeof block.content.title === 'string' ? block.content.title : ''}
                 onChange={(e) => updateContent({ title: e.target.value })}
                 placeholder="Video title"
               />
@@ -180,7 +180,7 @@ export default function ContentBlockToolbar({
               <Label htmlFor="button-text">Button Text</Label>
               <Input
                 id="button-text"
-                value={block.content.text || ''}
+                value={typeof block.content.text === 'string' ? block.content.text : ''}
                 onChange={(e) => updateContent({ text: e.target.value })}
                 placeholder="Click Me"
               />
@@ -189,7 +189,7 @@ export default function ContentBlockToolbar({
               <Label htmlFor="button-url">Link URL</Label>
               <Input
                 id="button-url"
-                value={block.content.url || ''}
+                value={typeof block.content.url === 'string' ? block.content.url : ''}
                 onChange={(e) => updateContent({ url: e.target.value })}
                 placeholder="https://example.com"
               />
@@ -197,7 +197,7 @@ export default function ContentBlockToolbar({
             <div>
               <Label htmlFor="button-style">Button Style</Label>
               <Select
-                value={block.content.style || 'primary'}
+                value={typeof block.content.style === 'string' ? block.content.style : 'primary'}
                 onValueChange={(value) => updateContent({ style: value })}
               >
                 <SelectTrigger>
@@ -218,7 +218,7 @@ export default function ContentBlockToolbar({
             <div>
               <Label htmlFor="divider-style">Line Style</Label>
               <Select
-                value={block.content.style || 'solid'}
+                value={typeof block.content.style === 'string' ? block.content.style : 'solid'}
                 onValueChange={(value) => updateContent({ style: value })}
               >
                 <SelectTrigger>
@@ -236,7 +236,7 @@ export default function ContentBlockToolbar({
               <Input
                 id="divider-color"
                 type="color"
-                value={block.content.color || '#e2e8f0'}
+                value={typeof block.content.color === 'string' ? block.content.color : '#e2e8f0'}
                 onChange={(e) => updateContent({ color: e.target.value })}
               />
             </div>

@@ -97,7 +97,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       console.log(`[AUTH_DETAILED] ${timestamp} - backendApiClient.getUserById() returned after ${backendTime.toFixed(2)}ms`);
       console.log(`[AUTH_STATE] ${timestamp} - Backend API call completed in ${backendTime.toFixed(2)}ms`);
       console.log('Backend user data:', backendUser)
-      const role = backendUser.userType === 'Teacher' ? 'teacher' : 
+      const role: 'teacher' | 'student' | null = backendUser.userType === 'Teacher' ? 'teacher' : 
                    backendUser.userType === 'Student' ? 'student' : 
                    null
       console.log('Mapped role:', role, 'from userType:', backendUser.userType)

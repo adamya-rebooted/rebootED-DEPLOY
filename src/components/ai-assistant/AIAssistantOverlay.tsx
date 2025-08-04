@@ -9,6 +9,7 @@ import { X } from 'lucide-react';
 import { courseGenerationService } from '@/services/courseGeneration';
 import { apiService } from '@/services/api';
 import { ContentType } from '@/utils/api/backend-client';
+import { ContentResponse } from '@/types/backend-api';
 
 interface CreatedCourse {
   id: number;
@@ -53,13 +54,13 @@ export const AIAssistantOverlay: React.FC = () => {
   const [textContentPrompt, setTextContentPrompt] = useState('');
   const [isGeneratingTextContent, setIsGeneratingTextContent] = useState(false);
   const [textContentError, setTextContentError] = useState<string | null>(null);
-  const [createdTextContent, setCreatedTextContent] = useState<Record<string, unknown> | null>(null);
+  const [createdTextContent, setCreatedTextContent] = useState<ContentResponse | null>(null);
 
   // Prompt-based multiple choice question creation state
   const [mcqPrompt, setMcqPrompt] = useState('');
   const [isGeneratingMCQ, setIsGeneratingMCQ] = useState(false);
   const [mcqError, setMcqError] = useState<string | null>(null);
-  const [createdMCQ, setCreatedMCQ] = useState<Record<string, unknown> | null>(null);
+  const [createdMCQ, setCreatedMCQ] = useState<ContentResponse | null>(null);
 
   // Prompt-based course modules generation state
   const [courseModulesPrompt, setCourseModulesPrompt] = useState('');

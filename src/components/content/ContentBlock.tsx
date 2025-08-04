@@ -88,20 +88,19 @@ export default function ContentBlock({
 
     switch (block.type) {
       case 'heading':
-        const HeadingTag = `h${block.content.level || 2}` as keyof JSX.IntrinsicElements
-        return (
-          <HeadingTag 
-            style={commonStyles}
-            className="font-bold"
-          >
-            {block.content.text || 'Heading Text'}
-          </HeadingTag>
-        )
+        const level = block.content.level || 2
+        const HeadingTag = `h${level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+        const headingText = typeof block.content.text === 'string' ? block.content.text : 'Heading Text'
+        return React.createElement(HeadingTag, {
+          style: commonStyles,
+          className: "font-bold"
+        }, headingText)
 
       case 'text':
+        const textContent = typeof block.content.text === 'string' ? block.content.text : 'Enter your text here...'
         return (
           <p style={commonStyles}>
-            {block.content.text || 'Enter your text here...'}
+            {textContent}
           </p>
         )
 
@@ -118,11 +117,15 @@ export default function ContentBlock({
             </div>
           )
         }
+        const imageSrc = typeof block.content.src === 'string' ? block.content.src : ''
+        const imageAlt = typeof block.content.alt === 'string' ? block.content.alt : 'Image'
+        const imageCaption = typeof block.content.caption === 'string' ? block.content.caption : ''
+        
         return (
           <div style={commonStyles}>
             <img 
-              src={block.content.src} 
-              alt={block.content.alt || 'Image'} 
+              src={imageSrc} 
+              alt={imageAlt} 
               className="max-w-full h-auto rounded"
               onError={(e) => {
                 e.currentTarget.style.display = 'none'
@@ -134,9 +137,9 @@ export default function ContentBlock({
               <p>Failed to load image</p>
               <p className="text-sm">Check the image URL</p>
             </div>
-            {block.content.caption && (
+            {imageCaption && (
               <p className="text-sm text-gray-600 mt-2 italic">
-                {block.content.caption}
+                {imageCaption}
               </p>
             )}
           </div>
@@ -165,23 +168,29 @@ export default function ContentBlock({
             : url
         }
 
+        const videoUrl = typeof block.content.url === 'string' ? block.content.url : ''
+        const videoTitle = typeof block.content.title === 'string' ? block.content.title : ''
+        
         return (
           <div style={commonStyles}>
-            {block.content.title && (
-              <h4 className="font-medium mb-2">{block.content.title}</h4>
+            {videoTitle && (
+              <h4 className="font-medium mb-2">{videoTitle}</h4>
             )}
             <div className="aspect-video">
               <iframe
-                src={getYouTubeEmbedUrl(block.content.url)}
+                src={getYouTubeEmbedUrl(videoUrl)}
                 className="w-full h-full rounded"
                 allowFullScreen
-                title={block.content.title || 'Video'}
+                title={videoTitle || 'Video'}
               />
             </div>
           </div>
         )
 
       case 'button':
+        const buttonUrl = typeof block.content.url === 'string' ? block.content.url : ''
+        const buttonText = typeof block.content.text === 'string' ? block.content.text : 'Click Me'
+        
         return (
           <div style={{ textAlign: commonStyles.textAlign as 'left' | 'center' | 'right' }}>
             <Button
@@ -194,23 +203,26 @@ export default function ContentBlock({
                 border: commonStyles.border !== 'none' ? commonStyles.border : undefined
               }}
               onClick={() => {
-                if (block.content.url && block.content.url !== '#') {
-                  window.open(block.content.url, '_blank')
+                if (buttonUrl && buttonUrl !== '#') {
+                  window.open(buttonUrl, '_blank')
                 }
               }}
-              disabled={isPreviewMode && (!block.content.url || block.content.url === '#')}
+              disabled={isPreviewMode && (!buttonUrl || buttonUrl === '#')}
             >
-              {block.content.text || 'Click Me'}
+              {buttonText}
             </Button>
           </div>
         )
 
       case 'divider':
+        const dividerStyle = typeof block.content.style === 'string' ? block.content.style : 'solid'
+        const dividerColor = typeof block.content.color === 'string' ? block.content.color : '#e2e8f0'
+        
         return (
           <hr 
             style={{
               border: 'none',
-              borderTop: `2px ${block.content.style || 'solid'} ${block.content.color || '#e2e8f0'}`,
+              borderTop: `2px ${dividerStyle} ${dividerColor}`,
               margin: commonStyles.margin !== '0' ? commonStyles.margin : '16px 0',
               backgroundColor: 'transparent'
             }}

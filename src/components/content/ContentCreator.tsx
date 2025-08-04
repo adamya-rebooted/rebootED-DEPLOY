@@ -238,7 +238,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
                   color: '#171717'
                 }}
               />
-              {error && <p style={{ color: 'red', marginTop: '5px' }}>{videoUrlError}</p>}
+              {error && <p style={{ color: 'red', marginTop: '5px' }}>{error}</p>}
             </div>
 
             {/* Video Preview */}
