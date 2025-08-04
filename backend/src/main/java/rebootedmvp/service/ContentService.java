@@ -52,6 +52,9 @@ public class ContentService {
     @Autowired
     private CourseRepository courseRepository;
 
+    @Autowired
+    private AuthorizationService authorizationService;
+
     @Transactional(readOnly = true)
     public List<ContentDTO> findAll() {
         logger.debug("ContentService.findAll() called");
@@ -173,7 +176,13 @@ public class ContentService {
 
         Content content = contentOpt.get();
 
+        // Get the module to find the course for authorization
         Optional<ModuleEntityImpl> module = moduleRepository.findById(content.getModuleId());
+        
+        // Check authorization - only teachers can update content
+        if (module.isPresent()) {
+            authorizationService.requireTeacherAccess(module.get().getCourseId());
+        }
 
         if (module.isPresent()) {
             Optional<CourseEntityImpl> course = courseRepository.findById(module.get().getCourseId());

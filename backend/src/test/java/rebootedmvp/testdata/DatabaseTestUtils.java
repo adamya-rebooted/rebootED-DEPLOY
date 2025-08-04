@@ -6,9 +6,13 @@ import org.springframework.transaction.annotation.Transactional;
 import rebootedmvp.domain.impl.ModuleEntityImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.domain.impl.MultipleChoiceQuestionContentImpl;
+import rebootedmvp.domain.impl.TeacherImpl;
+import rebootedmvp.domain.impl.StudentImpl;
+import rebootedmvp.domain.impl.CourseEntityImpl;
 import rebootedmvp.repository.ContentRepository;
 import rebootedmvp.repository.ModuleRepository;
 import rebootedmvp.repository.CourseRepository;
+import rebootedmvp.repository.UserProfileRepository;
 
 import java.util.List;
 
@@ -24,6 +28,39 @@ public class DatabaseTestUtils {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private UserProfileRepository userProfileRepository;
+
+    public TeacherImpl createTestTeacher(String supabaseUserId, String email) {
+        TeacherImpl teacher = new TeacherImpl("test-teacher", supabaseUserId, email, "Test Teacher");
+        return userProfileRepository.save(teacher);
+    }
+
+    public StudentImpl createTestStudent(String supabaseUserId, String email) {
+        StudentImpl student = new StudentImpl("test-student", supabaseUserId, email, "Test Student");
+        return userProfileRepository.save(student);
+    }
+
+    public TeacherImpl findTeacherBySupabaseUserId(String supabaseUserId) {
+        return (TeacherImpl) userProfileRepository.findBySupabaseUserId(supabaseUserId).orElse(null);
+    }
+
+    public StudentImpl findStudentBySupabaseUserId(String supabaseUserId) {
+        return (StudentImpl) userProfileRepository.findBySupabaseUserId(supabaseUserId).orElse(null);
+    }
+
+    public boolean userExists(String supabaseUserId) {
+        return userProfileRepository.existsById(supabaseUserId);
+    }
+
+    public void deleteUser(String supabaseUserId) {
+        userProfileRepository.deleteById(supabaseUserId);
+    }
+
+    public void deleteAllUsers() {
+        userProfileRepository.deleteAll();
+    }
 
     public TextContentImpl saveTextContent(String title, String body, Long moduleId) {
         TextContentImpl content = TestContentDataBuilder.textContent()
@@ -132,15 +169,60 @@ public class DatabaseTestUtils {
         );
     }
 
+    public CourseEntityImpl createTestCourse(String title, String description) {
+        CourseEntityImpl course = new CourseEntityImpl(title, description);
+        return courseRepository.save(course);
+    }
+
+    public void associateTeacherWithCourse(String teacherId, Long courseId) {
+        CourseEntityImpl course = courseRepository.findById(courseId).orElse(null);
+        TeacherImpl teacher = (TeacherImpl) userProfileRepository.findById(teacherId).orElse(null);
+        
+        if (course != null && teacher != null) {
+            course.addTeacher(teacher);
+            courseRepository.save(course);
+        }
+    }
+
+    public void associateStudentWithCourse(String studentId, Long courseId) {
+        CourseEntityImpl course = courseRepository.findById(courseId).orElse(null);
+        StudentImpl student = (StudentImpl) userProfileRepository.findById(studentId).orElse(null);
+        
+        if (course != null && student != null) {
+            course.addStudent(student);
+            courseRepository.save(course);
+        }
+    }
+
     public TestDataSet createBasicTestDataSet() {
-        ModuleEntityImpl module = saveModule("Integration Test Module", "Module for integration testing", 1L);
+        // Create test users first
+        createTestTeacher("test-user-123", "test@example.com");
+        createTestStudent("different-user-456", "different@example.com");
+        
+        // Create a test course
+        CourseEntityImpl course = createTestCourse("Test Course", "A test course for integration testing");
+        
+        // Associate the teacher with the course
+        associateTeacherWithCourse("test-user-123", course.getId());
+        
+        ModuleEntityImpl module = saveModule("Integration Test Module", "Module for integration testing", course.getId());
         TextContentImpl content = saveTextContent("Integration Test Content", "Content for integration testing", module.getId());
         
         return new TestDataSet(module, content);
     }
 
     public MCTestDataSet createBasicMCTestDataSet() {
-        ModuleEntityImpl module = saveModule("MC Integration Test Module", "Module for MC integration testing", 1L);
+        // Create test users first
+        createTestTeacher("test-user-123", "test@example.com");
+        createTestStudent("different-user-456", "different@example.com");
+        
+        // Create a test course
+        CourseEntityImpl course = createTestCourse("Test Course", "A test course for integration testing");
+        
+        // Associate the teacher with the course
+        associateTeacherWithCourse("test-user-123", course.getId());
+        
+        ModuleEntityImpl module = saveModule("MC Integration Test Module", "Module for MC integration testing", course.getId());
         MultipleChoiceQuestionContentImpl mcContent = saveMultipleChoiceContent(
             "Integration Test MC Question", 
             "What is the correct answer for integration testing?", 

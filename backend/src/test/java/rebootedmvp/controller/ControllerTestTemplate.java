@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 4. Replace DTO types and test data as appropriate
  * 5. Remove this comment block
  */
-class YourControllerTest extends BaseIntegrationTest {
+class ControllerTestTemplate extends BaseIntegrationTest {
 
     @Autowired
     private DatabaseTestUtils databaseTestUtils;

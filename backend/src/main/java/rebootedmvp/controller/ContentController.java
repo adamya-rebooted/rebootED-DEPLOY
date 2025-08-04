@@ -22,6 +22,8 @@ import rebootedmvp.dto.NewMatchingQuestionContentDTO;
 import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewTextContentDTO;
 import rebootedmvp.dto.NewVideoContentDTO;
+import rebootedmvp.exception.UnauthorizedAccessException;
+import rebootedmvp.exception.UserNotAuthenticatedException;
 import rebootedmvp.service.ContentService;
 
 @RestController
@@ -174,6 +176,18 @@ public class ContentController {
     // }
     // return ResponseEntity.ok(content);
     // }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<String> handleUnauthorizedAccess(UnauthorizedAccessException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Access denied: " + e.getMessage());
+    }
+
+    @ExceptionHandler(UserNotAuthenticatedException.class)
+    public ResponseEntity<String> handleUserNotAuthenticated(UserNotAuthenticatedException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Authentication required: " + e.getMessage());
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {

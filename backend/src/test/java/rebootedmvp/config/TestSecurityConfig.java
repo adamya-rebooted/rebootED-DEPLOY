@@ -111,4 +111,33 @@ public class TestSecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+    @Bean
+    @Primary
+    public org.springframework.security.authentication.AuthenticationProvider authenticationProvider() {
+        org.springframework.security.authentication.dao.DaoAuthenticationProvider provider = 
+            new org.springframework.security.authentication.dao.DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService());
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    @Bean
+    @Primary
+    public org.springframework.security.core.userdetails.UserDetailsService userDetailsService() {
+        org.springframework.security.core.userdetails.UserDetails user = 
+            org.springframework.security.core.userdetails.User.builder()
+                .username("user")
+                .password(passwordEncoder().encode("password"))
+                .roles("USER")
+                .build();
+        
+        return new org.springframework.security.provisioning.InMemoryUserDetailsManager(user);
+    }
+
+    @Bean
+    @Primary
+    public org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
+        return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+    }
 }
