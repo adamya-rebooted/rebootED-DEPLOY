@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.NewContentDTO;
+import rebootedmvp.dto.NewImageContentDTO;
 import rebootedmvp.dto.NewMatchingQuestionContentDTO;
 import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewTextContentDTO;
@@ -106,6 +107,20 @@ public class ContentController {
     @PutMapping("/updateVideo/{id}")
     public ResponseEntity<ContentDTO> updateVideoContent(@PathVariable Long id,
             @RequestBody NewVideoContentDTO updateContentDTO) {
+        try {
+            ContentDTO updatedContent = contentService.update(id, updateContentDTO);
+            if (updatedContent == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(updatedContent);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/updateImage/{id}")
+    public ResponseEntity<ContentDTO> updateImageContent(@PathVariable Long id,
+            @RequestBody NewImageContentDTO updateContentDTO) {
         try {
             ContentDTO updatedContent = contentService.update(id, updateContentDTO);
             if (updatedContent == null) {
