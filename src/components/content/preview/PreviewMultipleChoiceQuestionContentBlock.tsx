@@ -38,11 +38,11 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
   const hasAnswered = content.userAnswer !== undefined && content.userAnswer !== null;
 
   return (
-    <div className="bg-white min-h-full">
+    <div className="min-h-full" style={{ backgroundColor: 'var(--content-bg)' }}>
       {/* Main Content Area */}
       <div className="max-w-4xl mx-auto px-8 py-8">
         {/* Content Title */}
-        <h1 className="text-3xl font-bold mb-8" style={{ color: '#070809' }}>
+        <h1 className="text-3xl font-bold mb-8" style={{ color: 'var(--content-heading)' }}>
           {content.title}
         </h1>
 
@@ -58,7 +58,7 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
               // Check if it's a heading (starts with numbers like "1.", "2.", etc.)
               if (/^\d+\.\s/.test(paragraph.trim())) {
                 return (
-                  <h3 key={index} className="text-xl font-bold mt-8 mb-4" style={{ color: '#070809' }}>
+                  <h3 key={index} className="text-xl font-bold mt-8 mb-4" style={{ color: 'var(--content-heading)' }}>
                     {paragraph.trim()}
                   </h3>
                 );
@@ -67,7 +67,7 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
               // Check if it's a subheading or key point
               if (paragraph.includes(':') && paragraph.length < 100) {
                 return (
-                  <h4 key={index} className="text-lg font-semibold mt-6 mb-3" style={{ color: '#070809' }}>
+                  <h4 key={index} className="text-lg font-semibold mt-6 mb-3" style={{ color: 'var(--content-heading)' }}>
                     {paragraph.trim()}
                   </h4>
                 );
@@ -75,7 +75,7 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
 
               // Regular paragraph
               return (
-                <p key={index} className="mb-4 text-base leading-relaxed" style={{ color: '#070809' }}>
+                <p key={index} className="mb-4 text-base leading-relaxed" style={{ color: 'var(--content-foreground)' }}>
                   {paragraph.trim()}
                 </p>
               );
@@ -91,7 +91,7 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
               const isSelectedOption = selectedAnswer === option;
               const isCorrectOption = content.correctAnswer === option;
               const isUserAnswer = content.userAnswer === option;
-              
+
               return (
                 <label
                   key={index}
@@ -99,22 +99,22 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
                   style={{
                     borderColor: hasAnswered
                       ? isCorrectOption
-                        ? '#1e7656'
+                        ? 'var(--secondary)'
                         : isUserAnswer && !isCorrectOption
-                        ? '#dc2626'
-                        : '#d1d5db'
+                        ? 'var(--destructive)'
+                        : 'var(--content-border)'
                       : isSelectedOption
-                      ? '#1f3a60'
-                      : '#d1d5db',
+                      ? 'var(--primary)'
+                      : 'var(--content-border)',
                     backgroundColor: hasAnswered
                       ? isCorrectOption
-                        ? '#f0fdf4'
+                        ? 'var(--secondary)'
                         : isUserAnswer && !isCorrectOption
-                        ? '#fef2f2'
-                        : '#fafcff'
+                        ? 'var(--content-error-bg)'
+                        : 'var(--content-bg)'
                       : isSelectedOption
-                      ? '#f0f4ff'
-                      : '#fafcff'
+                      ? 'var(--accent)'
+                      : 'var(--content-bg)'
                   }}
                 >
                   <div className="flex items-center gap-3">
@@ -125,25 +125,35 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
                       checked={isSelectedOption}
                       onChange={(e) => setSelectedAnswer(e.target.value)}
                       disabled={!isInteractive || hasAnswered}
-                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      className="w-4 h-4 accent-[var(--primary)]"
                     />
-                    <span className={`font-semibold text-sm min-w-[24px] h-6 w-6 rounded-full flex items-center justify-center ${
-                      hasAnswered && isCorrectOption
-                        ? 'bg-green-600 text-white'
-                        : hasAnswered && isUserAnswer && !isCorrectOption
-                        ? 'bg-red-600 text-white'
-                        : isSelectedOption
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 text-gray-600'
-                    }`}>
+                    <span
+                      className="font-semibold text-sm min-w-[24px] h-6 w-6 rounded-full flex items-center justify-center"
+                      style={{
+                        backgroundColor: hasAnswered && isCorrectOption
+                          ? 'var(--secondary)'
+                          : hasAnswered && isUserAnswer && !isCorrectOption
+                          ? 'var(--destructive)'
+                          : isSelectedOption
+                          ? 'var(--primary)'
+                          : 'var(--muted)',
+                        color: hasAnswered && isCorrectOption
+                          ? 'var(--secondary-foreground)'
+                          : hasAnswered && isUserAnswer && !isCorrectOption
+                          ? 'var(--destructive-foreground)'
+                          : isSelectedOption
+                          ? 'var(--primary-foreground)'
+                          : 'var(--muted-foreground)'
+                      }}
+                    >
                       {optionLetter}
                     </span>
-                    <span className="flex-1" style={{ color: '#070809' }}>{option}</span>
+                    <span className="flex-1" style={{ color: 'var(--content-foreground)' }}>{option}</span>
                     {hasAnswered && isCorrectOption && (
-                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <CheckCircle className="h-5 w-5" style={{ color: 'var(--secondary)' }} />
                     )}
                     {hasAnswered && isUserAnswer && !isCorrectOption && (
-                      <XCircle className="h-5 w-5 text-red-600" />
+                      <XCircle className="h-5 w-5" style={{ color: 'var(--destructive)' }} />
                     )}
                   </div>
                 </label>
@@ -154,22 +164,26 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
 
         {/* Feedback Section */}
         {hasAnswered && (
-          <div className={`p-4 rounded-lg border mb-8 ${
-            isCorrect 
-              ? 'bg-green-50 border-green-200' 
-              : 'bg-red-50 border-red-200'
-          }`}>
+          <div
+            className="p-4 rounded-lg border mb-8"
+            style={{
+              backgroundColor: isCorrect ? 'var(--secondary)' : 'var(--content-error-bg)',
+              borderColor: isCorrect ? 'var(--secondary)' : 'var(--content-error-border)'
+            }}
+          >
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <span className="font-semibold" style={{ color: '#070809' }}>Your answer:</span>
-                <span className={isCorrect ? 'text-green-700' : 'text-red-700'}>
+                <span className="font-semibold" style={{ color: 'var(--content-heading)' }}>Your answer:</span>
+                <span style={{
+                  color: isCorrect ? 'var(--secondary-foreground)' : 'var(--content-error-text)'
+                }}>
                   {content.userAnswer}
                 </span>
               </div>
               {!isCorrect && (
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold" style={{ color: '#070809' }}>Correct answer:</span>
-                  <span className="text-green-700">{content.correctAnswer}</span>
+                  <span className="font-semibold" style={{ color: 'var(--content-heading)' }}>Correct answer:</span>
+                  <span style={{ color: 'var(--secondary)' }}>{content.correctAnswer}</span>
                 </div>
               )}
             </div>
@@ -177,26 +191,32 @@ export default function PreviewMultipleChoiceQuestionContentBlock({
         )}
 
         {error && (
-          <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-700 text-sm">{error}</p>
+          <div
+            className="mt-6 p-4 rounded-lg border"
+            style={{
+              backgroundColor: 'var(--content-error-bg)',
+              borderColor: 'var(--content-error-border)'
+            }}
+          >
+            <p className="text-sm" style={{ color: 'var(--content-error-text)' }}>{error}</p>
           </div>
         )}
 
         {/* Submit Button */}
         {isInteractive && !hasAnswered && (
-          <div className="mt-12 pt-6 border-t border-gray-200">
+          <div className="mt-12 pt-6" style={{ borderTop: `1px solid var(--content-border)` }}>
             <button
               onClick={handleSubmit}
               disabled={!selectedAnswer || submitting}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium text-sm transition-colors duration-200 disabled:opacity-50 hover:opacity-90"
               style={{
-                backgroundColor: (!selectedAnswer || submitting) ? '#6b7280' : '#1f3a60',
-                color: '#fafcff'
+                backgroundColor: (!selectedAnswer || submitting) ? 'var(--muted)' : 'var(--primary)',
+                color: 'var(--primary-foreground)'
               }}
             >
               {submitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent"></div>
                   Submitting...
                 </>
               ) : (

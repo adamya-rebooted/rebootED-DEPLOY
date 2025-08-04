@@ -96,6 +96,16 @@
   --dropdown-foreground: var(--gray-200);
   --dropdown-hover: var(--gray-700);
   --dropdown-label: var(--gray-400);
+
+  /* Content area colors for course viewing */
+  --content-bg: var(--background);
+  --content-foreground: var(--text);
+  --content-heading: var(--text);
+  --content-muted: var(--muted-foreground);
+  --content-border: var(--border);
+  --content-error-bg: #fef2f2;
+  --content-error-border: #fecaca;
+  --content-error-text: #dc2626;
 }
 
 body {
@@ -229,6 +239,16 @@ body {
   --dropdown-foreground: var(--gray-800);
   --dropdown-hover: var(--slate-300);
   --dropdown-label: var(--gray-600);
+
+  /* Content area colors for course viewing */
+  --content-bg: var(--background);
+  --content-foreground: var(--text);
+  --content-heading: var(--text);
+  --content-muted: var(--muted-foreground);
+  --content-border: var(--border);
+  --content-error-bg: #1e293b;
+  --content-error-border: #475569;
+  --content-error-text: #f87171;
 }
 
 .inverse {

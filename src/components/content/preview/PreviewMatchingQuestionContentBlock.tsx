@@ -75,11 +75,11 @@ export default function PreviewMatchingQuestionContentBlock({
   const earnedPoints = submitted ? leftItems.filter(left => userSelections[left] === correctMap[left]).length * pointsPerItem : 0;
 
   return (
-    <div className="bg-white min-h-full">
+    <div className="min-h-full" style={{ backgroundColor: 'var(--content-bg)' }}>
       {/* Main Content Area */}
       <div className="max-w-4xl mx-auto px-8 py-8">
         {/* Content Title */}
-        <h1 className="text-3xl font-bold mb-8" style={{ color: '#070809' }}>
+        <h1 className="text-3xl font-bold mb-8" style={{ color: 'var(--content-heading)' }}>
           {content.title}
         </h1>
 
@@ -95,7 +95,7 @@ export default function PreviewMatchingQuestionContentBlock({
               // Check if it's a heading (starts with numbers like "1.", "2.", etc.)
               if (/^\d+\.\s/.test(paragraph.trim())) {
                 return (
-                  <h3 key={index} className="text-xl font-bold mt-8 mb-4" style={{ color: '#070809' }}>
+                  <h3 key={index} className="text-xl font-bold mt-8 mb-4" style={{ color: 'var(--content-heading)' }}>
                     {paragraph.trim()}
                   </h3>
                 );
@@ -104,7 +104,7 @@ export default function PreviewMatchingQuestionContentBlock({
               // Check if it's a subheading or key point
               if (paragraph.includes(':') && paragraph.length < 100) {
                 return (
-                  <h4 key={index} className="text-lg font-semibold mt-6 mb-3" style={{ color: '#070809' }}>
+                  <h4 key={index} className="text-lg font-semibold mt-6 mb-3" style={{ color: 'var(--content-heading)' }}>
                     {paragraph.trim()}
                   </h4>
                 );
@@ -112,7 +112,7 @@ export default function PreviewMatchingQuestionContentBlock({
 
               // Regular paragraph
               return (
-                <p key={index} className="mb-4 text-base leading-relaxed" style={{ color: '#070809' }}>
+                <p key={index} className="mb-4 text-base leading-relaxed" style={{ color: 'var(--content-foreground)' }}>
                   {paragraph.trim()}
                 </p>
               );
@@ -124,7 +124,7 @@ export default function PreviewMatchingQuestionContentBlock({
         <div className="grid grid-cols-2 gap-8 mb-8">
           {/* Left Column - Prompts */}
           <div>
-            <h3 className="text-xl font-bold mb-6" style={{ color: '#070809' }}>
+            <h3 className="text-xl font-bold mb-6" style={{ color: 'var(--content-heading)' }}>
               Prompts
             </h3>
             <div className="space-y-4">
@@ -135,17 +135,25 @@ export default function PreviewMatchingQuestionContentBlock({
                 return (
                   <div
                     key={left}
-                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                      submitted
+                    className="p-4 rounded-lg border-2 transition-all duration-200"
+                    style={{
+                      borderColor: submitted
                         ? isCorrect
-                          ? 'border-green-200 bg-green-50'
+                          ? 'var(--secondary)'
                           : isWrong
-                          ? 'border-red-200 bg-red-50'
-                          : 'border-gray-200 bg-gray-50'
-                        : 'border-gray-300 bg-gray-50'
-                    }`}
+                          ? 'var(--destructive)'
+                          : 'var(--content-border)'
+                        : 'var(--content-border)',
+                      backgroundColor: submitted
+                        ? isCorrect
+                          ? 'var(--secondary)'
+                          : isWrong
+                          ? 'var(--content-error-bg)'
+                          : 'var(--muted)'
+                        : 'var(--muted)'
+                    }}
                   >
-                    <span className="text-base" style={{ color: '#070809' }}>{left}</span>
+                    <span className="text-base" style={{ color: 'var(--content-foreground)' }}>{left}</span>
                   </div>
                 );
               })}
@@ -154,7 +162,7 @@ export default function PreviewMatchingQuestionContentBlock({
 
           {/* Right Column - Answers */}
           <div>
-            <h3 className="text-xl font-bold mb-6" style={{ color: '#070809' }}>
+            <h3 className="text-xl font-bold mb-6" style={{ color: 'var(--content-heading)' }}>
               Answers
             </h3>
             <div className="space-y-4">
@@ -171,17 +179,21 @@ export default function PreviewMatchingQuestionContentBlock({
                           value={selections[left] || ''}
                           onChange={(e) => handleSelection(left, e.target.value)}
                           disabled={!isInteractive}
-                          className="w-full p-4 pr-10 rounded-lg border-2 border-purple-400 bg-white appearance-none text-base"
-                          style={{ color: selections[left] ? '#070809' : '#9ca3af' }}
+                          className="w-full p-4 pr-10 rounded-lg border-2 appearance-none text-base"
+                          style={{
+                            borderColor: 'var(--accent)',
+                            backgroundColor: 'var(--content-bg)',
+                            color: selections[left] ? 'var(--content-foreground)' : 'var(--content-muted)'
+                          }}
                         >
                           <option value="" disabled>Choose a match</option>
                           {shuffledRightItems.map(right => (
-                            <option key={right} value={right} style={{ color: '#070809' }}>
+                            <option key={right} value={right} style={{ color: 'var(--content-foreground)' }}>
                               {right}
                             </option>
                           ))}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 pointer-events-none" style={{ color: 'var(--content-muted)' }} />
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -193,32 +205,49 @@ export default function PreviewMatchingQuestionContentBlock({
                           return (
                             <div
                               key={right}
-                              className={`flex items-center p-3 rounded-lg border transition-all ${
-                                isSelected && isCorrectAnswer
-                                  ? 'bg-green-100 border-green-300'
+                              className="flex items-center p-3 rounded-lg border transition-all"
+                              style={{
+                                backgroundColor: isSelected && isCorrectAnswer
+                                  ? 'var(--secondary)'
                                   : isSelected && !isCorrectAnswer
-                                  ? 'bg-red-100 border-red-300'
+                                  ? 'var(--content-error-bg)'
                                   : isCorrectAnswer && !isSelected
-                                  ? 'bg-gray-800 text-white border-gray-800'
-                                  : 'bg-gray-50 border-gray-200'
-                              }`}
+                                  ? 'var(--primary)'
+                                  : 'var(--muted)',
+                                borderColor: isSelected && isCorrectAnswer
+                                  ? 'var(--secondary)'
+                                  : isSelected && !isCorrectAnswer
+                                  ? 'var(--content-error-border)'
+                                  : isCorrectAnswer && !isSelected
+                                  ? 'var(--primary)'
+                                  : 'var(--content-border)',
+                                color: isCorrectAnswer && !isSelected ? 'var(--primary-foreground)' : 'var(--content-foreground)'
+                              }}
                             >
-                              <div className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
-                                isSelected && isCorrectAnswer
-                                  ? 'border-green-600 bg-green-600'
-                                  : isSelected && !isCorrectAnswer
-                                  ? 'border-red-600 bg-red-600'
-                                  : isCorrectAnswer && !isSelected
-                                  ? 'border-green-400 bg-green-400'
-                                  : 'border-gray-300'
-                              }`}>
+                              <div
+                                className="w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center"
+                                style={{
+                                  borderColor: isSelected && isCorrectAnswer
+                                    ? 'var(--secondary)'
+                                    : isSelected && !isCorrectAnswer
+                                    ? 'var(--destructive)'
+                                    : isCorrectAnswer && !isSelected
+                                    ? 'var(--secondary)'
+                                    : 'var(--content-border)',
+                                  backgroundColor: isSelected && isCorrectAnswer
+                                    ? 'var(--secondary)'
+                                    : isSelected && !isCorrectAnswer
+                                    ? 'var(--destructive)'
+                                    : isCorrectAnswer && !isSelected
+                                    ? 'var(--secondary)'
+                                    : 'transparent'
+                                }}
+                              >
                                 {(isSelected || (isCorrectAnswer && !isSelected)) && (
-                                  <div className="w-2 h-2 rounded-full bg-white"></div>
+                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--primary-foreground)' }}></div>
                                 )}
                               </div>
-                              <span className={`text-base ${
-                                isCorrectAnswer && !isSelected ? 'text-white' : 'text-gray-900'
-                              }`}>
+                              <span className="text-base">
                                 {right}
                               </span>
                             </div>
