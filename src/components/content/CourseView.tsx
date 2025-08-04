@@ -59,8 +59,8 @@ const CourseView: React.FC<CourseViewProps> = ({
   // State for sidebar and content
   const [expandedModules, setExpandedModules] = useState<Set<number>>(new Set());
   const [selectedContent, setSelectedContent] = useState<ContentResponse | null>(null);
-  const [moduleContents, setModuleContents] = useState<{[key: number]: ContentResponse[]}>({});
-  const [loadingContent, setLoadingContent] = useState<{[key: number]: boolean}>({});
+  const [moduleContents, setModuleContents] = useState<{ [key: number]: ContentResponse[] }>({});
+  const [loadingContent, setLoadingContent] = useState<{ [key: number]: boolean }>({});
 
   // Load content for a module when it's expanded
   const loadModuleContent = useCallback(async (moduleId: number) => {
@@ -111,7 +111,7 @@ const CourseView: React.FC<CourseViewProps> = ({
   const handleContentComplete = async (contentId: number) => {
     try {
       const updatedContent = await apiService.markContentComplete(contentId);
-      
+
       // Update the content in moduleContents
       setModuleContents(prev => {
         const newContents = { ...prev };
@@ -141,7 +141,7 @@ const CourseView: React.FC<CourseViewProps> = ({
   const handleSubmitAnswer = async (contentId: number, answer: string) => {
     try {
       const updatedContent = await apiService.submitAnswer(contentId, answer);
-      
+
       // Update the content in moduleContents
       setModuleContents(prev => {
         const newContents = { ...prev };
@@ -344,14 +344,12 @@ const CourseView: React.FC<CourseViewProps> = ({
                               </div>
                             </div>
                           )}
-                          
+
                           {moduleContents[module.id].some(content => getContentTypeLabel(content) === 'Question') && (
                             <div className="py-2">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <span className="font-medium text-sm text-[var(--card-foreground)]">
-                                    Quizzes
-                                  </span>
+
                                   {moduleContents[module.id].filter(content => getContentTypeLabel(content) === 'Question').every(content => isContentCompleted(content)) && (
                                     <CheckCircle className="h-4 w-4 text-green-600" />
                                   )}
@@ -380,30 +378,27 @@ const CourseView: React.FC<CourseViewProps> = ({
                             {moduleContents[module.id].map((content) => (
                               <div
                                 key={content.id}
-                                className={`p-2 cursor-pointer transition-colors flex items-center justify-between ${
-                                  selectedContent?.id === content.id
-                                    ? 'bg-[var(--primary)] text-[var(--primary-foreground)] rounded'
-                                    : 'hover:bg-[var(--muted)] rounded'
-                                }`}
+                                className={`p-2 cursor-pointer transition-colors flex items-center justify-between ${selectedContent?.id === content.id
+                                  ? 'bg-[var(--primary)] text-[var(--primary-foreground)] rounded'
+                                  : 'hover:bg-[var(--muted)] rounded'
+                                  }`}
                                 onClick={() => handleContentSelect(content)}
                               >
                                 <div className="flex items-center gap-2">
-                                  <span className={`text-sm font-medium underline decoration-1 underline-offset-2 ${
-                                    selectedContent?.id === content.id
-                                      ? 'text-[var(--primary-foreground)]'
-                                      : 'text-[var(--primary)]'
-                                  }`}>
+                                  <span className={`text-sm font-medium underline decoration-1 underline-offset-2 ${selectedContent?.id === content.id
+                                    ? 'text-[var(--primary-foreground)]'
+                                    : 'text-[var(--primary)]'
+                                    }`}>
                                     {content.title}
                                   </span>
                                   {isContentCompleted(content) && (
                                     <CheckCircle className="h-4 w-4 text-green-600" />
                                   )}
                                 </div>
-                                <div className={`flex items-center gap-2 text-xs ${
-                                  selectedContent?.id === content.id
-                                    ? 'text-[var(--primary-foreground)]'
-                                    : 'text-[var(--muted-foreground)]'
-                                }`}>
+                                <div className={`flex items-center gap-2 text-xs ${selectedContent?.id === content.id
+                                  ? 'text-[var(--primary-foreground)]'
+                                  : 'text-[var(--muted-foreground)]'
+                                  }`}>
                                   {getContentIcon(content)}
                                   <span>{getContentTypeLabel(content)}</span>
                                 </div>
