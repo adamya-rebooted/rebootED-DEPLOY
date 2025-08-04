@@ -295,8 +295,11 @@ public class CourseMembershipService {
                     .stream()
                     .map(CourseMapper::toDomain);
 
-            List<UserCourseDTO> courseDTOs = courses.map(elem -> new UserCourseDTO(elem.getId(), elem.getTitle(),
-                    elem.getBody(), elem.isStudent(user) ? User.UserType.Student : User.UserType.Teacher)).toList();
+            List<UserCourseDTO> courseDTOs = courses
+                    .filter(course -> course.isTeacher(user) || (course.isStudent(user) && course.isPublished()))
+                    .map(elem -> new UserCourseDTO(elem.getId(), elem.getTitle(),
+                            elem.getBody(), elem.isStudent(user) ? User.UserType.Student : User.UserType.Teacher))
+                    .toList();
 
             logger.info("===== CourseMembershipService.getUserCourses() SUCCESS =====");
             logger.info("Returning {} courses for user '{}'", courseDTOs.size(), userId);
