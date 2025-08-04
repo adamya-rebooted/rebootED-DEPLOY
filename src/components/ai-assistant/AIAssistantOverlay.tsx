@@ -298,6 +298,22 @@ export const AIAssistantOverlay: React.FC = () => {
       let createdContentCount = 0;
       const createdModuleIds: number[] = [];
 
+      // Helper function to generate MCQ for a skill
+      const generateMCQForSkill = async (skill: string, moduleId: number) => {
+        const mcqContent = await courseGenerationService.promptToMultipleChoiceQuestion({
+          input_prompt: skill
+        });
+        
+        return await apiService.createContent({
+          type: ContentType.MultipleChoiceQuestion,
+          title: mcqContent.question_title,
+          body: mcqContent.question_body,
+          options: mcqContent.question_options,
+          correctAnswer: mcqContent.correct_answer,
+          moduleId: moduleId
+        });
+      };
+
       // Step 4: Create each module and its content, dispatching events as they are created
       for (const moduleData of moduleStructure.modules) {
         try {
@@ -329,11 +345,11 @@ export const AIAssistantOverlay: React.FC = () => {
             }
           }));
 
-          // Step 5: Create text content for each skill in this module
+          // Step 5: Create text content and MCQs for each skill in this module
           for (let i = 0; i < moduleData.skills.length; i++) {
             const skill = moduleData.skills[i];
             try {
-              setCourseModulesProgress(`Creating content: "${skill}" (${i + 1}/${moduleData.skills.length}) in module "${moduleData.module_name}"`);
+              setCourseModulesProgress(`Creating text content: "${skill}" (${i + 1}/${moduleData.skills.length}) in module "${moduleData.module_name}"`);
 
               // Generate text content for this skill
               const generatedContent = await courseGenerationService.promptToTextContent({
@@ -360,6 +376,33 @@ export const AIAssistantOverlay: React.FC = () => {
                   source: 'ai-assistant-bulk'
                 }
               }));
+
+              // Generate MCQ for last 2 skills in each module
+              if (i >= moduleData.skills.length - 2) {
+                try {
+                  const mcqIndex = i - (moduleData.skills.length - 2) + 1;
+                  setCourseModulesProgress(`Creating MCQ: "${skill}" (${mcqIndex}/2) in module "${moduleData.module_name}"`);
+
+                  const mcqData = await generateMCQForSkill(skill, createdModule.id);
+
+                  console.log(`✅ MCQ created: "${mcqData.title}"`);
+                  createdContentCount++;
+                  setGeneratedContentCount(createdContentCount);
+
+                  // Dispatch content created event for MCQ
+                  window.dispatchEvent(new CustomEvent('contentCreated', {
+                    detail: {
+                      content: mcqData,
+                      moduleId: createdModule.id,
+                      source: 'ai-assistant-bulk'
+                    }
+                  }));
+
+                } catch (error) {
+                  console.error(`❌ Failed to create MCQ for skill "${skill}":`, error);
+                  // Continue with next skill instead of failing completely
+                }
+              }
 
             } catch (error) {
               console.error(`❌ Failed to create content for skill "${skill}":`, error);
