@@ -266,7 +266,7 @@ public class MultipleChoiceContentControllerTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void updateMultipleChoice_WhenAuthenticatedWithDifferentUser_ShouldStillWork() throws Exception {
+    public void updateMultipleChoice_WhenAuthenticatedWithDifferentUser_ShouldReturn403() throws Exception {
         // Given
         Long contentId = testDataSet.getMCContentId();
         NewMultipleChoiceQuestionContentDTO updateDTO = TestContentDataBuilder.createUpdateMCQuestionDTO(
@@ -276,14 +276,12 @@ public class MultipleChoiceContentControllerTest extends BaseIntegrationTest {
             "User B"
         );
 
-        // When & Then - Different user JWT
+        // When & Then - Different user JWT should be denied access
         mockMvc.perform(put("/api/content/updateMultipleChoice/{id}", contentId)
                 .with(JwtTestUtils.withMockJwtUserId("different-user-456"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(updateDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title", is("Updated by Different User")))
-                .andExpect(jsonPath("$.body", is("Content updated by a different authenticated user")));
+                .andExpect(status().isForbidden());
     }
 
     // ================================

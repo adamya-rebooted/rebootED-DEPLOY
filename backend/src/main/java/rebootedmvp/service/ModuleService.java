@@ -16,11 +16,13 @@ import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
 import rebootedmvp.domain.impl.CourseEntityImpl;
+import rebootedmvp.domain.impl.ImageContentImpl;
 import rebootedmvp.domain.impl.MatchingQuestionContentImpl;
 import rebootedmvp.domain.impl.MultipleChoiceQuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
 import rebootedmvp.domain.impl.VideoContentImpl;
 import rebootedmvp.dto.ContentDTO;
+import rebootedmvp.dto.ImageContentDTO;
 import rebootedmvp.dto.MatchingQuestionContentDTO;
 import rebootedmvp.dto.MultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewContentDTO;
@@ -151,6 +153,10 @@ public class ModuleService {
                         newContentDTO.getBody(),
                         ((NewMatchingQuestionContentDTO) newContentDTO).getMatches(),
                         moduleId);
+                case Image -> content = new ImageContentImpl(
+                        newContentDTO.getTitle().trim(),
+                        newContentDTO.getBody(),
+                        module.getId());
                 default -> throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
             }
 
@@ -242,6 +248,15 @@ public class ModuleService {
                     matchingContent.setMatches(mDTO.getMatches());
                 }
             }
+            case Image -> {
+                content = (ImageContentImpl) content;
+                if (updateDTO.getTitle() != null) {
+                    content.setTitle(updateDTO.getTitle());
+                }
+                if (updateDTO.getBody() != null) {
+                    content.setBody(updateDTO.getBody());
+                }
+            }
         }
         contentRepository.save(ContentMapper.toEntity(content));
         logger.info("Updated content with ID: {} in module: {}", contentId, moduleId);
@@ -319,6 +334,13 @@ public class ModuleService {
                     content.isComplete(),
                     ((MatchingQuestionContentImpl) content).getMatches(),
                     content.getModuleId());
+            case Image -> new ImageContentDTO(
+                    content.getId(),
+                    content.getTitle(),
+                    content.getBody(),
+                    content.isComplete(),
+                    content.getModuleId());
+
         };
     }
 }

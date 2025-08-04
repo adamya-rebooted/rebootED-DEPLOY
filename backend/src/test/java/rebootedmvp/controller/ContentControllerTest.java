@@ -139,7 +139,7 @@ public class ContentControllerTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void updateTextContent_WhenAuthenticatedWithDifferentUser_ShouldStillWork() throws Exception {
+    public void updateTextContent_WhenAuthenticatedWithDifferentUser_ShouldReturn403() throws Exception {
         // Given
         Long contentId = testDataSet.getContentId();
         NewTextContentDTO updateDTO = TestContentDataBuilder.createUpdateTextContentDTO(
@@ -147,14 +147,12 @@ public class ContentControllerTest extends BaseIntegrationTest {
             "Content updated by a different authenticated user"
         );
 
-        // When & Then - Different user JWT
+        // When & Then - Different user JWT should be denied access
         mockMvc.perform(put("/api/content/updateText/{id}", contentId)
                 .with(JwtTestUtils.withMockJwtUserId("different-user-456"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(updateDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title", is("Updated by Different User")))
-                .andExpect(jsonPath("$.body", is("Content updated by a different authenticated user")));
+                .andExpect(status().isForbidden());
     }
 
     @Test

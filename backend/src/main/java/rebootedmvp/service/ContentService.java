@@ -15,6 +15,7 @@ import rebootedmvp.ContentMapper;
 import rebootedmvp.Module;
 import rebootedmvp.ModuleMapper;
 import rebootedmvp.domain.impl.CourseEntityImpl;
+import rebootedmvp.domain.impl.ImageContentImpl;
 import rebootedmvp.domain.impl.MatchingQuestionContentImpl;
 import rebootedmvp.domain.impl.MultipleChoiceQuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
@@ -22,6 +23,7 @@ import rebootedmvp.domain.impl.VideoContentImpl;
 import rebootedmvp.domain.impl.ModuleEntityImpl;
 
 import rebootedmvp.dto.ContentDTO;
+import rebootedmvp.dto.ImageContentDTO;
 import rebootedmvp.dto.MatchingQuestionContentDTO;
 import rebootedmvp.dto.MultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewContentDTO;
@@ -49,6 +51,9 @@ public class ContentService {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private AuthorizationService authorizationService;
 
     @Transactional(readOnly = true)
     public List<ContentDTO> findAll() {
@@ -141,6 +146,12 @@ public class ContentService {
                             ((NewMatchingQuestionContentDTO) newContentDTO).getMatches(),
                             module.getId());
                 }
+                case Image -> {
+                    content = new ImageContentImpl(
+                            newContentDTO.getTitle().trim(),
+                            newContentDTO.getBody(),
+                            module.getId());
+                }
                 default -> throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
             }
 
@@ -165,7 +176,13 @@ public class ContentService {
 
         Content content = contentOpt.get();
 
+        // Get the module to find the course for authorization
         Optional<ModuleEntityImpl> module = moduleRepository.findById(content.getModuleId());
+        
+        // Check authorization - only teachers can update content
+        if (module.isPresent()) {
+            authorizationService.requireTeacherAccess(module.get().getCourseId());
+        }
 
         if (module.isPresent()) {
             Optional<CourseEntityImpl> course = courseRepository.findById(module.get().getCourseId());
@@ -190,17 +207,17 @@ public class ContentService {
             case MultipleChoiceQuestion:
                 NewMultipleChoiceQuestionContentDTO mcUpdateDTO = (NewMultipleChoiceQuestionContentDTO) updateContentDTO;
                 MultipleChoiceQuestionContentImpl mcContent = (MultipleChoiceQuestionContentImpl) content;
-                
+
                 // Update question text (body)
                 if (mcUpdateDTO.getBody() != null) {
                     mcContent.setQuestionText(mcUpdateDTO.getBody());
                 }
-                
+
                 // Update options and correct answer
                 if (mcUpdateDTO.getOptions() != null) {
                     List<String> options = mcUpdateDTO.getOptions();
                     String correctAnswer = mcUpdateDTO.getCorrectAnswer();
-                    
+
                     // Validate business logic
                     if (options.size() < 2) {
                         throw new IllegalArgumentException("Question must have at least 2 options");
@@ -211,22 +228,25 @@ public class ContentService {
                     if (!options.contains(correctAnswer)) {
                         throw new IllegalArgumentException("Correct answer must be one of the provided options");
                     }
-                    
+
                     mcContent.setOptions(options);
                     mcContent.setCorrectAnswer(correctAnswer);
                 }
                 break;
-                
+
             case Video:
                 if (((NewVideoContentDTO) updateContentDTO).getVideoUrl() != null) {
                     ((VideoContentImpl) content).setVideoUrl(((NewVideoContentDTO) updateContentDTO).getVideoUrl());
                 }
                 break;
-                
+
             case Text:
                 // No additional fields to update for TextContent
                 break;
-                
+            case Image:
+                // No additional fields to update for ImageContent
+                break;
+
             case MatchingQuestion:
                 if (((NewMatchingQuestionContentDTO) updateContentDTO).getMatches() != null) {
                     ((MatchingQuestionContentImpl) content)
@@ -349,6 +369,12 @@ public class ContentService {
                     content.getBody(),
                     content.isComplete(),
                     ((MatchingQuestionContentImpl) content).getMatches(),
+                    content.getModuleId());
+            case Image -> new ImageContentDTO(
+                    content.getId(),
+                    content.getTitle(),
+                    content.getBody(),
+                    content.isComplete(),
                     content.getModuleId());
         };
     }

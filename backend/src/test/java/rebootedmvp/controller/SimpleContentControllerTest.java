@@ -6,13 +6,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import rebootedmvp.config.TestSecurityConfig;
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.NewTextContentDTO;
 import rebootedmvp.dto.TextContentDTO;
 import rebootedmvp.service.ContentService;
+import rebootedmvp.service.UserSyncService;
+import rebootedmvp.testdata.JwtTestUtils;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -22,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.hamcrest.Matchers.*;
 
 @WebMvcTest(ContentController.class)
+@Import(TestSecurityConfig.class)
 public class SimpleContentControllerTest {
 
     @Autowired
@@ -33,6 +38,9 @@ public class SimpleContentControllerTest {
     @MockBean
     private ContentService contentService;
 
+    @MockBean
+    private UserSyncService userSyncService;
+
     private ContentDTO mockContentDTO;
     private NewTextContentDTO updateDTO;
 
@@ -43,7 +51,6 @@ public class SimpleContentControllerTest {
     }
 
     @Test
-    @WithMockUser
     public void updateTextContent_WhenValidRequest_ShouldReturnUpdatedContent() throws Exception {
         // Given
         Long contentId = 1L;
@@ -54,6 +61,7 @@ public class SimpleContentControllerTest {
 
         // When & Then
         mockMvc.perform(put("/api/content/updateText/{id}", contentId)
+                .with(JwtTestUtils.withMockJwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(updateDTO)))
                 .andExpect(status().isOk())
@@ -66,7 +74,6 @@ public class SimpleContentControllerTest {
     }
 
     @Test
-    @WithMockUser
     public void updateTextContent_WhenContentNotFound_ShouldReturn404() throws Exception {
         // Given
         Long nonExistentId = 99999L;
@@ -76,27 +83,31 @@ public class SimpleContentControllerTest {
 
         // When & Then
         mockMvc.perform(put("/api/content/updateText/{id}", nonExistentId)
+                .with(JwtTestUtils.withMockJwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(updateDTO)))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @WithMockUser
     public void updateTextContent_WhenInvalidRequestData_ShouldReturn400() throws Exception {
         // Given
         Long contentId = 1L;
         String invalidJson = "{ \"title\": \"\", \"body\": null }";
 
+        when(contentService.update(eq(contentId), any(NewTextContentDTO.class)))
+            .thenThrow(new IllegalArgumentException("Content title cannot be empty"));
+
         // When & Then
         mockMvc.perform(put("/api/content/updateText/{id}", contentId)
+                .with(JwtTestUtils.withMockJwt())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(invalidJson))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    public void updateTextContent_WhenNotAuthenticated_ShouldReturn401() throws Exception {
+    public void updateTextContent_WhenNotAuthenticated_ShouldReturn403() throws Exception {
         // Given
         Long contentId = 1L;
 
@@ -104,34 +115,36 @@ public class SimpleContentControllerTest {
         mockMvc.perform(put("/api/content/updateText/{id}", contentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(updateDTO)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
-    @WithMockUser
     public void getContentById_WhenExists_ShouldReturnContent() throws Exception {
         // Given
         Long contentId = 1L;
         when(contentService.findById(contentId)).thenReturn(mockContentDTO);
 
         // When & Then
-        mockMvc.perform(get("/api/content/{id}", contentId))
+        mockMvc.perform(get("/api/content/{id}", contentId)
+                .with(JwtTestUtils.withMockJwt()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", is(contentId.intValue())))
                 .andExpect(jsonPath("$.title", is("Test Title")))
-                .andExpect(jsonPath("$.body", is("Test Body")));
+                .andExpect(jsonPath("$.body", is("Test Body")))
+                .andExpect(jsonPath("$.moduleId", is(1)))
+                .andExpect(jsonPath("$.complete", is(false)));
     }
 
     @Test
-    @WithMockUser
     public void getContentById_WhenNotFound_ShouldReturn404() throws Exception {
         // Given
         Long nonExistentId = 99999L;
         when(contentService.findById(nonExistentId)).thenReturn(null);
 
         // When & Then
-        mockMvc.perform(get("/api/content/{id}", nonExistentId))
+        mockMvc.perform(get("/api/content/{id}", nonExistentId)
+                .with(JwtTestUtils.withMockJwt()))
                 .andExpect(status().isNotFound());
     }
 

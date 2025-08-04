@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import rebootedmvp.dto.ContentDTO;
 import rebootedmvp.dto.NewContentDTO;
+import rebootedmvp.dto.NewImageContentDTO;
 import rebootedmvp.dto.NewMatchingQuestionContentDTO;
 import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewTextContentDTO;
 import rebootedmvp.dto.NewVideoContentDTO;
+import rebootedmvp.exception.UnauthorizedAccessException;
+import rebootedmvp.exception.UserNotAuthenticatedException;
 import rebootedmvp.service.ContentService;
 
 @RestController
@@ -117,6 +120,20 @@ public class ContentController {
         }
     }
 
+    @PutMapping("/updateImage/{id}")
+    public ResponseEntity<ContentDTO> updateImageContent(@PathVariable Long id,
+            @RequestBody NewImageContentDTO updateContentDTO) {
+        try {
+            ContentDTO updatedContent = contentService.update(id, updateContentDTO);
+            if (updatedContent == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(updatedContent);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteContent(@PathVariable Long id) {
         boolean deleted = contentService.delete(id);
@@ -159,6 +176,18 @@ public class ContentController {
     // }
     // return ResponseEntity.ok(content);
     // }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<String> handleUnauthorizedAccess(UnauthorizedAccessException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Access denied: " + e.getMessage());
+    }
+
+    @ExceptionHandler(UserNotAuthenticatedException.class)
+    public ResponseEntity<String> handleUserNotAuthenticated(UserNotAuthenticatedException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Authentication required: " + e.getMessage());
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {

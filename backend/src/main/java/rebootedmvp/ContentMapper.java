@@ -3,6 +3,7 @@ package rebootedmvp;
 import org.springframework.stereotype.Component;
 
 import rebootedmvp.domain.impl.ContentEntityImpl;
+import rebootedmvp.domain.impl.ImageContentImpl;
 import rebootedmvp.domain.impl.MatchingQuestionContentImpl;
 import rebootedmvp.domain.impl.MultipleChoiceQuestionContentImpl;
 import rebootedmvp.domain.impl.TextContentImpl;
@@ -20,11 +21,21 @@ public class ContentMapper {
             case MultipleChoiceQuestion -> mapToQuestionContent(content);
             case Video -> mapToVideoContent(content);
             case MatchingQuestion -> mapToMatchingQuestionContent(content);
+            case Image -> mapToImageContent(content);
         };
     }
 
     private static TextContentImpl mapToTextContent(Content content) {
         TextContentImpl text = new TextContentImpl(
+                content.getTitle(),
+                content.getBody(),
+                content.getModuleId());
+        text.setId(content.getId());
+        return text;
+    }
+
+    private static ImageContentImpl mapToImageContent(Content content) {
+        ImageContentImpl text = new ImageContentImpl(
                 content.getTitle(),
                 content.getBody(),
                 content.getModuleId());

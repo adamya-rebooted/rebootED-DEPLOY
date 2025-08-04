@@ -76,6 +76,7 @@ public abstract class Content implements HasID {
         MultipleChoiceQuestion,
         Video,
         MatchingQuestion,
+        Image
     }
 
     /**

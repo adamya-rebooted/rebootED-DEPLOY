@@ -1,34 +1,31 @@
 package rebootedmvp.domain.impl;
 
-import java.util.List;
-
 import jakarta.persistence.Entity;
-import rebootedmvp.Content;
 
 @Entity
-// @jakarta.persistence.DiscriminatorValue("TEXT")
-public class TextContentImpl extends ContentEntityImpl {
-    public TextContentImpl(String title, String body) {
+public class ImageContentImpl extends ContentEntityImpl {
+
+    public ImageContentImpl(String title, String body) {
         // this.id = id;
         this.title = title;
         this.body = body;
         this.isComplete = false;
-        this.contentType = ContentType.Text;
+        this.contentType = ContentType.Image;
     }
 
-    public TextContentImpl(String title, String body, Long moduleId) {
+    public ImageContentImpl(String title, String body, Long moduleId) {
         // this.id = id;
         this.title = title;
         this.body = body;
         this.moduleId = moduleId;
         this.isComplete = false;
-        this.contentType = ContentType.Text;
+        this.contentType = ContentType.Image;
 
     }
 
     // ⚠️ Required by JPA — but not usable by normal code
     @Deprecated
-    protected TextContentImpl() {
+    protected ImageContentImpl() {
         // JPA only
     }
 
@@ -83,7 +80,7 @@ public class TextContentImpl extends ContentEntityImpl {
 
     @Override
     public ContentType getType() {
-        return ContentType.Text;
+        return ContentType.Image;
     }
 
 }

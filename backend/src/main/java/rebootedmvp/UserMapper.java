@@ -21,7 +21,8 @@ public class UserMapper {
                     domain.getFullName());
             case Admin -> new AdminImpl(domain.getSupabaseUserId(), domain.getUsername(), domain.getEmail(),
                     domain.getFullName());
-            default -> throw new IllegalArgumentException("Unsupported user type: " + domain.getUserType());
+            // default -> throw new IllegalArgumentException("Unsupported user type: " +
+            // domain.getUserType());
         };
 
     }

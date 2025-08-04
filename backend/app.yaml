@@ -1,0 +1,23 @@
+runtime: java17
+env: standard
+
+instance_class: F1
+
+automatic_scaling:
+  target_cpu_utilization: 0.65
+  min_instances: 1
+  max_instances: 10
+
+env_variables:
+  SPRING_PROFILES_ACTIVE: "prod"
+  DB_URL: "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:6543/postgres?prepareThreshold=0&autosave=conservative"
+  DB_USERNAME: "postgres.snvasvzrqiordsgmfcai"
+  DB_PASSWORD: "fusenfellow3"
+  SUPABASE_PROJECT_URL: "https://snvasvzrqiordsgmfcai.supabase.co"
+  SUPABASE_JWT_SECRET: "8ded79f6-e7d7-4232-8fa4-7ed7f6434d04"
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudmFzdnpycWlvcmRzZ21mY2FpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAxNjk1OTMsImV4cCI6MjA2NTc0NTU5M30.Ya0nx3pHDl2Pwtatkjw_BjTvo_mxJmSlam2XKbEKTvA"
+  SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNudmFzdnpycWlvcmRzZ21mY2FpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDE2OTU5MywiZXhwIjoyMDY1NzQ1NTkzfQ.YUlpVsDQJTsjEl3bV6X2O-32mGeIL42CMQOpODkqGMY"
+
+handlers:
+  - url: /.*
+    script: auto 
