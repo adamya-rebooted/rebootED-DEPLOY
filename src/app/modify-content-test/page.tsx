@@ -30,7 +30,7 @@ interface ContentBlock {
     row?: number
     col?: number
   }
-  content: any
+  content: Record<string, unknown>
   styles: {
     backgroundColor?: string
     textColor?: string

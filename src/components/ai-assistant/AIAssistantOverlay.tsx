@@ -53,13 +53,13 @@ export const AIAssistantOverlay: React.FC = () => {
   const [textContentPrompt, setTextContentPrompt] = useState('');
   const [isGeneratingTextContent, setIsGeneratingTextContent] = useState(false);
   const [textContentError, setTextContentError] = useState<string | null>(null);
-  const [createdTextContent, setCreatedTextContent] = useState<any | null>(null);
+  const [createdTextContent, setCreatedTextContent] = useState<Record<string, unknown> | null>(null);
 
   // Prompt-based multiple choice question creation state
   const [mcqPrompt, setMcqPrompt] = useState('');
   const [isGeneratingMCQ, setIsGeneratingMCQ] = useState(false);
   const [mcqError, setMcqError] = useState<string | null>(null);
-  const [createdMCQ, setCreatedMCQ] = useState<any | null>(null);
+  const [createdMCQ, setCreatedMCQ] = useState<Record<string, unknown> | null>(null);
 
   // Prompt-based course modules generation state
   const [courseModulesPrompt, setCourseModulesPrompt] = useState('');

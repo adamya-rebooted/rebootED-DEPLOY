@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Copy, Trash2, Edit, Move, Layers, Palette } from 'lucide-react'
+import { Copy, Trash2, Edit, Layers } from 'lucide-react'
 
 interface ContextMenuProps {
   x: number

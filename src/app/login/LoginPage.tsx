@@ -45,7 +45,7 @@ export default function LoginPage() {
       if (error) {
         setError(error.message || 'Google sign in failed')
       }
-    } catch (err) {
+    } catch {
       setError('Unexpected error during Google sign in.')
     } finally {
       setIsLoading(false)

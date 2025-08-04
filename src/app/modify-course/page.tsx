@@ -23,13 +23,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   ArrowLeft,
   Plus,
   FileText,
@@ -37,12 +30,7 @@ import {
   Edit,
   Save,
   X,
-  Trash2,
-  ChevronDown,
-  ChevronRight,
-  Info,
-  Users,
-  GraduationCap
+  Trash2
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiService } from "@/services/api";

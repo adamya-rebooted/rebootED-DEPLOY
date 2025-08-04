@@ -52,7 +52,7 @@ const PublishCourseDialog: React.FC<PublishCourseDialogProps> = ({
             Publish Course
           </DialogTitle>
           <DialogDescription>
-            You are about to publish "{courseTitle}". Please review the warning below.
+            You are about to publish &quot;{courseTitle}&quot;. Please review the warning below.
           </DialogDescription>
         </DialogHeader>
 

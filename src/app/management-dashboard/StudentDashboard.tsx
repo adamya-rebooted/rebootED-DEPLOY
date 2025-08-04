@@ -3,8 +3,8 @@
 import React, {useState, useEffect} from "react";
 import DashboardLayout from "@/components/content/DashboardLayout";
 import CourseCard from "@/components/content/CourseCard";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import { BookOpen,Clock, Trophy, TrendingUp, Target, Users } from "lucide-react";
+import {Card, CardContent} from "@/components/ui/card";
+import { BookOpen } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { apiService } from '@/services/api';
 import { UserCourse } from "@/types/backend-api";
@@ -75,17 +75,17 @@ const StudentDashboard: React.FC = () => {
     }, [user]); // Add user as a dependency
 
   // Calculate statistics
-  const totalCourses = recentCourses.length;
-  const completedCourses = recentCourses.filter(
-    (c) => (c.progress || 0) >= 100,
-  ).length;
-  const inProgressCourses = recentCourses.filter(
-    (c) => (c.progress || 0) > 0 && (c.progress || 0) < 100,
-  ).length;
-  const averageProgress = totalCourses > 0 ? Math.round(
-    recentCourses.reduce((sum, course) => sum + (course.progress || 0), 0) /
-      totalCourses,
-  ) : 0;
+  // const totalCourses = recentCourses.length;
+  // const completedCourses = recentCourses.filter(
+  //   (c) => (c.progress || 0) >= 100,
+  // ).length;
+  // const inProgressCourses = recentCourses.filter(
+  //   (c) => (c.progress || 0) > 0 && (c.progress || 0) < 100,
+  // ).length;
+  // const averageProgress = totalCourses > 0 ? Math.round(
+  //   recentCourses.reduce((sum, course) => sum + (course.progress || 0), 0) /
+  //     totalCourses,
+  // ) : 0;
 
   return (
     <DashboardLayout>
@@ -254,7 +254,7 @@ const StudentDashboard: React.FC = () => {
                 </div>
                 <h3 className="text-xl font-semibold mb-3 text-card-foreground">No courses found</h3>
                 <p className="text-muted-foreground text-center max-w-md">
-                  You haven't been assigned any courses yet. Contact your instructor to get started.
+                  You haven&apos;t been assigned any courses yet. Contact your instructor to get started.
                 </p>
               </CardContent>
             </Card>

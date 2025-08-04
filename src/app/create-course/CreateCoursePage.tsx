@@ -76,9 +76,9 @@ export default function CreateCoursePage() {
 
       // Create modules if any
       if (modules.length > 0) {
-        for (const module of modules) {
+        for (const moduleItem of modules) {
           await apiService.createModule({
-            title: module.title,
+            title: moduleItem.title,
             body: '',
             courseId: courseId
           });

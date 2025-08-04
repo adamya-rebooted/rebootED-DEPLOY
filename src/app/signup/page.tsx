@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { backendApiClient } from '@/utils/api/backend-client'
 
 export default function SignupPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  // const searchParams = useSearchParams()
   const [selectedRole, setSelectedRole] = useState<'teacher' | 'student'>('student')
   const [username, setUsername] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -175,7 +175,7 @@ export default function SignupPage() {
                   type="radio"
                   value="student"
                   checked={selectedRole === 'student'}
-                  onChange={(e) => setSelectedRole('student')}
+                  onChange={() => setSelectedRole('student')}
                   style={{ marginRight: '8px' }}
                 />
                 <span style={{ fontSize: '14px' }}>
@@ -195,7 +195,7 @@ export default function SignupPage() {
                   type="radio"
                   value="teacher"
                   checked={selectedRole === 'teacher'}
-                  onChange={(e) => setSelectedRole('teacher')}
+                  onChange={() => setSelectedRole('teacher')}
                   style={{ marginRight: '8px' }}
                 />
                 <span style={{ fontSize: '14px' }}>

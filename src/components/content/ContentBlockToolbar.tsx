@@ -7,8 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Separator } from '@/components/ui/separator'
-import { X, Palette, Move, Type } from 'lucide-react'
+import { X } from 'lucide-react'
 
 interface ContentBlockData {
   id: string
@@ -21,7 +20,7 @@ interface ContentBlockData {
     row?: number
     col?: number
   }
-  content: any
+  content: Record<string, unknown>
   styles: {
     backgroundColor?: string
     textColor?: string
@@ -49,19 +48,19 @@ export default function ContentBlockToolbar({
   onClose
 }: ContentBlockToolbarProps) {
 
-  const updateContent = (contentUpdates: any) => {
+  const updateContent = (contentUpdates: Record<string, unknown>) => {
     onUpdate({
       content: { ...block.content, ...contentUpdates }
     })
   }
 
-  const updateStyles = (styleUpdates: any) => {
+  const updateStyles = (styleUpdates: Record<string, unknown>) => {
     onUpdate({
       styles: { ...block.styles, ...styleUpdates }
     })
   }
 
-  const updatePosition = (positionUpdates: any) => {
+  const updatePosition = (positionUpdates: Record<string, unknown>) => {
     onUpdate({
       position: { ...block.position, ...positionUpdates }
     })

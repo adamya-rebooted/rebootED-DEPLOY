@@ -4,14 +4,14 @@ import './globals.css'
 import { UserProvider, useUser } from '@/contexts/UserContext'
 import { AIAssistantProvider, FloatingAIButton, AIAssistantOverlay } from '@/components/ai-assistant'
 import { ThemeProvider } from 'next-themes'
-import { Gochi_Hand } from 'next/font/google'
+// import { Gochi_Hand } from 'next/font/google'
 import { usePathname } from 'next/navigation'
 import React from 'react';
 
-const gochiHand = Gochi_Hand({
-  weight: '400',
-  subsets: ['latin'],
-})
+// const gochiHand = Gochi_Hand({
+//   weight: '400',
+//   subsets: ['latin'],
+// })
 
 function LayoutWithAIAssistant({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

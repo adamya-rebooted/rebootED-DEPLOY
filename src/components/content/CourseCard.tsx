@@ -50,7 +50,7 @@ interface CourseCardProps {
 const CourseCard: React.FC<CourseCardProps> = ({
   course,
   isTeacher = false,
-  onAction,
+  // onAction,
   onPreview,
   onEdit,
   onDelete,

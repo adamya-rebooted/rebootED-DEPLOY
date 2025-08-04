@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, BookOpen, Users, BarChart3, Clock, Edit, Eye, Check, CheckCircle } from "lucide-react";
+import { Plus, BookOpen, CheckCircle } from "lucide-react";
 import CourseCard from "@/components/content/CourseCard";
 import {toast} from "sonner"
 import { useRouter } from "next/navigation";
@@ -122,7 +122,7 @@ const TeacherDashboard: React.FC = () => {
     };
   }, []);
 
-  const handleCourseCreated = (courseData: any) => {
+  const handleCourseCreated = (courseData: { title: string; id: number }) => {
     // Refresh courses from backend after creation
     refreshCourses();
 

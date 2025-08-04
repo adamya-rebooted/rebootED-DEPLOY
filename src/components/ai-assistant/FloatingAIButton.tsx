@@ -3,7 +3,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useAIAssistant } from './AIAssistantProvider';
-import { Bot } from 'lucide-react';
+// import { Bot } from 'lucide-react';
 
 export const FloatingAIButton: React.FC = () => {
   const { toggleVisibility, isVisible } = useAIAssistant();

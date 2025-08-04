@@ -1,11 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import TeacherDashboard from './TeacherDashboard';
-import StudentDashboard from './StudentDashboard';
 import DashboardPage from './DashboardPage';
-import { apiService } from '@/services/api';
 
 
 export default function Page() {

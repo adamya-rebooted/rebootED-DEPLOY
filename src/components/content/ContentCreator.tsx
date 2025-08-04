@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { NewContentRequest, ContentResponse } from '@/types/backend-api';
 import { apiService } from '@/services/api';
 import { ContentType } from '@/utils/api/backend-client';
-import { Content } from 'next/font/google';
+// import { Content } from 'next/font/google';
 interface ContentCreatorProps {
   moduleId: number;
   onContentCreated: (newContent: ContentResponse) => void;
@@ -22,7 +22,7 @@ export default function ContentCreator({ moduleId, onContentCreated, onCancel }:
   const [error, setError] = useState<string | null>(null);
   const [matches, setMatches] = useState<[string, string][]>([['', ''], ['', '']]);
   const [videoUrl, setVideoUrl] = useState<string>('');
-  const [videoUrlError, setVideoUrlError] = useState<string | null>(null);
+  // const [videoUrlError, setVideoUrlError] = useState<string | null>(null);
 
 
   const handleSubmit = async (e: React.FormEvent) => {

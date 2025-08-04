@@ -181,21 +181,21 @@ export default function ContentBlockList({
     }
   };
 
-  const calculateProgress = () => {
-    if (content.length === 0) return 0;
+  // const calculateProgress = () => {
+  //   if (content.length === 0) return 0;
 
-    const completedCount = content.filter(item => {
-      if (isMultipleChoiceQuestionContent(item)) {
-        return item.userAnswer !== undefined && item.userAnswer !== null;
-      } else {
-        return item.isComplete === true;
-      }
-    }).length;
+  //   const completedCount = content.filter(item => {
+  //     if (isMultipleChoiceQuestionContent(item)) {
+  //       return item.userAnswer !== undefined && item.userAnswer !== null;
+  //     } else {
+  //       return item.isComplete === true;
+  //     }
+  //   }).length;
 
-    return Math.round((completedCount / content.length) * 100);
-  };
+  //   return Math.round((completedCount / content.length) * 100);
+  // };
 
-  const progress = calculateProgress();
+  // const progress = calculateProgress();
 
   if (loading) {
     return (

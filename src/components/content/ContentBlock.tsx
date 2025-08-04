@@ -20,7 +20,7 @@ interface ContentBlockData {
   id: string
   type: 'text' | 'image' | 'video' | 'heading' | 'divider' | 'button'
   position: { row: number; col: number; width: number; height: number }
-  content: any
+  content: Record<string, unknown>
   styles: {
     backgroundColor?: string
     textColor?: string
@@ -48,7 +48,7 @@ export default function ContentBlock({
   isSelected,
   isPreviewMode,
   onSelect,
-  onUpdate,
+  // onUpdate,
   onDelete,
   onMove
 }: ContentBlockProps) {
@@ -183,7 +183,7 @@ export default function ContentBlock({
 
       case 'button':
         return (
-          <div style={{ textAlign: commonStyles.textAlign as any }}>
+          <div style={{ textAlign: commonStyles.textAlign as 'left' | 'center' | 'right' }}>
             <Button
               style={{
                 backgroundColor: commonStyles.backgroundColor !== 'transparent' ? commonStyles.backgroundColor : undefined,
