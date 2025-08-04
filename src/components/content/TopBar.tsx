@@ -24,7 +24,7 @@ const TopBar: React.FC<TopBarProps> = ({
   onEditCourse,
 }) => {
   const { user } = useUser();
-  const { isCollapsed } = useSidebar();
+  const { isCollapsed, toggleSidebar } = useSidebar();
   const pathname = usePathname();
   const { showAssistant } = useAIAssistant();
 
@@ -40,8 +40,21 @@ const TopBar: React.FC<TopBarProps> = ({
     return null;
   }
 
+  const handleNavbarClick = (e: React.MouseEvent) => {
+    // Don't toggle if clicking on buttons or their children
+    const target = e.target as HTMLElement;
+    const isButton = target.closest('button') || target.closest('[role="button"]');
+    if (!isButton) {
+      toggleSidebar();
+    }
+  };
+
   return (
-    <div className={`fixed top-0 ${isCollapsed ? 'left-16' : 'left-64'} right-0 h-16 bg-topbar z-40 flex items-center justify-between px-6 shadow-sm transition-all duration-300 ease-in-out`}>
+    <div 
+      className={`fixed top-0 ${isCollapsed ? 'left-16' : 'left-64'} right-0 h-16 bg-topbar z-40 flex items-center justify-between px-6 shadow-sm transition-all duration-300 ease-in-out cursor-pointer`}
+      onClick={handleNavbarClick}
+      style={{ cursor: 'pointer' }}
+    >
       {/* Title */}
       <div className="flex items-center">
         <h1 className="text-xl font-semibold text-topbar-foreground">

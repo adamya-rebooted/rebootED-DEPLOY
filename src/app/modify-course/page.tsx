@@ -139,19 +139,51 @@ const ModifyCoursePage: React.FC = () => {
   useEffect(() => {
     const handleContentCreated = (event: CustomEvent) => {
       const { content, moduleId } = event.detail;
-      
+
+      console.log('📡 Received contentCreated event:', { content, moduleId });
+      console.log('📋 Available callbacks:', Array.from(addContentCallbacks.keys()));
+
       // Try to use the direct add content callback for the module
       const addContentFn = addContentCallbacks.get(moduleId);
       if (addContentFn) {
+        console.log('✅ Using direct callback to add content');
         addContentFn(content);
+        toast.success("Content created successfully!", {
+          description: `"${content.title}" has been added to the module.`,
+          duration: 3000,
+        });
       } else {
-        // Fallback to reloading all data
-        loadData();
+        console.log('⚠️ No direct callback available, trying alternative approaches');
+
+        // First alternative: Try to wait a bit and retry the callback (in case it's still registering)
+        setTimeout(() => {
+          const retryAddContentFn = addContentCallbacks.get(moduleId);
+          if (retryAddContentFn) {
+            console.log('✅ Retry successful - using delayed callback');
+            retryAddContentFn(content);
+            toast.success("Content created successfully!", {
+              description: `"${content.title}" has been added to the module.`,
+              duration: 3000,
+            });
+          } else {
+            // Second alternative: Force refresh the ContentBlockList for the specific module
+            console.log('📡 Using refresh event fallback');
+            const refreshContentEvent = new CustomEvent('refreshModuleContent', {
+              detail: { moduleId, newContent: content }
+            });
+            window.dispatchEvent(refreshContentEvent);
+
+            toast.success("Content created successfully!", {
+              description: `"${content.title}" has been added to the module.`,
+              duration: 3000,
+            });
+          }
+        }, 100); // Small delay to allow callback registration
       }
     };
 
     window.addEventListener('contentCreated', handleContentCreated as EventListener);
-    
+
     return () => {
       window.removeEventListener('contentCreated', handleContentCreated as EventListener);
     };
@@ -270,7 +302,12 @@ const ModifyCoursePage: React.FC = () => {
     setEditCourseDescription(course?.body || '');
   };
 
-  const handleSaveCourse = async () => {
+  const handleSaveCourse = async (e?: React.FormEvent) => {
+    // Prevent form submission and page reload
+    if (e) {
+      e.preventDefault();
+    }
+
     if (!course || !editCourseTitle.trim()) {
       toast.error('Course title is required');
       return;
@@ -296,7 +333,12 @@ const ModifyCoursePage: React.FC = () => {
   };
 
   // Module management handlers
-  const handleCreateModule = async () => {
+  const handleCreateModule = async (e?: React.FormEvent) => {
+    // Prevent form submission and page reload
+    if (e) {
+      e.preventDefault();
+    }
+
     console.log("Creating Module");
     if (!newModuleTitle.trim()) {
       setModuleCreationError('Module title is required');
@@ -314,7 +356,7 @@ const ModifyCoursePage: React.FC = () => {
       };
 
       const newModule = await apiService.createModule(moduleData);
-      
+
 
       // Add the new module to the list
       setModules(prev => [...prev, newModule]);
@@ -407,7 +449,12 @@ const ModifyCoursePage: React.FC = () => {
     });
   };
 
-  const handleSaveModule = async (moduleId: number) => {
+  const handleSaveModule = async (moduleId: number, e?: React.FormEvent) => {
+    // Prevent form submission and page reload
+    if (e) {
+      e.preventDefault();
+    }
+
     const moduleForm = editModuleForms.get(moduleId);
     if (!moduleForm || !moduleForm.title.trim()) {
       toast.error('Module title is required');
@@ -470,8 +517,12 @@ const ModifyCoursePage: React.FC = () => {
     if (addContentFn) {
       addContentFn(newContent);
     } else {
-      // Fallback to refresh if direct add is not available
-      loadData();
+      // Use the same fallback approach as AI assistant content creation
+      console.log('⚠️ No direct callback available for manual content creation, using refresh event');
+      const refreshContentEvent = new CustomEvent('refreshModuleContent', {
+        detail: { moduleId, newContent }
+      });
+      window.dispatchEvent(refreshContentEvent);
     }
   };
 
@@ -485,13 +536,16 @@ const ModifyCoursePage: React.FC = () => {
     const map = new Map<number, (addContentFn: (newContent: ContentResponse) => void) => void>();
     modules.forEach(module => {
       map.set(module.id, (addContentFn: (newContent: ContentResponse) => void) => {
+        console.log('📝 Registering content callback for module:', module.id);
         setAddContentCallbacks(prev => {
           const newMap = new Map(prev);
           newMap.set(module.id, addContentFn);
+          console.log('✅ Content callback registered for module:', module.id);
           return newMap;
         });
       });
     });
+    console.log('🗺️ Created callback map for modules:', Array.from(map.keys()));
     return map;
   }, [modules]);
 
@@ -573,48 +627,53 @@ const ModifyCoursePage: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="course-title">Course Title *</Label>
-                    <Input
-                      id="course-title"
-                      value={editCourseTitle}
-                      onChange={(e) => setEditCourseTitle(e.target.value)}
-                      placeholder="Enter course title..."
-                      className="mt-1"
-                    />
+                <form onSubmit={handleSaveCourse}>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="course-title">Course Title *</Label>
+                      <Input
+                        id="course-title"
+                        value={editCourseTitle}
+                        onChange={(e) => setEditCourseTitle(e.target.value)}
+                        placeholder="Enter course title..."
+                        className="mt-1"
+                        disabled={isSavingCourse}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="course-description">Course Description</Label>
+                      <Textarea
+                        id="course-description"
+                        value={editCourseDescription}
+                        onChange={(e) => setEditCourseDescription(e.target.value)}
+                        placeholder="Enter course description..."
+                        rows={3}
+                        className="mt-1"
+                        disabled={isSavingCourse}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="submit"
+                        disabled={isSavingCourse || !editCourseTitle.trim()}
+                        className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+                      >
+                        <Save className="h-4 w-4 mr-2" />
+                        {isSavingCourse ? 'Saving...' : 'Save Changes'}
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={handleCancelEditCourse}
+                        variant="outline"
+                        disabled={isSavingCourse}
+                        className="border-[var(--border)] text-[var(--primary)]"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="course-description">Course Description</Label>
-                    <Textarea
-                      id="course-description"
-                      value={editCourseDescription}
-                      onChange={(e) => setEditCourseDescription(e.target.value)}
-                      placeholder="Enter course description..."
-                      rows={3}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={handleSaveCourse}
-                      disabled={isSavingCourse || !editCourseTitle.trim()}
-                      className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
-                    >
-                      <Save className="h-4 w-4 mr-2" />
-                      {isSavingCourse ? 'Saving...' : 'Save Changes'}
-                    </Button>
-                    <Button
-                      onClick={handleCancelEditCourse}
-                      variant="outline"
-                      disabled={isSavingCourse}
-                      className="border-[var(--border)] text-[var(--primary)]"
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
+                </form>
               </CardContent>
             </Card>
           )}
@@ -766,53 +825,58 @@ const ModifyCoursePage: React.FC = () => {
                       {editingModules.has(selectedModuleForContent) && (
                         <Card className="mb-4 bg-[var(--background)]">
                           <CardContent className="pt-6">
-                            <div className="space-y-4">
-                              <div className="flex items-center gap-2 mb-4">
-                                <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: 'var(--muted)', color: 'var(--primary)' }}>
-                                  Editing Module
-                                </span>
+                            <form onSubmit={(e) => handleSaveModule(selectedModuleForContent, e)}>
+                              <div className="space-y-4">
+                                <div className="flex items-center gap-2 mb-4">
+                                  <span className="px-2 py-1 rounded text-sm font-medium" style={{ background: 'var(--muted)', color: 'var(--primary)' }}>
+                                    Editing Module
+                                  </span>
+                                </div>
+                                <div>
+                                  <Label htmlFor={`edit-module-title-${selectedModuleForContent}`}>Module Title *</Label>
+                                  <Input
+                                    id={`edit-module-title-${selectedModuleForContent}`}
+                                    value={editModuleForms.get(selectedModuleForContent)?.title || ''}
+                                    onChange={(e) => updateModuleForm(selectedModuleForContent, 'title', e.target.value)}
+                                    placeholder="Enter module title..."
+                                    className="mt-1"
+                                    disabled={savingModules.has(selectedModuleForContent)}
+                                  />
+                                </div>
+                                <div>
+                                  <Label htmlFor={`edit-module-description-${selectedModuleForContent}`}>Module Description</Label>
+                                  <Textarea
+                                    id={`edit-module-description-${selectedModuleForContent}`}
+                                    value={editModuleForms.get(selectedModuleForContent)?.body || ''}
+                                    onChange={(e) => updateModuleForm(selectedModuleForContent, 'body', e.target.value)}
+                                    placeholder="Enter module description..."
+                                    rows={3}
+                                    className="mt-1"
+                                    disabled={savingModules.has(selectedModuleForContent)}
+                                  />
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    type="submit"
+                                    disabled={savingModules.has(selectedModuleForContent) || !editModuleForms.get(selectedModuleForContent)?.title?.trim()}
+                                    className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+                                  >
+                                    <Save className="h-4 w-4 mr-2" />
+                                    {savingModules.has(selectedModuleForContent) ? 'Saving...' : 'Save Changes'}
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    onClick={() => handleCancelEditModule(selectedModuleForContent)}
+                                    variant="outline"
+                                    disabled={savingModules.has(selectedModuleForContent)}
+                                    className="border-[var(--border)] text-[var(--primary)]"
+                                  >
+                                    <X className="h-4 w-4 mr-2" />
+                                    Cancel
+                                  </Button>
+                                </div>
                               </div>
-                              <div>
-                                <Label htmlFor={`edit-module-title-${selectedModuleForContent}`}>Module Title *</Label>
-                                <Input
-                                  id={`edit-module-title-${selectedModuleForContent}`}
-                                  value={editModuleForms.get(selectedModuleForContent)?.title || ''}
-                                  onChange={(e) => updateModuleForm(selectedModuleForContent, 'title', e.target.value)}
-                                  placeholder="Enter module title..."
-                                  className="mt-1"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor={`edit-module-description-${selectedModuleForContent}`}>Module Description</Label>
-                                <Textarea
-                                  id={`edit-module-description-${selectedModuleForContent}`}
-                                  value={editModuleForms.get(selectedModuleForContent)?.body || ''}
-                                  onChange={(e) => updateModuleForm(selectedModuleForContent, 'body', e.target.value)}
-                                  placeholder="Enter module description..."
-                                  rows={3}
-                                  className="mt-1"
-                                />
-                              </div>
-                              <div className="flex gap-2">
-                                <Button
-                                  onClick={() => handleSaveModule(selectedModuleForContent)}
-                                  disabled={savingModules.has(selectedModuleForContent) || !editModuleForms.get(selectedModuleForContent)?.title?.trim()}
-                                  className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
-                                >
-                                  <Save className="h-4 w-4 mr-2" />
-                                  {savingModules.has(selectedModuleForContent) ? 'Saving...' : 'Save Changes'}
-                                </Button>
-                                <Button
-                                  onClick={() => handleCancelEditModule(selectedModuleForContent)}
-                                  variant="outline"
-                                  disabled={savingModules.has(selectedModuleForContent)}
-                                  className="border-[var(--border)] text-[var(--primary)]"
-                                >
-                                  <X className="h-4 w-4 mr-2" />
-                                  Cancel
-                                </Button>
-                              </div>
-                            </div>
+                            </form>
                           </CardContent>
                         </Card>
                       )}
@@ -888,49 +952,54 @@ const ModifyCoursePage: React.FC = () => {
               Add a new module to organize your course content. Modules are like chapters that help structure your course.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="module-title">Module Title *</Label>
-              <Input
-                id="module-title"
-                value={newModuleTitle}
-                onChange={(e) => setNewModuleTitle(e.target.value)}
-                placeholder="Enter module title..."
-              />
+          <form onSubmit={handleCreateModule}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="module-title">Module Title *</Label>
+                <Input
+                  id="module-title"
+                  value={newModuleTitle}
+                  onChange={(e) => setNewModuleTitle(e.target.value)}
+                  placeholder="Enter module title..."
+                  disabled={isCreatingModule}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="module-description">Module Description</Label>
+                <Textarea
+                  id="module-description"
+                  value={newModuleDescription}
+                  onChange={(e) => setNewModuleDescription(e.target.value)}
+                  placeholder="Enter module description..."
+                  rows={3}
+                  disabled={isCreatingModule}
+                />
+              </div>
+              {moduleCreationError && (
+                <p className="text-sm text-[var(--destructive)]">{moduleCreationError}</p>
+              )}
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="module-description">Module Description</Label>
-              <Textarea
-                id="module-description"
-                value={newModuleDescription}
-                onChange={(e) => setNewModuleDescription(e.target.value)}
-                placeholder="Enter module description..."
-                rows={3}
-              />
-            </div>
-            {moduleCreationError && (
-              <p className="text-sm text-[var(--destructive)]">{moduleCreationError}</p>
-            )}
-          </div>
-          <DialogFooter>
-            <Button
-              onClick={handleCreateModule}
-              disabled={isCreatingModule || !newModuleTitle.trim()}
-              className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              {isCreatingModule ? 'Creating...' : 'Create Module'}
-            </Button>
-            <Button
-              onClick={handleCloseModuleDialog}
-              variant="outline"
-              disabled={isCreatingModule}
-              className="border-[var(--border)] text-[var(--primary)]"
-            >
-              <X className="h-4 w-4 mr-2" />
-              Cancel
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button
+                type="submit"
+                disabled={isCreatingModule || !newModuleTitle.trim()}
+                className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] transition-colors"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {isCreatingModule ? 'Creating...' : 'Create Module'}
+              </Button>
+              <Button
+                type="button"
+                onClick={handleCloseModuleDialog}
+                variant="outline"
+                disabled={isCreatingModule}
+                className="border-[var(--border)] text-[var(--primary)]"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 

@@ -55,14 +55,42 @@ export default function ContentBlockList({
   }, [moduleId]);
 
   const addContent = useCallback((newContent: ContentResponse) => {
+    console.log('➕ Adding content to module', moduleId, ':', newContent.title);
     setContent(prevContent => [...prevContent, newContent]);
-  }, []);
+  }, [moduleId]);
 
   useEffect(() => {
     if (onAddContent) {
+      console.log('🔗 Registering addContent callback for module:', moduleId);
       onAddContent(addContent);
     }
-  }, [onAddContent, addContent]);
+  }, [onAddContent, addContent, moduleId]);
+
+  // Listen for refreshModuleContent events as a fallback when direct callbacks aren't available
+  useEffect(() => {
+    const handleRefreshModuleContent = (event: CustomEvent) => {
+      const { moduleId: eventModuleId, newContent } = event.detail;
+
+      // Only handle events for this specific module
+      if (eventModuleId === moduleId) {
+        console.log('📡 ContentBlockList received refreshModuleContent event for module:', moduleId);
+        if (newContent) {
+          // Add the new content directly
+          addContent(newContent);
+        } else {
+          // Fallback to reloading content for this module only
+          console.log('🔄 Reloading content for module:', moduleId);
+          loadContent();
+        }
+      }
+    };
+
+    window.addEventListener('refreshModuleContent', handleRefreshModuleContent as EventListener);
+
+    return () => {
+      window.removeEventListener('refreshModuleContent', handleRefreshModuleContent as EventListener);
+    };
+  }, [moduleId, addContent]);
 
   const handleComplete = async (contentId: number) => {
     try {

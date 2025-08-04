@@ -14,8 +14,6 @@ import {
   Moon,
   Sun,
   Monitor,
-  Menu,
-  ChevronLeft,
   Palette,
 } from "lucide-react";
 import Link from "next/link";
@@ -63,8 +61,6 @@ const Sidebar: React.FC = () => {
     return names[0][0]?.toUpperCase() || "U";
   };
 
-
-
   const handleSignOut = async () => {
     setIsLoading(true);
     try {
@@ -81,20 +77,27 @@ const Sidebar: React.FC = () => {
     }
   };
 
+  const handleSidebarClick = (e: React.MouseEvent) => {
+    // Don't toggle if clicking on buttons, links, or interactive elements
+    const target = e.target as HTMLElement;
+    const isInteractive = target.closest('button') ||
+                          target.closest('a') ||
+                          target.closest('[role="button"]') ||
+                          target.closest('[role="menuitem"]') ||
+                          target.closest('.dropdown-trigger');
+
+    if (!isInteractive) {
+      toggleSidebar();
+    }
+  };
+
   return (
-    <div className={`${isCollapsed ? 'w-16' : 'w-64'} h-screen bg-sidebar-gradient flex flex-col shadow-sm transition-all duration-300 ease-in-out`}>
+    <div
+      className={`${isCollapsed ? 'w-16' : 'w-64'} h-screen bg-sidebar-gradient flex flex-col shadow-sm transition-all duration-300 ease-in-out cursor-pointer`}
+      onClick={handleSidebarClick}
+    >
       {/* Logo and Portal Name */}
       <div className={`${isCollapsed ? 'p-3' : 'p-6'} border-b border-sidebar relative`}>
-        {/* Toggle Button */}
-        <Button
-          onClick={toggleSidebar}
-          variant="ghost"
-          size="sm"
-          className="absolute top-2 right-2 h-8 w-8 p-0 bg-hover"
-        >
-          {isCollapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
-
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'} mb-2`}>
           <div className="w-12 h-12 rounded flex items-center justify-center" style={{ backgroundColor: 'var(--primary)' }}>
             <img className="h-8 w-8 invert" src="/placeholder.svg" alt="rebootED" width={32} height={32} />
