@@ -27,6 +27,7 @@ const TeacherDashboard: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [recentCourses, setRecentCourses] = useState<Course[]>([]);
+  const [publishedCourses, setPublishedCourses] = useState<Course[]>([]);
   const [moduleCounts, setModuleCounts] = useState<{[courseId: number]: number}>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,14 +45,20 @@ const TeacherDashboard: React.FC = () => {
   const refreshCourses = async () => {
     if (!user || !user.id) return;
     try {
-      const courses = await apiService.getUserCourses(user.id);
-      const sortedCourses = courses.sort((a, b) =>
+      setIsLoading(true);
+      setError(null);
+      const [userCourses, publishedCourses] = await Promise.all([
+        apiService.getUnpublishedCourses(user.id),
+        apiService.getPublishedCourses(user.id)
+      ]);
+
+      const sortedUserCourses = userCourses.sort((a, b) =>
         new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
       ).slice(0, 5);
-      setRecentCourses(sortedCourses);
+      setRecentCourses(sortedUserCourses);
 
       // Fetch module counts for each course
-      const moduleCountPromises = sortedCourses.map(async (course) => {
+      const moduleCountPromises = sortedUserCourses.map(async (course) => {
         const count = await apiService.getModuleCountByCourseId(course.id);
         return { courseId: course.id, count };
       });
@@ -62,6 +69,9 @@ const TeacherDashboard: React.FC = () => {
         newModuleCounts[courseId] = count;
       });
       setModuleCounts(newModuleCounts);
+
+      setPublishedCourses(publishedCourses);
+
     } catch (err) {
       console.error('Error refreshing courses:', err);
     }
@@ -270,7 +280,7 @@ const TeacherDashboard: React.FC = () => {
               Recent Courses
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Your most recently created courses
+              Your most recently created courses that are still in draft mode
             </CardDescription>
           </CardHeader>
           <CardContent className="py-2 px-6">
@@ -339,6 +349,71 @@ const TeacherDashboard: React.FC = () => {
                     Create with AI
                   </Button>
                 </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Public Courses */}
+        <Card className="bg-card border-border shadow-lg">
+          <CardHeader className="border-b border-border">
+            <CardTitle className="text-3xl font-bold text-card-foreground flex items-center gap-2">
+              <BookOpen className="h-8 w-8 text-green-600" />
+              Public Courses
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              Your published courses available to students
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="py-2 px-6">
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+                <p className="mt-4 text-muted-foreground font-medium">Loading courses...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <div className="h-12 w-12 text-destructive mb-4 mx-auto">⚠️</div>
+                <p className="text-destructive font-medium mb-4">{error}</p>
+                <Button
+                  onClick={() => window.location.reload()}
+                  variant="outline"
+                  className="border-border text-card-foreground hover:bg-muted transition-colors"
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : publishedCourses.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {publishedCourses.map((course) => (
+                  <CourseCard
+                    key={course.id}
+                    course={{
+                      id: course.id.toString(),
+                      title: course.title,
+                      description: course.body || 'No description available',
+                      duration: 'N/A',
+                      modules: moduleCounts[course.id] || 0,
+                      category: 'Course',
+                      enrolled: course.studentCount || 0
+                    }}
+                    isTeacher={true}
+                    variant="compact"
+                    onPreview={() => router.push(`/preview-course?id=${course.id}`)}
+                    // Don't pass onEdit to hide edit functionality for published courses
+                    onDelete={() => handleDeleteClick(course)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <BookOpen className="h-8 w-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold text-card-foreground mb-3">No Published Courses</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  Publish your courses to make them available to students. Published courses will appear here.
+                </p>
               </div>
             )}
           </CardContent>

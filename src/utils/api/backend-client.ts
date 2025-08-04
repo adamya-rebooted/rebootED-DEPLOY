@@ -265,6 +265,14 @@ export class BackendApiClient {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
 
+  // PATCH request
+  async patch<T>(endpoint: string, data?: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
   // Course operations
   async createCourse(courseData: NewCourseRequest): Promise<Course> {
     const courseId = await this.post<number>('/roster/add', courseData);
@@ -452,7 +460,25 @@ export class BackendApiClient {
   }
 
   async submitAnswer(id: number, answer: string): Promise<ContentResponse> {
-    return this.post<ContentResponse>(`/content/${id}/answer`, { answer });
+    return this.patch<ContentResponse>(`/content/${id}/submit`, { answer });
+  }
+
+  // ================ Course Publishing ================
+
+  async publishCourse(courseId: number): Promise<void> {
+    return this.patch<void>(`/courses/${courseId}/publish`);
+  }
+
+  async isCoursePublished(courseId: number): Promise<boolean> {
+    return this.get<boolean>(`/courses/${courseId}/isPublished`);
+  }
+
+  async getPublishedCourses(userId: string): Promise<UserCourse[]> {
+    return this.get<UserCourse[]>(`/course-memberships/user/${userId}/published`);
+  }
+
+  async getUnpublishedCourses(userId: string): Promise<UserCourse[]> {
+    return this.get<UserCourse[]>(`/course-memberships/user/${userId}/unpublished`);
   }
 }
 

@@ -180,6 +180,36 @@ export class BackendApiService {
   async removeUserFromCourse(courseId: number, userId: string): Promise<void> {
     return backendApiClient.removeUserFromCourse(courseId, userId);
   }
+
+  // ================ Course Publishing ================
+
+  async publishCourse(courseId: number): Promise<void> {
+    return backendApiClient.publishCourse(courseId);
+  }
+
+  async isCoursePublished(courseId: number): Promise<boolean> {
+    return backendApiClient.isCoursePublished(courseId);
+  }
+
+  async getPublishedCourses(userId?: string): Promise<Course[]> {
+    if (!userId) throw new Error('User ID is required to fetch published courses');
+    const userCourses = await backendApiClient.getPublishedCourses(userId);
+    // If UserCourse has a 'course' property, map accordingly; otherwise, return as is
+    if (userCourses.length && (userCourses[0] as any).course) {
+      return userCourses.map((uc: any) => uc.course);
+    }
+    return userCourses as Course[];
+  }
+
+  async getUnpublishedCourses(userId?: string): Promise<Course[]> {
+    if (!userId) throw new Error('User ID is required to fetch unpublished courses');
+    const userCourses = await backendApiClient.getUnpublishedCourses(userId);
+    // If UserCourse has a 'course' property, map accordingly; otherwise, return as is
+    if (userCourses.length && (userCourses[0] as any).course) {
+      return userCourses.map((uc: any) => uc.course);
+    }
+    return userCourses as Course[];
+  }
 }
 
 // Create and export singleton instance

@@ -51,6 +51,18 @@ public class CourseMembershipController {
         return ResponseEntity.ok(courses);
     }
 
+    @GetMapping("/user/{userId}/published")
+    public ResponseEntity<List<UserCourseDTO>> getPublishedCourses(@PathVariable String userId) {
+        List<UserCourseDTO> courses = courseMembershipService.getPublishedCourses(userId);
+        return ResponseEntity.ok(courses);
+    }
+
+    @GetMapping("/user/{userId}/unpublished")
+    public ResponseEntity<List<UserCourseDTO>> getUnpublishedCourses(@PathVariable String userId) {
+        List<UserCourseDTO> courses = courseMembershipService.getUnpublishedCourses(userId);
+        return ResponseEntity.ok(courses);
+    }
+
     // @PostMapping("/course/{courseId}/users")
     // public ResponseEntity<String> addUserToCourse(
     // @PathVariable Long courseId,

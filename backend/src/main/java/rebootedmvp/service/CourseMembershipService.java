@@ -303,13 +303,80 @@ public class CourseMembershipService {
 
             logger.info("===== CourseMembershipService.getUserCourses() SUCCESS =====");
             logger.info("Returning {} courses for user '{}'", courseDTOs.size(), userId);
-            logger.debug("Final result: {}", courseDTOs);
-
             return courseDTOs;
-
         } catch (Exception e) {
             logger.error("===== CourseMembershipService.getUserCourses() ERROR =====");
-            logger.error("Error processing getUserCourses for user '{}': {}", userId, e.getMessage(), e);
+            logger.error("Error getting user courses for user '{}': {}", userId, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserCourseDTO> getPublishedCourses(String userId) {
+        logger.info("===== CourseMembershipService.getPublishedCourses() START =====");
+        logger.info("Input userId: '{}'", userId);
+
+        try {
+            Optional<User> userOpt = userProfileRepository.findBySupabaseUserId(userId).map(UserMapper::toDomain);
+
+            if (!userOpt.isPresent()) {
+                logger.warn("User not found: {}", userId);
+                return List.of();
+            }
+            User user = userOpt.get();
+            
+            // Only return published courses where the user is a teacher
+            Stream<Course> courses = courseRepository.findCoursesByUserId(user.getSupabaseUserId())
+                    .stream()
+                    .map(CourseMapper::toDomain);
+
+            List<UserCourseDTO> courseDTOs = courses
+                    .filter(course -> course.isTeacher(user) && course.isPublished())
+                    .map(elem -> new UserCourseDTO(elem.getId(), elem.getTitle(),
+                            elem.getBody(), User.UserType.Teacher))
+                    .toList();
+
+            logger.info("===== CourseMembershipService.getPublishedCourses() SUCCESS =====");
+            logger.info("Returning {} published courses for user '{}'", courseDTOs.size(), userId);
+            return courseDTOs;
+        } catch (Exception e) {
+            logger.error("===== CourseMembershipService.getPublishedCourses() ERROR =====");
+            logger.error("Error getting published courses for user '{}': {}", userId, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserCourseDTO> getUnpublishedCourses(String userId) {
+        logger.info("===== CourseMembershipService.getUnpublishedCourses() START =====");
+        logger.info("Input userId: '{}'", userId);
+
+        try {
+            Optional<User> userOpt = userProfileRepository.findBySupabaseUserId(userId).map(UserMapper::toDomain);
+
+            if (!userOpt.isPresent()) {
+                logger.warn("User not found: {}", userId);
+                return List.of();
+            }
+            User user = userOpt.get();
+            
+            // Only return unpublished courses where the user is a teacher
+            Stream<Course> courses = courseRepository.findCoursesByUserId(user.getSupabaseUserId())
+                    .stream()
+                    .map(CourseMapper::toDomain);
+
+            List<UserCourseDTO> courseDTOs = courses
+                    .filter(course -> course.isTeacher(user) && !course.isPublished())
+                    .map(elem -> new UserCourseDTO(elem.getId(), elem.getTitle(),
+                            elem.getBody(), User.UserType.Teacher))
+                    .toList();
+
+            logger.info("===== CourseMembershipService.getUnpublishedCourses() SUCCESS =====");
+            logger.info("Returning {} unpublished courses for user '{}'", courseDTOs.size(), userId);
+            return courseDTOs;
+        } catch (Exception e) {
+            logger.error("===== CourseMembershipService.getUnpublishedCourses() ERROR =====");
+            logger.error("Error getting unpublished courses for user '{}': {}", userId, e.getMessage(), e);
             throw e;
         }
     }

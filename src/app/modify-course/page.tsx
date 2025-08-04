@@ -119,12 +119,11 @@ const ModifyCoursePage: React.FC = () => {
         // Add the new module to the list
         setModules(prev => {
           const newModules = [...prev, module];
-          // Auto-select the first module if none is currently selected
-          if (!selectedModuleForContent && newModules.length > 0) {
-            setSelectedModuleForContent(newModules[0].id);
-          }
           return newModules;
         });
+        
+        // Auto-select the newly created module (most recent)
+        setSelectedModuleForContent(module.id);
       }
     };
 
@@ -278,13 +277,20 @@ const ModifyCoursePage: React.FC = () => {
 
   const handleConfirmPublish = async () => {
     try {
-      // Here you would implement the actual publish API call
-      // For now, just show a success message
-      console.log('Publishing course:', courseId);
+      if (!courseId) {
+        throw new Error('Course ID is required');
+      }
+
+      // Call the actual publish API
+      await apiService.publishCourse(parseInt(courseId));
+      
       toast.success('Course published successfully!', {
         description: 'Your course is now live and available to students.',
         duration: 5000,
       });
+
+      // Redirect to the main dashboard
+      router.push('/management-dashboard');
     } catch (err) {
       console.error('Error publishing course:', err);
       throw err; // Re-throw to let the dialog handle the error
