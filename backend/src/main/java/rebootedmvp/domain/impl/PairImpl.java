@@ -24,7 +24,7 @@ public class PairImpl {
     private Long id;
 
     @Column(nullable = false)
-    private Double left;
+    private Double left_value;
 
     @ManyToOne
     @JoinColumns({
@@ -39,8 +39,8 @@ public class PairImpl {
     public PairImpl() {
     }
 
-    public PairImpl(Double left, List<BooleanEntry> right) {
-        this.left = left;
+    public PairImpl(Double left_value, List<BooleanEntry> right) {
+        this.left_value = left_value;
         this.right = right;
 
     }
@@ -49,12 +49,12 @@ public class PairImpl {
         return id;
     }
 
-    public Double getLeft() {
-        return left;
+    public Double getLeft_value() {
+        return left_value;
     }
 
-    public void setLeft(Double left) {
-        this.left = left;
+    public void setLeft_value(Double left_value) {
+        this.left_value = left_value;
     }
 
     public UserProgress getUserCourseProgress() {

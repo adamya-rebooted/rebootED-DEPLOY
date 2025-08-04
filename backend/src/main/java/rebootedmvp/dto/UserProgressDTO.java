@@ -22,7 +22,7 @@ public class UserProgressDTO {
         progress = temp
                 .stream()
                 .map(moduleData -> new Pair<>(
-                        moduleData.getLeft(),
+                        moduleData.getLeft_value(),
                         moduleData.getRight()
                                 .stream()
                                 .map(BooleanEntry::getValue)
