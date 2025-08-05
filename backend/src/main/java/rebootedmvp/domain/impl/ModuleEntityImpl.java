@@ -84,7 +84,7 @@ public class ModuleEntityImpl extends Module {
             case MatchingQuestion:
                 return new MatchingQuestionContentImpl(title, body, new ArrayList<>(), this.id);
             case Image:
-                return new ImageContentImpl(title, body, this.id);
+                return new ImageContentImpl(title, body, this.id, "");
             default:
                 // Default to TextContent if type is not recognized
                 return new TextContentImpl(title, body, this.id);

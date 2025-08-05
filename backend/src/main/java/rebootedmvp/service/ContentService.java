@@ -27,6 +27,7 @@ import rebootedmvp.dto.ImageContentDTO;
 import rebootedmvp.dto.MatchingQuestionContentDTO;
 import rebootedmvp.dto.MultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewContentDTO;
+import rebootedmvp.dto.NewImageContentDTO;
 import rebootedmvp.dto.NewMatchingQuestionContentDTO;
 import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewVideoContentDTO;
@@ -150,7 +151,7 @@ public class ContentService {
                     content = new ImageContentImpl(
                             newContentDTO.getTitle().trim(),
                             newContentDTO.getBody(),
-                            module.getId());
+                            module.getId(), ((NewImageContentDTO) newContentDTO).getURL());
                 }
                 default -> throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
             }
@@ -178,7 +179,7 @@ public class ContentService {
 
         // Get the module to find the course for authorization
         Optional<ModuleEntityImpl> module = moduleRepository.findById(content.getModuleId());
-        
+
         // Check authorization - only teachers can update content
         if (module.isPresent()) {
             authorizationService.requireTeacherAccess(module.get().getCourseId());
@@ -375,7 +376,7 @@ public class ContentService {
                     content.getTitle(),
                     content.getBody(),
                     content.isComplete(),
-                    content.getModuleId());
+                    content.getModuleId(), ((ImageContentImpl) content).getURL());
         };
     }
 }

@@ -38,7 +38,7 @@ public class ContentMapper {
         ImageContentImpl text = new ImageContentImpl(
                 content.getTitle(),
                 content.getBody(),
-                content.getModuleId());
+                content.getModuleId(), ((ImageContentImpl) content).getURL());
         text.setId(content.getId());
         return text;
     }

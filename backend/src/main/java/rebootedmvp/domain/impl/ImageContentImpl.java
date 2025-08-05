@@ -5,21 +5,25 @@ import jakarta.persistence.Entity;
 @Entity
 public class ImageContentImpl extends ContentEntityImpl {
 
-    public ImageContentImpl(String title, String body) {
+    private String URL;
+
+    public ImageContentImpl(String title, String body, String URL) {
         // this.id = id;
         this.title = title;
         this.body = body;
         this.isComplete = false;
         this.contentType = ContentType.Image;
+        this.URL = URL;
     }
 
-    public ImageContentImpl(String title, String body, Long moduleId) {
+    public ImageContentImpl(String title, String body, Long moduleId, String URL) {
         // this.id = id;
         this.title = title;
         this.body = body;
         this.moduleId = moduleId;
         this.isComplete = false;
         this.contentType = ContentType.Image;
+        this.URL = URL;
 
     }
 
@@ -81,6 +85,14 @@ public class ImageContentImpl extends ContentEntityImpl {
     @Override
     public ContentType getType() {
         return ContentType.Image;
+    }
+
+    public String getURL() {
+        return URL;
+    }
+
+    public void setURL(String URL) {
+        this.URL = URL;
     }
 
 }

@@ -26,6 +26,7 @@ import rebootedmvp.dto.ImageContentDTO;
 import rebootedmvp.dto.MatchingQuestionContentDTO;
 import rebootedmvp.dto.MultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewContentDTO;
+import rebootedmvp.dto.NewImageContentDTO;
 import rebootedmvp.dto.NewMatchingQuestionContentDTO;
 import rebootedmvp.dto.NewMultipleChoiceQuestionContentDTO;
 import rebootedmvp.dto.NewVideoContentDTO;
@@ -156,7 +157,7 @@ public class ModuleService {
                 case Image -> content = new ImageContentImpl(
                         newContentDTO.getTitle().trim(),
                         newContentDTO.getBody(),
-                        module.getId());
+                        module.getId(), ((NewImageContentDTO) newContentDTO).getURL());
                 default -> throw new IllegalArgumentException("Unsupported content type: " + newContentDTO.getType());
             }
 
@@ -339,7 +340,7 @@ public class ModuleService {
                     content.getTitle(),
                     content.getBody(),
                     content.isComplete(),
-                    content.getModuleId());
+                    content.getModuleId(), ((ImageContentImpl) content).getURL());
 
         };
     }
