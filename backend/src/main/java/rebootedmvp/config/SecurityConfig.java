@@ -99,7 +99,7 @@ public class SecurityConfig {
             "http://localhost:3000", 
             "https://localhost:3000",
             "https://*.vercel.app",
-            "https://rebooted-deploy.vercel.app/"
+            "https://rebooted-deploy.vercel.app"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

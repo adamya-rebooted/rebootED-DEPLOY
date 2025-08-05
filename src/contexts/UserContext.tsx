@@ -127,7 +127,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const result = {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
-      role: (supabaseUser.user_metadata?.role as 'teacher' | 'student') || null,
+      role: null, // Set role to null when backend fails to force signup redirect
       user_metadata: {
         full_name: supabaseUser.user_metadata?.full_name,
         preferred_username: supabaseUser.user_metadata?.preferred_username,

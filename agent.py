@@ -139,3 +139,36 @@ class PromptToMultipleChoiceQuestionContentModule(dspy.Module):
     def forward(self, input_prompt: str):
         result = self.generator(input_prompt=input_prompt)
         return result.question
+
+
+class PromptToImage(dspy.Signature):
+    """Takes in a prompt and generates a title, body, and imgURL for image content."""
+    input_prompt = dspy.InputField(desc="A prompt describing the image content, purpose, and context")
+    image_title = dspy.OutputField(desc="A concise, engaging title for the image content.")
+    image_body = dspy.OutputField(desc="A compelling and informative description of the image and its purpose.")
+    imgURL = dspy.OutputField(desc="A URL to a relevant, high-quality image that matches the prompt description.")
+
+# Prompt to Image Content Agent Module
+class PromptToImageModule(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.generator = dspy.Predict(PromptToImage)
+
+    def forward(self, input_prompt: str):
+        return self.generator(input_prompt=input_prompt)
+
+# Prompt to Image Search Query Agent Signature
+class PromptToImageSearchQuery(dspy.Signature):
+    """Convert user prompt into an optimized search query for image search on Pexels."""
+    input_prompt = dspy.InputField(desc="A user prompt describing the desired image content, purpose, and context")
+    search_query = dspy.OutputField(desc="An optimized search query with concrete, visual keywords that will find relevant images on Pexels. For educational content, include terms like 'diagram', 'illustration', 'educational', or specific visual elements. Focus on tangible objects, actions, and visual concepts. For scientific/educational topics, try to include both the topic and visual elements like 'diagram', 'chart', or 'illustration'.")
+
+# Prompt to Image Search Query Agent Module
+class PromptToImageSearchQueryModule(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.generator = dspy.Predict(PromptToImageSearchQuery)
+
+    def forward(self, input_prompt: str):
+        return self.generator(input_prompt=input_prompt)
+    

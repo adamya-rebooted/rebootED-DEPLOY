@@ -4,10 +4,11 @@ from pydantic import BaseModel
 import os
 import logging
 import time
+import httpx
 from dotenv import load_dotenv
 
 # Import agents
-from agent import PromptToCourseModule, PromptToTextContentModule, PromptToModuleModule, PromptToMultipleChoiceQuestionContentModule, MultipleChoiceQuestion, KnowledgeSkillsListModule, ModuleGrouper, Module, ModuleGroupingResult
+from agent import PromptToCourseModule, PromptToTextContentModule, PromptToModuleModule, PromptToMultipleChoiceQuestionContentModule, MultipleChoiceQuestion, KnowledgeSkillsListModule, ModuleGrouper, Module, ModuleGroupingResult, PromptToImageModule, PromptToImageSearchQueryModule
 
 load_dotenv()
 
@@ -71,6 +72,15 @@ class ModuleResponse(BaseModel):
 class PromptToCourseModulesResponse(BaseModel):
     modules: list[ModuleResponse]
 
+# Image content request/response models
+class PromptToImageRequest(BaseModel):
+    input_prompt: str
+
+class PromptToImageResponse(BaseModel):
+    image_title: str
+    image_body: str
+    imgURL: str
+
 # Initialize the agents
 prompt_to_course_agent = PromptToCourseModule()
 prompt_to_text_content_agent = PromptToTextContentModule()
@@ -78,6 +88,53 @@ prompt_to_module_agent = PromptToModuleModule()
 prompt_to_multiple_choice_question_agent = PromptToMultipleChoiceQuestionContentModule()
 knowledge_skills_list_agent = KnowledgeSkillsListModule()
 module_grouper_agent = ModuleGrouper()
+prompt_to_image_agent = PromptToImageModule()
+prompt_to_image_search_query_agent = PromptToImageSearchQueryModule()
+
+async def search_pexels_images(search_query: str) -> str:
+    """
+    Search Pexels API for images based on search query.
+    Returns the URL of the first relevant image found.
+    """
+    pexels_api_key = os.getenv('PEXELS_API_KEY')
+    if not pexels_api_key:
+        raise HTTPException(status_code=500, detail="Pexels API key not configured")
+    
+    url = "https://api.pexels.com/v1/search"
+    headers = {
+        "Authorization": pexels_api_key
+    }
+    params = {
+        "query": search_query,
+        "per_page": 1,
+        "orientation": "landscape"
+    }
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            
+            data = response.json()
+            
+            if not data.get("photos") or len(data["photos"]) == 0:
+                # Try a more generic search if no results
+                logger.warning(f"No images found for query: {search_query}")
+                return None
+            
+            # Get the first image URL (prefer large size for better quality)
+            photo = data["photos"][0]
+            image_url = photo["src"].get("large") or photo["src"].get("medium") or photo["src"]["original"]
+            
+            logger.info(f"Found image for query '{search_query}': {image_url}")
+            return image_url
+            
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Pexels API error: {e.response.status_code} - {e.response.text}")
+        raise HTTPException(status_code=500, detail=f"Pexels API error: {e.response.status_code}")
+    except Exception as e:
+        logger.error(f"Error searching Pexels: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error searching Pexels: {str(e)}")
 
 # Add middleware for request logging
 @app.middleware("http")
@@ -193,6 +250,46 @@ async def prompt_to_multiple_choice_question(request: PromptToMultipleChoiceQues
     except Exception as e:
         logger.error(f"❌ Prompt-to-multiple-choice-question failed: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Prompt-to-multiple-choice-question failed: {str(e)}")
+
+@app.post("/prompt-to-image", response_model=PromptToImageResponse)
+async def prompt_to_image(request: PromptToImageRequest):
+    """
+    Generate an image content title, body, and imgURL from a user's prompt using Pexels API.
+    """
+    try:
+        logger.info(f"🎯 Prompt-to-image request received for prompt: {request.input_prompt[:50]}...")
+        
+        # Step 1: Generate search query from user prompt
+        logger.info("🔍 Step 1: Generating search query...")
+        search_query_result = prompt_to_image_search_query_agent(input_prompt=request.input_prompt)
+        search_query = search_query_result.search_query
+        logger.info(f"✅ Generated search query: {search_query}")
+        
+        # Step 2: Search Pexels API for image
+        logger.info("🖼️ Step 2: Searching Pexels API...")
+        image_url = await search_pexels_images(search_query)
+        
+        if not image_url:
+            logger.warning("⚠️ No image found, using fallback")
+            image_url = "https://images.pexels.com/photos/1181467/pexels-photo-1181467.jpeg"  # Generic fallback
+        
+        # Step 3: Generate title and body using original agent
+        logger.info("📝 Step 3: Generating title and body...")
+        result = prompt_to_image_agent(input_prompt=request.input_prompt)
+        
+        # Transform result to response model with real image URL
+        response = PromptToImageResponse(
+            image_title=result.image_title,
+            image_body=result.image_body,
+            imgURL=image_url
+        )
+        
+        logger.info(f"✅ Prompt-to-image completed successfully: {response.image_title}")
+        return response
+        
+    except Exception as e:
+        logger.error(f"❌ Prompt-to-image failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Prompt-to-image failed: {str(e)}")
 
 @app.post("/prompt-to-course-modules", response_model=PromptToCourseModulesResponse)
 async def prompt_to_course_modules(request: PromptToCourseModulesRequest):
