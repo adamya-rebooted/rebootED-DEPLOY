@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 @Table(name = "Image_Info")
 public class ImageContentImpl extends ContentEntityImpl {
 
-    @Column(name = "video_url", nullable = false)
+    @Column(name = "image_url", nullable = false)
     private String URL;
 
     public ImageContentImpl(String title, String body, String URL) {
