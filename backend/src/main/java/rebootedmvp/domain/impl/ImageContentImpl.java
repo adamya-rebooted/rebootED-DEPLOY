@@ -1,10 +1,14 @@
 package rebootedmvp.domain.impl;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "Image_Info")
 public class ImageContentImpl extends ContentEntityImpl {
 
+    @Column(name = "video_url", nullable = false)
     private String URL;
 
     public ImageContentImpl(String title, String body, String URL) {
