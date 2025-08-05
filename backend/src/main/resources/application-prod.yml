@@ -29,7 +29,7 @@ spring:
 
 # Supabase Configuration
 supabase:
-  project-url: ${SUPABASE_URL}
+  project-url: ${SUPABASE_PROJECT_URL}
   jwt-secret: ${SUPABASE_JWT_SECRET}
   anon-key: ${SUPABASE_ANON_KEY}
   service-role-key: ${SUPABASE_SERVICE_ROLE_KEY}
